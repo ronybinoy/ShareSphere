@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{%block title%}Home{% endblock %}
+{%block content %}
+<div class="row">
+    <div class="col-sm-12 mb-3">
+
+
+        {%if user.is_authenticated%}
+        <h1>hello {{Tbl_user.fname}}</h1>
+        <h3>u are logged in</h3>
+        <button type="submit"><a href="{% url 'logout' %}">Logout</a></button>
+
+        {%else%}
+        <button type="submit"><a href="/log_in">Sign in</a></button>
+        <button type="submit"><a href="/signup">Sign up</a></button>
+        {%endif%}
+    </div>
+</div>
+{%endblock%}
