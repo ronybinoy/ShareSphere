@@ -33,6 +33,7 @@
             { id: "#fn", validate: validatefName },
             { id: "#ln", validate: validatesName },
             { id: "#mail", validate: validateEmail },
+            { id: "#uid", validate: validateUid },
             { id: "#pass", validate: validatePassword },
             { id: "#cpass", validate: validateConfirmPassword }
         ];
@@ -48,14 +49,10 @@
             const isValid = fields.every(field => {
                 const $field = $(field.id);
                 const $errorSpan = $(`${field.id}span`);
-                console.log("Field Value:", $field.val().trim());
-                console.log("Error Span Content:", $errorSpan.html());
-                console.log("Error Span id:", `${field.id}span`);
 
                 return $field.val().trim() !== "" && $errorSpan.html() === "";
             });
         
-            console.log("isValid:", isValid);
             $("#submitBtn").prop("disabled", !isValid);
         }
         
@@ -127,6 +124,20 @@
                 $("#mailspan").html("");
             }
         }
+
+
+        function validateUid() {
+            const uid = $("#uid").val();
+            const filter = /^\d{12}$/;
+            if (uid === "") {
+                $("#uidspan").html("Enter the Adhaar Number").css("color", "#41586B");
+            } else if (!filter.test(uid)) {
+                $("#uidspan").html("Use correct Adhaar number").css("color", "#41586B");
+            } else {
+                $("#uidspan").html("");
+            }
+        }
+    
     
         function validatePassword() {
             const password = $("#pass").val();
@@ -274,6 +285,17 @@
                                             style="font-size: 12px;"></span>
                                     </div>
 
+
+                                    <div class="form-outline mb-4">
+                                        <input type="text"
+                                            id="uid"
+                                            name="uid"
+                                            class="form-control border" />
+                                        <label class="form-label"
+                                            for="form3Example3">UID Number</label>
+                                        <span id="uidspan"
+                                            style="font-size: 12px;"></span>    
+                                    </div>
                                     <!-- Password input -->
                                     <div class="form-outline mb-4">
                                         <input type="password"

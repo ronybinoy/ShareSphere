@@ -13,7 +13,7 @@ def login(request):
             auth_login(request, user)
             request.session['user_id'] = user.id
             request.session['username'] = user.username
-            return redirect('home')  # Replace with your desired URL
+            return redirect('home')  
         else:
             messages.error(request, "Invalid credentials")
             return redirect('login')
@@ -27,6 +27,7 @@ def signup(request):
         email = request.POST.get("email")
         fname = request.POST.get("fname")
         lname = request.POST.get("lname")
+        uid = request.POST.get("uid")
         password = request.POST.get("pass")
         Cpassword = request.POST.get("cpass")
 
@@ -43,6 +44,7 @@ def signup(request):
                 last_name=lname,
                 email=email,
                 password=password,
+                uid=uid
             )
             user.save()
             messages.success(request, "Registration successful! Please log in.")
