@@ -95,7 +95,7 @@
             if (name.trim() === "") {
                 $("#fnspan").html("Enter the First Name").css("color", "#41586B");
             } else if (!lettersWithSpaces.test(name)) {
-                $("#fnspan").html("Name field required only alphabet characters with spaces").css("color", "#41586B");
+                $("#fnspan").html("First Name field required only alphabet characters with spaces").css("color", "#41586B");
             } else {
                 $("#fnspan").html("");
             }
@@ -105,9 +105,9 @@
             const name = $("#ln").val();
             const lettersWithSpaces = /^[A-Za-z\s]+$/;
             if (name.trim() === "") {
-                $("#lnspan").html("Enter the Name").css("color", "#41586B");
+                $("#lnspan").html("Enter the Last Name").css("color", "#41586B");
             } else if (!lettersWithSpaces.test(name)) {
-                $("#lnspan").html("Name field required only alphabet characters with spaces").css("color", "#41586B");
+                $("#lnspan").html("Last Name field required only alphabet characters with spaces").css("color", "#41586B");
             } else {
                 $("#lnspan").html("");
             }
@@ -126,17 +126,17 @@
         }
 
 
-        function validateUid() {
-            const uid = $("#uid").val();
-            const filter = /^\d{12}$/;
-            if (uid === "") {
-                $("#uidspan").html("Enter the Adhaar Number").css("color", "#41586B");
-            } else if (!filter.test(uid)) {
-                $("#uidspan").html("Use correct Adhaar number").css("color", "#41586B");
-            } else {
-                $("#uidspan").html("");
-            }
-        }
+        //function validateUid() {
+          //  const uid = $("#uid").val();
+            //const filter = /^\d{12}$/;
+           // if (uid === "") {
+                //$("#uidspan").html("Enter the Adhaar Number").css("color", "#41586B");
+            //} else if (!filter.test(uid)) {
+               // $("#uidspan").html("Use correct Adhaar number").css("color", "#41586B");
+            //} else {
+                //$("#uidspan").html("");
+           // }
+       // }
     
     
         function validatePassword() {
@@ -239,38 +239,6 @@
                                             style="font-size: 12px;"></span>
                                     </div>
 
-                                    <!-- <div class="row">
-                                        <div class="col-md-6 mb-4">
-                                            <div class="form-outline">
-                                                <input type="text"
-                                                    id="fn"
-                                                    name="fname"
-                                                    class="form-control border" />
-                                                <label class="form-label"
-                                                    id="fnspan"
-                                                    for>First
-                                                    name</label>
-                                            </div>
-                                            <span id="fnspan"
-                                                style="font-size: 12px;"></span>
-                                        </div>
-
-                                        <div class="col-md-6 mb-4">
-                                            <div class="form-outline">
-                                                <input type="text"
-                                                    id="ln"
-                                                    name="lname"
-                                                    class="form-control border" />
-                                                <label class="form-label"
-                                                    for="label">Last
-                                                    name</label>
-
-                                            </div>
-                                            <span id="lnspan"
-                                                style="font-size: 12px;"></span>
-                                        </div>
-                                    </div> -->
-
                                     <!-- Email input -->
 
                                     <div class="form-outline mb-4">
@@ -286,7 +254,7 @@
                                     </div>
 
 
-                                    <div class="form-outline mb-4">
+                                    <!-- <div class="form-outline mb-4">
                                         <input type="text"
                                             id="uid"
                                             name="uid"
@@ -295,7 +263,7 @@
                                             for="form3Example3">UID Number</label>
                                         <span id="uidspan"
                                             style="font-size: 12px;"></span>    
-                                    </div>
+                                    </div> -->
                                     <!-- Password input -->
                                     <div class="form-outline mb-4">
                                         <input type="password"
@@ -335,7 +303,7 @@
                                         class="btn btn-primary btn-block mb-4">
                                         Sign up
                                     </button>
-
+                                
                                     <!-- Register buttons -->
                                     <div class="text-center">
                                         <p>or sign up with:</p>

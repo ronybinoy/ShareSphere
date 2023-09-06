@@ -15,7 +15,7 @@ def login(request):
             request.session['username'] = user.username
             return redirect('home')  
         else:
-            messages.error(request, "Invalid credentials")
+            messages.error(request, "Invalid credentials! please try again")
             return redirect('login')
     else:
         return render(request, 'login.html')
