@@ -1,0 +1,31 @@
+{% extends 'chatroom/base.html' %}
+{% block title %} Chatroom | {% endblock %}
+
+{% block content %}
+<div class="p-10 lg:p-20 text-center">
+    <h1 class="mt-5 text-3xl lg:text-6xl text-white font-bold">ChatRoom</h1>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <p class="text-light text-lg p-4"
+                    style="text-align: justify; font-family: Arial, sans-serif; line-height: 1.6;">
+                    Welcome to our ShareSphere Chatroom, a welcoming and
+                    supportive space dedicated to discussing all things related
+                    to migration! Whether you're planning to move to a new
+                    country, seeking advice on visa applications, or simply want
+                    to share your migration experiences, this chatroom is the
+                    perfect place for you. Connect with a diverse community of
+                    individuals who have gone through similar journeys and can
+                    provide valuable insights and guidance. Our chatroom is a
+                    judgment-free zone where you can ask questions, offer
+                    advice, and find camaraderie in the often challenging
+                    process of migration. Join us today and let's navigate the
+                    world of migration together!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <a class="btn btn-primary mt-8 p-3" href="{% url 'rooms' %}">Get Started</a>
+</div>
+{% endblock %}

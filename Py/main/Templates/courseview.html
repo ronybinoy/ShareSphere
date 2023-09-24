@@ -1,0 +1,888 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Listing</title>
+    <!-- Add Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static '/home.css' %}">
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    <script src="{% static 'courseview.js' %}"></script>
+    <!-- Link to your styles.css file -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
+
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-edu-meeting.css' %}">
+
+    <link rel="stylesheet" href="{% static 'courseview.css' %}">
+    <style>
+        /* Custom CSS to increase modal width */
+        .custom-modal {
+            max-width: 800px;
+            /* Adjust the width as needed */
+        }
+
+        h4 {
+            color: rgb(0, 55, 133);
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-lg p-2 sticky-navbar" style="background-color: rgb(245, 245, 245);">
+            <div class="container-fluid">
+                <h4 class="text-success">ShareSphere Education</h4>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse d-flex " id="navbarSupportedContent">
+                    <ul class="navbar-nav  mb-2 mb-lg-0 d-flex justify-content-lg-center w-100">
+                        <li class="nav-item">
+                            <a class="nav-link " aria-current="page" href="{% url 'education'  %}">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link active nav-link dropdown-toggle" href="#" id="coursesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Course</a>
+                            <ul class="dropdown-menu" aria-labelledby="coursesDropdown">
+                                <li><a class="dropdown-item" href="{% url 'course_view_diploma' %}">Diploma Courses</a></li>
+                                <li><a class="dropdown-item" href="{% url 'course_view_bachelor' %}">Undergraduate Courses</a></li>
+                                <li><a class="dropdown-item" href="{% url 'course_view_master' %}">Graduate Courses</a></li>
+                                <!-- Add more subcategories as needed -->
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " href="{% url 'display_applications' %}">Course Applications</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link " href="#">Scholarships</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link " href="#">Contact Us</a>
+                        </li>
+                    </ul>
+
+                    {% if request.session.username %}
+                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-30 d-flex justify-content-lg-end ">
+                        <li><i class="bi bi-person"></i>
+                        </li>
+                        <li class="nav-item dropdown ">
+                            <a class="nav-link text-success" style="font-size: 30px; font-weight: bold;" href="#"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ request.session.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    {% elif user.is_authenticated%}
+
+                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
+                        <li><i class="far fa-circle-user"></i>
+                        </li>
+                        <li class="nav-item dropdown ">
+                            <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <p>{{ user.first_name }}</p>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="openProfileModal()">
+                                        Profile
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    {% else %}
+                    <ul class="navbar-nav mb-2 mb-lg-0 w-50 d-flex justify-content-lg-end">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-outline-success">Sign
+                                    Up</button>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
+                                        Migrant</a></li>
+                                <li><a class="dropdown-item" href="{% url 'inst_signup' %}">Register
+                                        as Institute</a></li>
+                                <li><a class="dropdown-item" href="#">Register
+                                        as Landlord</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{%url 'login' %}" role="button" aria-expanded="false">
+                                <button class="btn btn-outline-success">Log
+                                    In</button>
+                            </a>
+                        </li>
+                    </ul>
+                    {% endif %}
+
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="upcoming-meetings" id="meetings">
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-md-3 mt-5">
+                    <div class="card search-card">
+                        <div class="card-body">
+                            <h3 class="card-title">Search Courses</h3>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="searchKeyword" placeholder="Enter keywords">
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Course Listing -->
+                <div class="col-md-9">
+                    <h2 class="text-white text-center">Course List</h2>
+                    <hr class="grey-line">
+                    <div class="row">
+                        <!-- Modify the col-md-4 to col-md-6 to display three courses in a row -->
+                        {% for course in courses %}
+                        {% if course.is_active and course.appdeadline >= today %}
+                        <div class="col-lg-4 col-md-6 col-sm-12 mt-4">
+                            <div class="ms-2 card course-card rounded-xl" id="resultdiv">
+                                <img src="{{ course.thumbnail_image.url }}" alt="{{ course.course_name }}"
+                                    class="card-img-top fixed-image">
+
+                                <div class="card-body">
+                                    <h5 class="card-title text-center">{{ course.course_name }}</h5>
+                                    <p class="card-title text-center">{{course.user.first_name}}</p>
+                                    <hr>
+                                    <p class="card-text"><strong>Course Mode:</strong> {{ course.course_mode }}</p>
+                                    <p class="card-text"><strong>Course Type:</strong> {{ course.course_type }}</p>
+                                    <p class="card-text"><strong>Application Deadline:</strong> {{ course.appdeadline }}
+                                    </p>
+                                    <p class="card-text"><strong>College Location:</strong> {{course.user.region}}
+                                    </p>
+
+                                    <!-- Add more fields here as needed -->
+
+                                    <div class="text-center mt-4">
+                                        {% if course|course_already_applied:request.user %}
+                                        <button class="btn btn-secondary" disabled>Already Applied</button>
+                                        {% else %}
+                                        <button type="button" class="btn btn-primary" data-toggle="modal"
+                                            data-target="#applicationModal"
+                                            onclick="openWithdata('{{ course.course_name }}', '{{ course.user.id }}')">
+                                            Apply now
+                                        </button>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <!-- Add your content here -->
+    </section>
+
+
+
+
+
+    <div class="modal fade" id="applicationModal" tabindex="-1" role="dialog" data-bs-backdrop="static"
+        data-bs-keyboard="false" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog custom-modal modal-dialog-scrollable-centered" role="document">
+            <form method="post" id="applicationForm" action="{% url 'application_form' %}"
+                onsubmit="return checkFormValidity()" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-content p-2">
+                    <div class="modal-header">
+                        <h2 class="modal-title text-center" id="exampleModalLabel">Course Application Form</h2>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Personal Details -->
+                        <!-- Course Information -->
+                        <h4>Course Information</h4>
+                        <div class="form-group">
+                            <label for="courseName">Course Name</label>
+                            <input type="text" class="form-control" id="courseName" name="course_name" value=""
+                                readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="Institutename">Institute Name</label>
+                            <input type="text" class="form-control" id="Institutename" name="Institute_name" value=""
+                                readonly>
+                        </div>
+                        <!-- Personal Details -->
+                        <h4>Personal Details</h4>
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <label for="fullName">Official Full Name *</label>
+                                <input type="text" class="form-control" id="fullName" name="fullName">
+                                <span id="fullNamespan" class="validation-message" style="font-size: 12px;"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user.email}}"
+                                readonly>
+                            <span id="emailspan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender *</label>
+                            <select class="form-control" name="gender">
+                                <option value="">Select your gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="prefer_not_to_say">Prefer Not to Say</option>
+                            </select>
+                            <span id="genderspan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateOfBirth">Date of Birth *</label>
+                            <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth">
+                            <span id="dateOfBirthspan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="citizenship">Citizenship *</label>
+                            <input type="text" class="form-control" id="citizenship" name="citizenship"
+                                value="{{ user.nationality }}" readonly>
+                            <span id="citizenshipspan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <!-- Mailing Address -->
+                        <h4>Mailing Address</h4>
+                        <div class="form-group">
+                            <label for="country">Country *</label>
+                            <select class="form-control" id="country" name="country">
+                                <!-- Add an initial option -->
+                                <option value="">Select a Country</option>
+                            </select>
+                            <span id="countryspan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="province">Province/State/Territory *</label>
+                            <select class="form-control" id="province" name="province">
+                                <!-- Add an initial option -->
+                                <option value="">Select a Province/State/Territory</option>
+                            </select>
+                            <span id="provincespan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="streetAddress1">Street Address 1 *</label>
+                            <input type="text" class="form-control" id="streetAddress1" name="streetAddress1">
+                            <span id="streetAddress1span" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="streetAddress2">Street Address 2</label>
+                            <input type="text" class="form-control" id="streetAddress2" name="streetAddress2">
+                            <span id="streetAddress2span" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="postalCode">Postal/Zip Code *</label>
+                                <input type="text" class="form-control" id="postalCode" name="postalCode">
+                                <span id="postalCodespan" class="validation-message" style="font-size: 12px;"></span>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="contactNumber">Contact Number with Country Code *</label>
+                                <input type="text" class="form-control" id="contactNumber" name="contactNumber">
+                                <span id="contactNumberspan" class="validation-message" style="font-size: 12px;"></span>
+                            </div>
+                        </div>
+                        <!-- Educational -->
+                        <h4>Educational</h4>
+                        <h5 class="mt-2">Educational Qualification</h5>
+                        <p class="mt-1 mb-2">(Add your latest educational qualification)</p>
+                        <!-- Qualification 1 -->
+                        <div class="form-group">
+                            <label for="qualification1">Qualification Name *</label>
+                            <input type="text" class="form-control" id="qualification1" name="qualification1">
+                            <span id="qualification1span" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="institute1">Institute Name *</label>
+                            <input type="text" class="form-control" id="institute1" name="institute1">
+                            <span id="institute1span" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="percentage1">Overall Percentage of the Course *</label>
+                            <input type="text" class="form-control" id="percentage1" name="percentage1">
+                            <span id="percentage1span" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="passingYear1">Year of passout *</label>
+                            <select class="form-control" id="passingYear1" name="passingYear1">
+                            </select>
+                            <span id="passingYear1span" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <!-- English Proficiency -->
+                        <h4 class="mb-2">English Proficiency</h4>
+                        <div class="form-group">
+                            <label for="englishProficiencyTest">English Proficiency Test *</label>
+                            <select class="form-control" id="englishProficiencyTest" name="englishProficiencyTest">
+                                <option value="">Select your Test name</option>
+                                <option value="ielts">IELTS</option>
+                                <option value="toefl">TOEFL</option>
+                                <!-- Add more proficiency tests as needed -->
+                            </select>
+                            <span id="englishProficiencyTestspan" class="validation-message"
+                                style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="englishScore">Test Score *</label>
+                            <input type="text" class="form-control" id="englishScore" name="englishScore">
+                            <span id="englishScorespan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="englishValidity">Validity *</label>
+                            <select class="form-control" id="englishValidity" name="englishValidity">
+                                <!-- JavaScript will populate options here -->
+                            </select>
+                            <span id="englishValidityspan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="proficiencyResult">Proficiency Result (PDF) *</label>
+                            <input type="file" class="form-control-file" id="proficiencyResult" name="proficiencyResult"
+                                accept=".pdf">
+                            <span id="proficiencyResultspan" class="validation-message" style="font-size: 12px;"></span>
+                        </div>
+
+                        <!-- Declaration -->
+                        <h4>Declaration</h4>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="policyDeclaration">
+                                <label class="form-check-label" for="policyDeclaration">
+                                    I agree to the policy declaration. *
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-secondary" data-bs-dismiss="modal" value="Close">
+                        <input type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+
+
+
+
+
+
+
+        // JavaScript to make the navbar sticky when scrolling
+        window.addEventListener("scroll", function () {
+            const navbar = document.querySelector(".navbar");
+
+            if (window.scrollY > 0) {
+                navbar.classList.add("sticky-navbar");
+            } else {
+                navbar.classList.remove("sticky-navbar");
+            }
+        });
+        $(document).ready(function () {
+
+            const fields = [
+                { id: "#fullName", validate: validatefullName },
+                { id: "#dateOfBirth", validate: validatedateOfBirth },
+                { id: "#streetAddress1", validate: validatestreetAddress1 },
+                { id: "#streetAddress2", validate: validatestreetAddress2 },
+                { id: "#gender", validate: validateGender },
+                { id: "#country", validate: validateCountry },
+                { id: "#province", validate: validateProvince },
+                { id: "#postalCode", validate: validatepostalCode },
+                { id: "#contactNumber", validate: validatecontactNumber },
+                { id: "#qualification1", validate: validatequalification1 },
+                { id: "#institute1", validate: validateinstitute1 },
+                { id: "#passingYear1", validate: validatepassingYear1 },
+                { id: "#englishProficiencyTest", validate: validateEnglishProficiencyTest },
+                { id: "#englishValidity", validate: validateEnglishValidity },
+                { id: "#englishScore", validate: validateenglishScore },
+                { id: "#proficiencyResult", validate: validateProficiencyResult },
+                { id: "#policyDeclaration", validate: validatePolicyDeclaration },
+                { id: "#percentage1", validate: validatepercentage1 },
+
+            ];
+
+
+
+            fields.forEach(field => {
+                $(field.id).keyup(function () {
+                    field.validate();
+                });
+
+                validateFieldOnBlur(field.id, field.validate);
+            });
+
+            function checkFormValidity() {
+                const errorMessages = [];
+
+                fields.forEach(field => {
+                    const $field = $(field.id);
+                    const $errorSpan = $(`${field.id}span`);
+                    const fieldValue = $field.val();
+
+                    if (typeof fieldValue !== 'undefined') {
+                        const trimmedValue = fieldValue.trim();
+                        // ... rest of your validation logic
+                        // console.log(`Field: ${field.id}, Value: ${fieldValue}`);
+
+                        if (fieldValue === "") {
+                            errorMessages.push({ id: field.id, message: "" });
+                        } else {
+                            clearError($errorSpan);
+                        }
+                    }
+                });
+
+                // Process error messages and set the submit button state
+                if (errorMessages.length === 0) {
+                    // All fields are valid
+                    $("#submitBtn").prop("disabled", false);
+                } else {
+                    // There are invalid fields, display error messages and disable the submit button
+                    errorMessages.forEach(error => {
+                        showError(`${error.id}span`, error.message);
+                    });
+                    $("#submitBtn").prop("disabled", true);
+                }
+
+                console.log(`Form is valid: ${errorMessages.length === 0}`);
+            }
+
+            function validateFieldOnBlur(fieldId, validationFunction) {
+                $(fieldId).blur(function () {
+                    validationFunction();
+                    checkFormValidity();
+                });
+            }
+
+            // Form submission
+            $("#applicationForm").submit(function (event) {
+                if (!$("#submitBtn").prop("disabled")) {
+                    // Form is valid, allow submission
+                    return true;
+                } else {
+                    // Form is not valid, prevent submission
+                    event.preventDefault();
+                    return false;
+                }
+            });
+
+            // Initial check for form validity
+            //checkFormValidity();
+
+            // Validation Functions
+            function validatefullName() {
+                const name = $("#fullName").val();
+                if (name.trim() === "") {
+                    showError("#fullNamespan", "Enter the Full name");
+                } else if (!/^[A-Za-z\s]{3,}$/.test(name)) {
+                    showError("#fullNamespan", "Name must be at least 3 characters and contain only letters and spaces");
+                } else {
+                    clearError("#fullNamespan");
+                }
+            }
+
+            function validatedateOfBirth() {
+                const dob = $("#dateOfBirth").val();
+                if (dob.trim() === "") {
+                    showError("#dateOfBirthspan", "Enter the date of birth");
+                } else {
+                    const currentDate = new Date();
+                    const selectedDate = new Date(dob);
+                    const age = currentDate.getFullYear() - selectedDate.getFullYear();
+                    if (age < 13) {
+                        showError("#dateOfBirthspan", "You must be at least 13 years old");
+                    } else {
+                        clearError("#dateOfBirthspan");
+                    }
+                }
+            }
+
+            function validatestreetAddress1() {
+                const address = $("#streetAddress1").val();
+                if (address.trim().length < 5) {
+                    showError("#streetAddress1span", "Street Address 1 must be at least 5 characters");
+                } else {
+                    clearError("#streetAddress1span");
+                }
+            }
+
+            function validatestreetAddress2() {
+                // Validation for streetAddress2 (optional field)
+                clearError("#streetAddress2span");
+            }
+
+
+
+            function validateGender() {
+                const gender = $("#gender").val();
+                if (gender === "") {
+                    showError("#genderspan", "Select your gender");
+                } else {
+                    clearError("#genderspan");
+                }
+            }
+
+            function validateCountry() {
+                const country = $("#country").val();
+                if (country === "") {
+                    showError("#countryspan", "Select a country");
+                } else {
+                    clearError("#countryspan");
+                }
+            }
+
+            function validateProvince() {
+                const province = $("#province").val();
+                if (province === "") {
+                    showError("#provincespan", "Select a province/state/territory");
+                } else {
+                    clearError("#provincespan");
+                }
+            }
+
+            function validatepostalCode() {
+                const postalCode = $("#postalCode").val();
+                if (postalCode.trim() === "") {
+                    showError("#postalCodespan", "Enter the Postal/Zip Code");
+                } else if (!/^[A-Za-z0-9]{3,8}$/.test(postalCode)) {
+                    showError("#postalCodespan", "Use 3-8 characters, both numbers and alphabets");
+                } else {
+                    clearError("#postalCodespan");
+                }
+            }
+
+            function validatecontactNumber() {
+                const contactNumber = $("#contactNumber").val();
+                if (contactNumber.trim() === "") {
+                    showError("#contactNumberspan", "Enter the Contact Number with Country Code");
+                } else if (!/^\d{6,12}$/.test(contactNumber)) {
+                    showError("#contactNumberspan", "Use a valid contact number format (6-12 digits)");
+                } else {
+                    clearError("#contactNumberspan");
+                }
+            }
+
+            function validatequalification1() {
+                const qualification = $("#qualification1").val();
+                if (qualification.trim() === "") {
+                    showError("#qualification1span", "Enter the Qualification Name");
+                } else if (!/^[A-Za-z\s]{3,}$/.test(qualification)) {
+                    showError("#qualification1span", "Qualification Name must be at least 3 characters and contain only letters and spaces");
+                } else {
+                    clearError("#qualification1span");
+                }
+            }
+
+            function validateinstitute1() {
+                const institute = $("#institute1").val();
+                if (institute.trim() === "") {
+                    showError("#institute1span", "Enter the Institute Name");
+                } else {
+                    clearError("#institute1span");
+                }
+            }
+
+            function validatepassingYear1() {
+                const passingYear = $("#passingYear1").val();
+                if (passingYear === "") {
+                    showError("#passingYear1span", "Select the Year of Passout");
+                } else {
+                    clearError("#passingYear1span");
+                }
+            }
+
+            function validateenglishScore() {
+                const englishProficiencyTest = $("#englishProficiencyTest").val();
+                const englishScore = $("#englishScore").val();
+
+                if (englishProficiencyTest === "ielts") {
+                    if (englishScore === "") {
+                        showError("#englishScorespan", "Enter the IELTS Score");
+                    } else if (!/^[0-9](\.[0-9])?$/.test(englishScore) || englishScore < 1 || englishScore > 9) {
+                        showError("#englishScorespan", "IELTS Score must be between 1.0 and 9.9 with one decimal place");
+                    } else {
+                        clearError("#englishScorespan");
+                    }
+                } else if (englishProficiencyTest === "toefl") {
+                    // TOEFL validation remains the same
+                    if (englishScore === "") {
+                        showError("#englishScorespan", "Enter the TOEFL Score");
+                    } else if (!/^\d{1,3}$/.test(englishScore) || englishScore < 1 || englishScore > 120) {
+                        showError("#englishScorespan", "TOEFL Score must be between 1-120");
+                    } else {
+                        clearError("#englishScorespan");
+                    }
+                } else {
+                    clearError("#englishScorespan");
+                }
+            }
+
+            function validateEnglishProficiencyTest() {
+                const englishProficiencyTest = $("#englishProficiencyTest").val();
+                if (englishProficiencyTest === "") {
+                    showError("#englishProficiencyTestspan", "Select an English Proficiency Test");
+                } else {
+                    clearError("#englishProficiencyTestspan");
+                }
+            }
+
+            function validateEnglishValidity() {
+                const englishValidity = $("#englishValidity").val();
+                if (englishValidity === "") {
+                    showError("#englishValidityspan", "Select the Validity");
+                } else {
+                    clearError("#englishValidityspan");
+                }
+            }
+            function validatepercentage1() {
+                const percentage = $("#percentage1").val();
+                if (percentage.trim() === "") {
+                    showError("#percentage1span", "Enter the Overall Percentage of the Course");
+                } else if (!/^(100(\.0{1,2})?|[1-9]?\d(\.\d{1,2})?)$/.test(percentage) || parseFloat(percentage) < 1 || parseFloat(percentage) > 100) {
+                    showError("#percentage1span", "Percentage must be a number between 1 and 100 with up to two decimal places");
+                } else {
+                    clearError("#percentage1span");
+                }
+            }
+
+            function validateProficiencyResult() {
+                const proficiencyResult = $("#proficiencyResult").val();
+                if (proficiencyResult.trim() === "") {
+                    showError("#proficiencyResultspan", "Upload a Proficiency Result (PDF)");
+                } else {
+                    clearError("#proficiencyResultspan");
+                }
+            }
+
+            function validatePolicyDeclaration() {
+                const policyDeclaration = $("#policyDeclaration").prop("checked");
+                if (!policyDeclaration) {
+                    showError("#policyDeclarationspan", "You must agree to the policy declaration");
+                } else {
+                    clearError("#policyDeclarationspan");
+                }
+            }
+
+            function showError(spanId, message) {
+                $(spanId).html(message).css("color", "#FF0000");
+            }
+
+            function clearError(spanId) {
+                $(spanId).html("");
+            }
+
+
+
+        });
+
+
+        function openWithdata(cname, cid) {
+            $.ajax({
+                url: '{% url "get_institute_name" %}',
+                data: { user_id: cid },
+                dataType: 'json',
+                success: function (data) {
+                    if ('institute_name' in data) {
+                        var instituteName = data.institute_name;
+                        $('#courseName').val(cname); // Use cname instead of courseName
+                        $('#Institutename').val(instituteName);
+                    } else {
+                        console.log('Institute name not found.');
+                    }
+                },
+                error: function () {
+                    console.log('Failed to fetch institute name.');
+                }
+            });
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+        var countriesWithStates = {
+            'Canada': [
+                'Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia',
+                'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'
+            ],
+            'India': [
+                'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana',
+                'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+                'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana',
+                'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'
+            ],
+            'Ireland': [
+                'Carlow', 'Cavan', 'Clare', 'Cork', 'Donegal', 'Dublin', 'Galway', 'Kerry', 'Kildare', 'Kilkenny',
+                'Laois', 'Leitrim', 'Limerick', 'Longford', 'Louth', 'Mayo', 'Meath', 'Monaghan', 'Offaly', 'Roscommon',
+                'Sligo', 'Tipperary', 'Waterford', 'Westmeath', 'Wexford', 'Wicklow'
+            ]
+            // You can add more countries and their states/provinces/territories as needed
+        };
+
+        var countrySelect = document.getElementById('country');
+        var provinceSelect = document.getElementById('province');
+
+        // Define the populateCountries function
+        function populateCountries() {
+            // Clear the current options in the "Country" dropdown
+            countrySelect.innerHTML = '';
+
+            // Add an initial option for the "Country" dropdown
+            var initialOption = document.createElement('option');
+            initialOption.value = '';
+            initialOption.text = 'Select a Country';
+            countrySelect.appendChild(initialOption);
+
+            // Populate the "Country" dropdown with country names
+            for (var country in countriesWithStates) {
+                var option = document.createElement('option');
+                option.value = country;
+                option.text = country;
+                countrySelect.appendChild(option);
+            }
+        }
+
+        // Function to populate the "Province/State/Territory" dropdown based on the selected country
+        function populateProvinces() {
+            // Get the selected country
+            var selectedCountry = countrySelect.value;
+
+            // Clear the current options in the "Province/State/Territory" dropdown
+            provinceSelect.innerHTML = '';
+
+            // Add an initial option for the "Province/State/Territory" dropdown
+            var initialOption = document.createElement('option');
+            initialOption.value = '';
+            initialOption.text = 'Select a Province/State/Territory';
+            provinceSelect.appendChild(initialOption);
+
+            // Populate the "Province/State/Territory" dropdown based on the selected country
+            var provinces = countriesWithStates[selectedCountry];
+            if (provinces) {
+                for (var i = 0; i < provinces.length; i++) {
+                    var option = document.createElement('option');
+                    option.value = provinces[i];
+                    option.text = provinces[i];
+                    provinceSelect.appendChild(option);
+                }
+            }
+        }
+
+        // Add an event listener to the "Country" dropdown to update the "Province/State/Territory" dropdown
+        countrySelect.addEventListener('change', populateProvinces);
+
+        // Initially populate the "Country" dropdown when the page loads
+        populateCountries();
+
+
+
+
+
+
+        // Get the current year
+        var currentYear = new Date().getFullYear();
+
+        var englishValiditySelect = document.getElementById('englishValidity');
+
+        // Add an initial option
+        var initialOption = document.createElement('option');
+        initialOption.value = '';
+        initialOption.text = 'Select a Year';
+        englishValiditySelect.appendChild(initialOption);
+
+        // Generate options for the next two years
+        for (var i = 0; i < 3; i++) {
+            var year = currentYear + i;
+            var option = document.createElement('option');
+            option.value = year;
+            option.text = year;
+            englishValiditySelect.appendChild(option);
+        }
+
+
+        // Get the current year
+        var currentYear = new Date().getFullYear();
+
+        // Function to populate the "year of passout" dropdown with values from current year to 30 years behind
+        function populatePassingYearDropdown(selectId) {
+            var passingYearSelect = document.getElementById(selectId);
+
+            // Clear the current options in the dropdown
+            passingYearSelect.innerHTML = '';
+
+            // Add an initial option
+            var initialOption = document.createElement('option');
+            initialOption.value = '';
+            initialOption.text = 'Select a Year';
+            passingYearSelect.appendChild(initialOption);
+
+            // Generate options for the next 30 years (from current year to 30 years behind)
+            for (var i = 0; i <= 30; i++) {
+                var year = currentYear - i;
+                var option = document.createElement('option');
+                option.value = year;
+                option.text = year;
+                passingYearSelect.appendChild(option);
+            }
+        }
+
+        // Populate the "year of passout" dropdowns for all educational qualifications
+        populatePassingYearDropdown('passingYear1');
+        // Add more calls for additional educational qualifications if needed
+
+    </script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

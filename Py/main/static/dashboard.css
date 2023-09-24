@@ -1,0 +1,217 @@
+/* USER LIST TABLE */
+.user-list tbody td>img {
+    position: relative;
+    max-width: 50px;
+    float: left;
+    margin-right: 15px;
+}
+
+.user-list tbody td .user-link {
+    display: block;
+    font-size: 1.25em;
+    padding-top: 3px;
+    margin-bottom: 10px;
+}
+
+.user-list tbody td .user-subhead {
+    font-size: 0.875em;
+}
+
+/* TABLES */
+.table {
+    border-collapse: separate;
+    width: 100%;
+    /* Increase table width to 100% */
+}
+
+.table-responsive {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.table-hover>tbody>tr:hover>td,
+.table-hover>tbody>tr:hover>th {
+    background-color: #eee;
+}
+
+.table thead>tr>th {
+    border-bottom: 1px solid #C2C2C2;
+    padding-bottom: 0;
+}
+
+.table tbody>tr>td {
+    font-size: 0.875em;
+    background: #f5f5f5;
+    border-top: 10px solid #fff;
+    vertical-align: middle;
+    padding: 12px 8px;
+}
+
+/* Increase width of the Email column */
+.table tbody>tr>td:nth-child(4) {
+    width: 20%;
+    /* Adjust the width as needed */
+}
+
+.table tbody>tr>td:first-child,
+.table thead>tr>th:first-child {
+    padding-left: 20px;
+}
+
+.table thead>tr>th span {
+    border-bottom: 2px solid #C2C2C2;
+    display: inline-block;
+    padding: 0 5px;
+    padding-bottom: 5px;
+    font-weight: normal;
+}
+
+.table thead>tr>th>a span {
+    color: #344644;
+}
+
+.table thead>tr>th>a span:after {
+    content: "\f0dc";
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+    margin-left: 5px;
+    font-size: 0.75em;
+}
+
+.table thead>tr>th>a.asc span:after {
+    content: "\f0dd";
+}
+
+.table thead>tr>th>a.desc span:after {
+    content: "\f0de";
+}
+
+.table thead>tr>th>a:hover span {
+    text-decoration: none;
+    color: #2bb6a3;
+    border-color: #2bb6a3;
+}
+
+.table.table-hover tbody>tr>td {
+    -webkit-transition: background-color 0.15s ease-in-out 0s;
+    transition: background-color 0.15s ease-in-out 0s;
+}
+
+.table tbody tr td .call-type {
+    display: block;
+    font-size: 0.75em;
+    text-align: center;
+}
+
+.table tbody tr td .first-line {
+    line-height: 1.5;
+    font-weight: 400;
+    font-size: 1.125em;
+}
+
+.table tbody tr td .first-line span {
+    font-size: 0.575em;
+    color: #969696;
+    font-weight: 300;
+}
+
+.table tbody tr td .second-line {
+    font-size: 0.875em;
+    line-height: 1.2;
+}
+
+.table a.table-link {
+    margin: 0 5px;
+    font-size: 1.125em;
+}
+
+.table a.table-link:hover {
+    text-decoration: none;
+    color: #2aa493;
+}
+
+.table a.table-link.danger {
+    color: #fe635f;
+}
+
+.table a.table-link.danger:hover {
+    color: #dd504c;
+}
+
+
+
+.role-institute {
+    color: red;
+}
+
+.role-migrant {
+    color: green;
+}
+
+/* Style the select element */
+.form-select {
+    width: 20%;
+    /* Set the width to 100% of the container */
+    padding: 10px;
+    /* Add padding for spacing */
+    border: 1px solid #ced4da;
+    /* Add a border */
+    border-radius: 4px;
+    /* Add border radius for rounded corners */
+    background-color: #fff;
+    /* Background color */
+    color: #495057;
+    /* Text color */
+    font-size: 16px;
+    /* Adjust font size */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Style the select element when it's focused */
+.form-select:focus {
+    border-color: #80bdff;
+    /* Change border color on focus */
+    box-shadow: 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    /* Add a box shadow on focus */
+}
+
+/* Style the dropdown arrow */
+.form-select::after {
+    content: '\f107';
+    /* Unicode arrow character */
+    font-family: FontAwesome;
+    /* Use FontAwesome for icons */
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    /* Make the arrow not clickable */
+}
+
+/* Style the options within the dropdown */
+.form-select option {
+    background-color: #fff;
+    /* Background color of each option */
+    color: #495057;
+    /* Text color of each option */
+}
+
+/* Style the selected option */
+.form-select option:checked {
+    background-color: #007bff;
+    /* Background color of the selected option */
+    color: #fff;
+    /* Text color of the selected option */
+}
+
+#course-listing-content {
+    display: none;
+}  
+
+.custom-margin-row {
+    margin-left: 10px; 
+    margin-right: 10px; 
+}

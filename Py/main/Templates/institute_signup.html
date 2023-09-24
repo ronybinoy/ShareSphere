@@ -1,0 +1,153 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.css" rel="stylesheet" />
+    <!-- MDB -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
+
+    <link rel="stylesheet" href="{% static '/signup.css' %}">
+    <title>Institute Signup</title>
+
+
+
+
+</head>
+
+<body>
+    <section class="background-radial-gradient overflow-hidden">
+
+        <div class="container px-4 py-5 px-md-5 text-center text-lg-start my-5">
+            <div class="row gx-lg-5 align-items-center mb-5">
+                <div class="col-lg-6 mb-5 mb-lg-0" style="z-index: 10">
+                    <h1 class="my-5 display-5 fw-bold ls-tight" style="color: hsl(218, 81%, 95%)">
+                        ShareSphere <br />
+                        <span style="color: hsl(218, 81%, 75%); font-size: 25px">The
+                            complete migration support platform</span>
+                    </h1>
+                    <p class="mb-4 opacity-70" style="color: hsl(218, 81%, 85%)">
+                        Unlock Your Global Journey with ShareSphere!
+                        Seamlessly connect, collaborate, and conquer the
+                        migration experience as an Indian mover and shaker.
+                        From finding top colleges to securing dream jobs and
+                        accommodations, ShareSphere is your passport to a
+                        thriving new chapter abroad
+                    </p>
+                </div>
+
+                <div class="col-lg-6 mb-5 mb-lg-0 position-relative">
+                    <div id="radius-shape-1" class="position-absolute rounded-circle shadow-5-strong"></div>
+                    <div id="radius-shape-2" class="position-absolute shadow-5-strong"></div>
+
+                    <div class="card bg-glass">
+                        <div class="card-body px-4 py-5 px-md-5">
+                            <h5 class="card-title text-center mb-4 fw-medium fs-3">SIGN
+                                UP</h5>
+                            <form id="form" action method="post">
+                                {% csrf_token %}
+
+                                <div class="form-outline mb-4">
+                                    <input type="text" id="nm" name="inname" class="form-control border" />
+                                    <label class="form-label" id for="form3Example3">Institute Name</label>
+                                    <span id="nmspan" style="font-size: 12px;"></span>
+                                </div>
+
+                                <!-- Email input -->
+
+                                <div class="form-outline mb-4">
+                                    <input type="email" id="mail" name="email" class="form-control border" />
+                                    <label class="form-label" for="form3Example3">Institute Email address</label>
+                                    <span id="mailspan" style="font-size: 12px;"></span>
+                                </div>
+
+
+                                <div class="form-outline mb-4">
+                                    <input type="text" id="lno" name="lno" class="form-control border" />
+                                    <label class="form-label" for="form3Example3">Institute License Number</label>
+                                    <span id="lnospan" style="font-size: 12px;"></span>
+                                </div>
+
+                                <div id="verification-status"></div>
+
+                                <div class="form-group">
+                                    <label for="country" class="ms-2">Choose nationality:</label>
+                                    <select class="form-control border mb-4 mt-2" id="nation" name="nation" required>
+                                        <option value="">Select nation</option>
+                                        <option value="Ireland">Ireland</option>
+                                        <option value="Canada">Canada</option>
+                                        <!-- Add more options for other countries -->
+                                    </select>
+                                </div>
+                            
+                                <div class="form-group" id="regionDropdown">
+                                    <label for="region" class="ms-2">Choose Region:</label>
+                                    <select class="form-control border mb-4 mt-2" id="region" name="region" required>
+                                        <!-- This dropdown will be populated dynamically based on the selected country -->
+                                    </select>
+                                </div>
+
+
+                                <!-- <input type="hidden" id="selected-region" name="selected_region" value=""> -->
+
+
+                                <!-- Password input -->
+                                <div class="form-outline mb-4">
+                                    <input type="password" id="pass" name="pass" class="form-control border" />
+                                    <label class="form-label" for="form3Example4">Password</label>
+                                    <span id="passspan" style="font-size: 12px;"></span>
+                                </div>
+                                <div class="form-outline mb-4">
+                                    <input type="password" id="cpass" name="cpass" class="form-control border" />
+                                    <label class="form-label" for="form3Example4">Confirm Password</label>
+                                    <span id="cpassspan" style="font-size: 12px;"></span>
+                                </div>
+                                <!-- Submit button -->
+                                <button type="submit" id="submitBtn" class="btn btn-primary btn-block mb-4">
+                                    Sign up
+                                </button>
+
+                                <!-- Register buttons -->
+                                <!-- <div class="text-center">
+                                        <p>or sign up with:</p> 
+                                        <div class>
+                                            <button
+                                                class="btn btn-google btn-login text-uppercase fw-bold col-md-6"
+                                                type="submit">
+                                                <a
+                                                    href="{%url 'social:begin' 'google-oauth2' %}">
+                                                    <i
+                                                        class="fab fa-google me-2"></i>
+                                                    Sign in with Google</a>
+                                            </button>
+                                        </div>
+                                    </div> -->
+                                <div class="text-center align-item-center">
+
+                                    <label class="form-check-label mt-3 text-center" for="forgotpassword">
+                                        <a href="{%url 'login' %}" style="color: #27350F; text-decoration: none">Already
+                                            registered? Sign In here</a>
+
+                                    </label>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Section: Design Block -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static '/inst_signup.js' %}"></script>
+</body>
+
+</html>

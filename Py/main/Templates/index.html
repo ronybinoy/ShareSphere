@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Mirrored from themewagon.github.io/edu-meeting/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 06:08:09 GMT -->
+<!-- Added by HTTrack -->
+<meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="TemplateMo">
+  <link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+
+  <title>ShareSphere Education</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/templatemo-edu-meeting.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/lightbox.css' %}">
+  <!--
+
+TemplateMo 569 Edu Meeting
+
+https://templatemo.com/tm-569-edu-meeting
+
+-->
+</head>
+
+<body>
+
+
+  <header>
+    <nav class="navbar navbar-expand-lg p-2" style="background-color: rgb(245, 245, 245);">
+        <div class="container-fluid">
+            <h4 class="text-success">ShareSphere EDU</h4>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse d-flex " id="navbarSupportedContent">
+              <ul class="navbar-nav mb-2 mb-lg-0 d-flex justify-content-lg-center w-100">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="{% url "home" %}">Home</a>
+              </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Education</a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="coursesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Courses
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="coursesDropdown">
+                    <li><a class="dropdown-item" href="{% url "course_view_diploma" %}">Diploma Courses</a></li>
+                    <li><a class="dropdown-item" href="{% url "course_view_bachelor" %}">Undergraduate Courses</a></li>
+                    <li><a class="dropdown-item" href="{% url "course_view_master" %}">Graduate Courses</a></li>
+                      <!-- Add more subcategories as needed -->
+                      
+                  </ul>
+              </li>
+              
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'education' %}">Scholarships</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Institutes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About Us</a>
+                </li>
+            </ul>
+            
+
+                {% if request.session.username %}
+                <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-30 d-flex justify-content-lg-end ">
+                    <li><i class="bi bi-person"></i>
+                    </li>
+                    <li class="nav-item dropdown ">
+                        <a class="nav-link text-success" style="font-size: 30px; font-weight: bold;" href="#"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ request.session.username }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% elif user.is_authenticated%}
+
+                <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
+                    <li><i class="far fa-circle-user"></i>
+                    </li>
+                    <li class="nav-item dropdown ">
+                        <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <p>{{ user.first_name }}</p>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="openProfileModal()">
+                                    Profile
+                                </a>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                        </ul>
+                    </li>
+                </ul>
+
+                {% else %}
+                <ul class="navbar-nav mb-2 mb-lg-0 w-50 d-flex justify-content-lg-end">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <button class="btn btn-outline-success">Sign
+                                Up</button>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
+                                    Migrant</a></li>
+                            <li><a class="dropdown-item" href="{% url 'inst_signup' %}">Register
+                                    as Institute</a></li>
+                            <li><a class="dropdown-item" href="#">Register
+                                    as Landlord</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{%url 'login' %}" role="button" aria-expanded="false">
+                            <button class="btn btn-outline-success">Log
+                                In</button>
+                        </a>
+                    </li>
+                </ul>
+                {% endif %}
+
+            </div>
+        </div>
+    </nav>
+</header>
+  <!-- ***** Header Area Start ***** -->
+
+  <!-- ***** Header Area End ***** -->
+
+  <!-- ***** Main Banner Area Start ***** -->
+  <section class="section main-banner" id="top" data-section="section1">
+    <video autoplay muted loop id="bg-video">
+      <source src="{% static 'assets/images/course-video.mp4' %}" type="video/mp4" />
+    </video>
+
+    <div class="video-overlay header-text">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="caption">
+              <h6>Hello Students</h6>
+              <h2>Welcome to ShareSphere Edu</h2>
+              <p>This is an Education support platform hosted by ShareSphere. This helps users to find colleges abroad.
+              </p>
+              <div class="d-flex">
+                <div class="main-button-red p-1">
+                  <div class="scroll-to-section"><a href="#course">Learn More</a></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.html"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+  <script src="assets/js/isotope.min.js"></script>
+  <script src="assets/js/owl-carousel.js"></script>
+  <script src="assets/js/lightbox.js"></script>
+  <script src="assets/js/tabs.js"></script>
+  <script src="assets/js/video.js"></script>
+  <script src="assets/js/slick-slider.js"></script>
+  <script src="assets/js/custom.js"></script>
+  <script>
+    //according to loftblog tut
+    $('.nav li:first').addClass('active');
+
+    var showSection = function showSection(section, isAnimate) {
+      var
+        direction = section.replace(/#/, ''),
+        reqSection = $('.section').filter('[data-section="' + direction + '"]'),
+        reqSectionPos = reqSection.offset().top - 0;
+
+      if (isAnimate) {
+        $('body, html').animate({
+          scrollTop: reqSectionPos
+        },
+          800);
+      } else {
+        $('body, html').scrollTop(reqSectionPos);
+      }
+
+    };
+
+    var checkSection = function checkSection() {
+      $('.section').each(function () {
+        var
+          $this = $(this),
+          topEdge = $this.offset().top - 80,
+          bottomEdge = topEdge + $this.height(),
+          wScroll = $(window).scrollTop();
+        if (topEdge < wScroll && bottomEdge > wScroll) {
+          var
+            currentId = $this.data('section'),
+            reqLink = $('a').filter('[href*=\\#' + currentId + ']');
+          reqLink.closest('li').addClass('active').
+            siblings().removeClass('active');
+        }
+      });
+    };
+
+    $('.main-menu, .responsive-menu, .scroll-to-section').on('click', 'a', function (e) {
+      e.preventDefault();
+      showSection($(this).attr('href'), true);
+    });
+
+    $(window).scroll(function () {
+      checkSection();
+    });
+  </script>
+</body>
+
+</body>
+
+<!-- Mirrored from themewagon.github.io/edu-meeting/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 18 Aug 2023 06:08:16 GMT -->
+
+</html>

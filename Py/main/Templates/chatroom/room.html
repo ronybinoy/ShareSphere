@@ -1,0 +1,239 @@
+{% extends 'chatroom/base.html' %}
+
+{% block title %}{{ room.name }} | {% endblock %}
+
+{% block content %}
+<li class="text-right" style="list-style-type: none;"> <!-- Use 'text-right' class to align content to the right -->
+    <a href="{% url 'rooms' %}">
+        <button class="btn btn-danger" id="close-chat-room">Close Chat Room</button>
+    </a>
+</li>
+
+
+<div class="p-2 text-center">
+    <h1 class="text-3xl lg:text-6xl text-white p-2"><b>{{ room.name }}</b></h1>
+</div>
+<div class="container d-flex justify-content-center">
+    <div class="bg-white col-lg-6 col-12 p-3 rounded-xl">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">{{ room.name }}</a>
+                </button>
+                <div class="" id="navbarSupportedContent">
+                    <form class="d-flex">
+                        <input class="form-control me-2 px-3 py-2 px-lg-3 py-lg-2 bg-light" type="search"
+                            placeholder="Search" aria-label="Search" id="search-input">
+                        <button class="btn btn-outline-success " type="button" id="search-button">
+                            Search
+                        </button>
+                        <button class="btn btn-outline-secondary ms-2 " type="button" id="next-button">
+                            Next
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+        <hr>
+        <div class="modal fade" id="noResultsModal" tabindex="-1" role="dialog" aria-labelledby="noResultsModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="noResultsModalLabel">No Results Found</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Your search did not match any messages.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn bg-primary text-white" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-messages space-y-3 mt-2" id="chat-messages"
+            style="max-height: 350px; overflow-y: auto;">
+            {% for m in messages %}
+            <div class="message-content bg-light rounded-xl p-2">
+                <p><b>{{ m.user.first_name }}</b></p><br>
+                <p>{{ m.content }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="mt-5">
+            <form method="post" action="." class="flex" id="chat-form">
+                {% csrf_token %}
+                <input type="text" name="content"
+                    class="flex-1 mr-3 bg-light rounded p-2"
+                    placeholder="  Your message..." id="chat-message-input">
+                <button
+                    class="px-3 py-2 px-lg-5 py-lg-3 rounded-xl text-white bg-primary "
+                    id="chat-message-submit">Send</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{ room.slug|json_script:"json-roomname" }}
+{{ request.user.username|json_script:"json-username" }}
+
+<script>
+    const roomName = JSON.parse(document.getElementById('json-roomname').textContent);
+    const userName = JSON.parse(document.getElementById('json-username').textContent);
+    const chatSocket = new WebSocket(
+        'ws://'
+        + window.location.host
+        + '/ws/'
+        + roomName
+        + '/'
+    );
+
+    chatSocket.onclose = function(e) {
+        console.log('onclose');
+    };
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+
+        if (data.message) {
+            document.querySelector('#chat-messages').innerHTML += ('<b>' + data.username + '</b>: ' + data.message + '<br>');
+        } else {
+            alert('The message was empty!');
+        }
+
+        scrollToBottom();
+    };
+
+    document.querySelector('#chat-message-input').focus();
+    document.querySelector('#chat-message-input').onkeyup = function(e) {
+        if (e.keyCode === 13 && !e.shiftKey) { // Check for Enter key without Shift key
+            document.querySelector('#chat-form').submit(); // Submit the form
+        }
+    };
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        e.preventDefault();
+
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+
+        console.log({
+            'message': message,
+            'username': userName,
+            'room': roomName
+        });
+
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'username': userName,
+            'room': roomName
+        }));
+
+        messageInputDom.value = '';
+
+        return false;
+    };
+
+    /**
+    * A function for finding the messages element, and scroll to the bottom of it.
+    */
+    function scrollToBottom() {
+        let objDiv = document.getElementById("chat-messages");
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
+    
+    // Add this below the function to trigger the scroll on load.
+    scrollToBottom();
+    
+    let searchResults = [];
+    let currentIndex = -1;
+
+    // Search functionality
+    const searchButton = document.getElementById('search-button');
+    const nextButton = document.getElementById('next-button');
+    searchButton.disabled = true; // Initially, disable the "Search" button
+    nextButton.style.display = 'none'; // Initially, hide the "Next" button
+    
+    searchButton.addEventListener('click', function () {
+        currentIndex = -1;
+        searchResults = [];
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const messages = document.getElementsByClassName('message-content');
+
+        for (let i = 0; i < messages.length; i++) {
+            const message = messages[i];
+            const messageText = message.innerText.toLowerCase();
+
+            if (messageText.includes(searchTerm)) {
+                searchResults.push(message);
+            }
+        }
+
+        if (searchResults.length > 0) {
+            // Scroll to the first matching message
+            currentIndex = 0;
+            searchResults[currentIndex].scrollIntoView({ behavior: 'smooth' });
+
+            // Enable the "Next" button and disable the "Search" button
+            nextButton.style.display = 'inline-block';
+            searchButton.disabled = true;
+        }
+    });
+
+    nextButton.addEventListener('click', function () {
+        if (searchResults.length > 0) {
+            currentIndex = (currentIndex + 1) % searchResults.length;
+            searchResults[currentIndex].scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+    
+    // Handle input field changes
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', function () {
+        if (searchInput.value.trim() === '') {
+            // If the input field is empty, reset everything
+            currentIndex = -1;
+            searchResults = [];
+            nextButton.style.display = 'none';
+            searchButton.disabled = true; // Disable search when the input field is empty
+        } else {
+            // Enable search when there is input
+            searchButton.disabled = false;
+        }
+    });
+
+
+
+    searchButton.addEventListener('click', function () {
+        currentIndex = -1;
+        searchResults = [];
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        const messages = document.getElementsByClassName('message-content');
+
+        for (let i = 0; i < messages.length; i++) {
+            const message = messages[i];
+            const messageText = message.innerText.toLowerCase();
+
+            if (messageText.includes(searchTerm)) {
+                searchResults.push(message);
+            }
+        }
+
+        if (searchResults.length > 0) {
+            // Scroll to the first matching message
+            currentIndex = 0;
+            searchResults[currentIndex].scrollIntoView({ behavior: 'smooth' });
+
+            // Enable the "Next" button and disable the "Search" button
+            nextButton.style.display = 'inline-block';
+            searchButton.disabled = true;
+        } else {
+            // If no results found, show the modal
+            $('#noResultsModal').modal('show');
+        }
+    });
+
+</script>
+{% endblock %}

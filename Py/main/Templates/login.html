@@ -81,7 +81,7 @@
                 function validateuName() {
                     const name = $("#un").val();
                     if (name.trim() === "") {
-                        $("#unspan").html("Enter the Username").css("color", "#41586B");
+                        $("#unspan").html("Enter the Email id").css("color", "#41586B");
                     } else {
                         $("#unspan").html("");
                     }
@@ -129,12 +129,12 @@
                                         In</h5>
 
                                     <div class="form-floating mb-3">
-                                        <input type="username"
+                                        <input type="email"
                                             class="form-control border"
                                             id="un"
-                                            name="username"
-                                            placeholder="Username">
-                                        <label for="floatingInput">Username</label>
+                                            name="email"
+                                            placeholder="Email">
+                                        <label for="floatingInput">Email</label>
                                         <span id="unspan"
                                             style="font-size: 12px;"></span>
                                     </div>
@@ -159,10 +159,10 @@
                                         <div class="error-message" style="font-size: 12px; color:41586B;">{{ message }}</div>
                                         {% endfor %}
                                     </div>
+                                    
 
                                     <p class="text-center mt-2">or sign up with:</p>
                                     <div class="d-grid mb-2">
-
                                         <button
                                             class="btn btn-google btn-login text-uppercase fw-bold"
                                             type="submit">

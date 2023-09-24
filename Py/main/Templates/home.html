@@ -1,124 +1,137 @@
 {% load static %}
-{%block content %}
-<!-- <div class="row vh-100 bg-dark text-white"">
-    <div class="col-sm-12 mb-3">
-
-        {% if request.session.username %}
-        <div class="text-button">
-            <p>Welcome, {{ request.session.username }}!</p>
-            <p>{{ request.session.user_id }}</p>
-            <button type="submit"><a href="{% url 'logout' %}">Logout</a></button>
-        </div>
-        {% else %}
-        <div class="text-button">
-            <button type="submit"><a href="{% url 'login' %}">Sign in</a></button>
-            <button type="submit"><a href="{% url 'signup' %}">Sign up</a></button>
-        </div>
-        {%endif%}
-    </div>
-</div> -->
-
+{% block content %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>ShareSphere</title>
+
+<head>
+    <title>ShareSphere</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{% static '/home.css' %}" rel="stylesheet"> <!-- Link to your styles.css file -->
+    <link href="{% static '/home.css' %}" rel="stylesheet">
+    <!-- Link to your styles.css file -->
     <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
-    </head>
 
-    <body>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
 
-        <header><nav class="navbar navbar-expand-lg  p-2" style="background-color: rgb(245, 245, 245);">
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-edu-meeting.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/lightbox.css' %}">
+    <!-- Font Awesome -->
+    <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    rel="stylesheet"
+    />
+    <!-- Google Fonts -->
+    <link
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    rel="stylesheet"
+    />
+    <!-- MDB -->
+    <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.css"
+    rel="stylesheet"
+    />
+
+    <style>
+        .navbar-nav .nav-item a.nav-link {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .navbar-nav .nav-item a.nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-lg p-2" style="background-color: rgb(245, 245, 245);">
             <div class="container-fluid">
                 <h4 class="text-success">ShareSphere</h4>
-                <button class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false"
-                    aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="collapse navbar-collapse d-flex "
-                    id="navbarSupportedContent">
-                    <ul
-                        class="navbar-nav  mb-2 mb-lg-0 d-flex justify-content-lg-center w-100">
+                <div class="collapse navbar-collapse d-flex " id="navbarSupportedContent">
+                    <ul class="navbar-nav  mb-2 mb-lg-0 d-flex justify-content-lg-center w-100">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page"
-                                href="#">Home</a>
+                            <a class="nav-link active" aria-current="page" href="#">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link " href="#">Chatroom</a>
+                            <a class="nav-link " href="{% url 'chatapp' %}">Chatroom</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link " href="#">Accommodations</a>
+                            <a class="nav-link " href="{% url 'education' %}">Education</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="#">Education</a>
-                        </li>
+                       
                         <li class="nav-item">
                             <a class="nav-link " href="#">About Us</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link " href="#">Donate</a>
                         </li>
-
                     </ul>
 
                     {% if request.session.username %}
-                    <ul
-                        class="navbar-nav mb-2 me-5 mb-lg-0 w-30 d-flex justify-content-lg-end ">
-                        <li><i class="fas fa-user"></i></li>
+                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-30 d-flex justify-content-lg-end ">
+                        <li><i class="bi bi-person"></i>
+                        </li>
                         <li class="nav-item dropdown ">
-                            <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link text-success" style="font-size: 30px; font-weight: bold;" href="#"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ request.session.username }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item"
-                                        href="{% url 'logout' %}">Log Out</a></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
                         </li>
                     </ul>
                     {% elif user.is_authenticated%}
-						
-                        <ul
-                        class="navbar-nav mb-2 me-5 mb-lg-0 w-30 d-flex justify-content-lg-end ">
-                        <li><i class="fas fa-user"></i></li>
+
+                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
+                        <li><i class="far fa-circle-user"></i>
+                        </li>
                         <li class="nav-item dropdown ">
-                            <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <p>{{ user.username }}</p>
+                            <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <p>{{ user.first_name }}</p>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item"
-                                        href="{% url 'logout' %}">Log Out</a></li>
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="openProfileModal()">
+                                        Profile
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
                         </li>
                     </ul>
 
                     {% else %}
-                    <ul
-                        class="navbar-nav mb-2 mb-lg-0 w-50 d-flex justify-content-lg-end">
+                    <ul class="navbar-nav mb-2 mb-lg-0 w-50 d-flex justify-content-lg-end">
                         <li class="nav-item dropdown">
-                            <a class="nav-link" href="#" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <button class="btn btn-outline-success">Sign Up</button>
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-outline-success">Sign
+                                    Up</button>
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item"
-                                        href="{%url 'signup' %}">Register as
+                                <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
                                         Migrant</a></li>
-                                <li><a class="dropdown-item" href="#">Register
+                                <li><a class="dropdown-item" href="{% url 'inst_signup' %}">Register
                                         as Institute</a></li>
                                 <li><a class="dropdown-item" href="#">Register
                                         as Landlord</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{%url 'login' %}"
-                                role="button" aria-expanded="false">
-                                <button class="btn btn-outline-success">Log In</button>
+                            <a class="nav-link" href="{%url 'login' %}" role="button" aria-expanded="false">
+                                <button class="btn btn-outline-success">Log
+                                    In</button>
                             </a>
                         </li>
                     </ul>
@@ -128,16 +141,161 @@
             </div>
         </nav>
     </header>
-    <section class="background-image">
-        <div >
+    <section class="upcoming-meetings" id="meetings">
+        <div class="container">
+            <h2 class="text-center mt-5 mb-3 text-white">Our Services</h2>
+            <div class="row ">
+                <!-- Card 1: Chat Platform -->
+                <div class="col-md-4 ">
+                    <div class="card shadow text-center p-4 rounded-xl ">
+                        <div class="card-body">
+                            <h5 class="card-title">Chat Platform</h5>
+                            <p class="card-text">Connect and communicate
+                                with others through our advanced chat
+                                platform.</p>
+                            <a href="{% url 'chatapp' %}"><button class="btn btn-primary mt-3">Learn More</button></a>
 
+                            <!-- Added the "Learn More" button -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Education -->
+                <div class="col-md-4 ">
+                    <div class="card shadow text-center p-4 rounded-xl">
+                        <div class="card-body">
+                            <h5 class="card-title">Education</h5>
+                            <p class="card-text">Access quality educational
+                                resources and opportunities for growth.</p>
+                            <a href="{% url 'education' %}"><button class="btn btn-primary mt-3">Learn More</button></a>
+
+                            <!-- Added the "Learn More" button -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Accommodation -->
+                <div class="col-md-4">
+                    <div class="card shadow text-center p-4 rounded-xl">
+                        <div class="card-body">
+                            <h5 class="card-title">Accommodation</h5>
+                            <p class="card-text">Find comfortable and
+                                affordable accommodation options in your
+                                location.</p>
+                            <a href=""><button class="btn btn-primary mt-3">Learn More</button></a>                         
+                    </div>
+                </div>  
+            </div>
+            </div>
         </div>
-
     </section>
 
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
-        <script
-            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+    <!-- <hr>
+
+    <section>
+    </section> -->
+    <!-- Button trigger modal
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
+        Launch demo modal
+    </button> -->
+
+    <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalTitle"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileModalTitle">Profile</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="profileForm" action="{% url "home" %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="uid_no">UID No</label>
+                            <input type="text" class="form-control" id="uid_no" value="{{user.migrant_uid}}" name="uid_no" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="text" class="form-control" id="email" value="{{user.email}}" name="email" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" class="form-control" id="first_name" value="{{user.first_name}}" name="first_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" value="{{user.last_name}}" name="last_name">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" id="password" value="{{user.password}}" name="password">
+                        </div>
+                    </form>
+    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="saveProfileChanges" href="{% url 'edit_profile' %}" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="bg-dark text-center text-white">
+        <!-- Grid container -->
+        <div class="container p-4 pb-0">
+          <!-- Section: Social media -->
+          <section class="mb-4">
+            <!-- Facebook -->
+            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+              ><i class="fab fa-facebook-f"></i
+            ></a>
+      
+            <!-- Twitter -->
+            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+              ><i class="fab fa-twitter"></i
+            ></a>
+      
+            <!-- Google -->
+            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+              ><i class="fab fa-google"></i
+            ></a>
+      
+            <!-- Instagram -->
+            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+              ><i class="fab fa-instagram"></i
+            ></a>
+      
+            <!-- Linkedin -->
+          
+            <!-- Github -->
+            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
+              ><i class="fab fa-github"></i
+            ></a>
+          </section>
+          <!-- Section: Social media -->
+        </div>
+        <!-- Grid container -->
+      
+        <!-- Copyright -->
+        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+          © 2020 Copyright:
+          <a class="text-white" href="#">ShareSphere.com</a>
+        </div>
+        <!-- Copyright -->
+      </footer>
+    <script>
+        function openProfileModal() {
+            $('#profileModal').modal('show');
+        }
+        
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    
+</body>
+
 </html>
-{%endblock%}
+{% endblock %}

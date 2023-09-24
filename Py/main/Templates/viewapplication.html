@@ -1,0 +1,178 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareSphere | Course Applications</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static '/home.css' %}">
+    <script src="{% static 'assets/js/script.js' %}"></script>
+    <script src="{% static 'courseview.js' %}"></script>
+    <!-- Link to your styles.css file -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
+
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-edu-meeting.css' %}">
+
+    <style>
+    </style>
+
+</head>
+
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-lg p-2 sticky-navbar" style="background-color: rgb(245, 245, 245);">
+            <div class="container-fluid">
+                <h4 class="text-success">ShareSphere Education</h4>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse d-flex " id="navbarSupportedContent">
+                    <ul class="navbar-nav  mb-2 mb-lg-0 d-flex justify-content-lg-center w-100">
+                        <li class="nav-item">
+                            <a class="nav-link " aria-current="page" href="{% url 'education'  %}">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link active nav-link dropdown-toggle" href="#" id="coursesDropdown"
+                                role="button" data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">Course</a>
+                            <ul class="dropdown-menu" aria-labelledby="coursesDropdown">
+                                <li><a class="dropdown-item" href="{% url 'course_view_diploma' %}">Diploma Courses</a>
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'course_view_bachelor' %}">Undergraduate
+                                        Courses</a></li>
+                                <li><a class="dropdown-item" href="{% url 'course_view_master' %}">Graduate Courses</a>
+                                </li>
+                                <!-- Add more subcategories as needed -->
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " href="#">Course Applications</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link " href="#">Scholarships</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link " href="#">Contact Us</a>
+                        </li>
+                    </ul>
+
+                    {% if request.session.username %}
+                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-30 d-flex justify-content-lg-end ">
+                        <li><i class="bi bi-person"></i>
+                        </li>
+                        <li class="nav-item dropdown ">
+                            <a class="nav-link text-success" style="font-size: 30px; font-weight: bold;" href="#"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ request.session.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    {% elif user.is_authenticated%}
+
+                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
+                        <li><i class="far fa-circle-user"></i>
+                        </li>
+                        <li class="nav-item dropdown ">
+                            <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
+                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <p>{{ user.first_name }}</p>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="#" onclick="openProfileModal()">
+                                        Profile
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    {% else %}
+                    <ul class="navbar-nav mb-2 mb-lg-0 w-50 d-flex justify-content-lg-end">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn btn-outline-success">Sign
+                                    Up</button>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
+                                        Migrant</a></li>
+                                <li><a class="dropdown-item" href="{% url 'inst_signup' %}">Register
+                                        as Institute</a></li>
+                                <li><a class="dropdown-item" href="#">Register
+                                        as Landlord</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{%url 'login' %}" role="button" aria-expanded="false">
+                                <button class="btn btn-outline-success">Log
+                                    In</button>
+                            </a>
+                        </li>
+                    </ul>
+                    {% endif %}
+
+                </div>
+            </div>
+        </nav>
+    </header>
+    <section>
+        <div class="container mt-5">
+            <h1 class="text-center mb-4">Your Course Applications</h1>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h2 class="mb-3">Applications Made by You</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Sl No.</th>
+                                    <th>Course Name</th>
+                                    <th>Institute Name</th>
+                                    <th>Applied On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for application in user_applications %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ application.course.course_name }}</td>
+                                    <td>{{ application.course.user.first_name }}</td>
+                                    <td>{{ application.date }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3">You haven't made any applications yet.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

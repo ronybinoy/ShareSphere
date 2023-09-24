@@ -1,0 +1,237 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Edit Course</title>
+        <!-- Bootstrap CSS link -->
+        <link
+            href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+            rel="stylesheet">
+        <!-- Custom CSS for styling -->
+        <style>
+        body {
+            background-color: rgb(0, 74, 123);
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2 class="mb-4">Edit Course</h2>
+            <form action="{% url 'editcourse' course.id %}" id="#form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="course_id" value="{{ course.id }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="course_name">Course Name *</label>
+                            <input type="text" class="form-control"
+                                id="course_name" name="course_name"
+                                value="{{ course.course_name }}" required>
+                                <span id="course_namespan" style="font-size: 12px;"></span>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="course_mode">Course Mode *</label>
+                            <select class="form-control" id="course_mode" name="course_mode">
+                                <option value="Online" {% if course.course_mode == 'Online' %}selected{% endif %}>Online</option>
+                                <option value="On-campus" {% if course.course_mode == 'On-campus' %}selected{% endif %}>On-campus</option>
+                                <option value="Hybrid" {% if course.course_mode == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+
+
+                            </select>
+                            <span id="course_modespan" style="font-size: 12px;"></span>
+
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="course_type">Course Type *</label>
+                            <select class="form-control" id="course_type" name="course_type">
+                                <option value="Bachelor Degree" {% if course.course_type == 'Bachelor Degree' %}selected{% endif %}>Bachelor Degree</option>
+                                <option value="Master Degree" {% if course.course_type == 'Master Degree' %}selected{% endif %}>Master Degree</option>
+                                <option value="Doctoral Degree" {% if course.course_type == 'Doctoral Degree' %}selected{% endif %}>Doctoral Degree</option>
+                                <option value="Professional Degree" {% if course.course_type == 'Professional Degree' %}selected{% endif %}>Professional Degree</option>
+                                <option value="Diploma Program" {% if course.course_type == 'Diploma Program' %}selected{% endif %}>Diploma Program</option>
+                            </select>
+                            <span id="course_typespan" style="font-size: 12px;"></span>
+
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="academic_disciplines">Academic
+                                Disciplines *</label>
+                                <select class="form-control" id="academic_disciplines" name="academic_disciplines" >
+                                    <option value="Business and Information Technology" {% if course.academic_disciplines == 'Business and Information Technology' %}selected{% endif %}>Business and Information Technology</option>
+                                    <option value="Education" {% if course.academic_disciplines == 'Education' %}selected{% endif %}>Education</option>
+                                    <option value="Engineering and Applied Science" {% if course.academic_disciplines == 'Engineering and Applied Science' %}selected{% endif %}>Engineering and Applied Science</option>
+                                    <option value="Health Sciences and Medicine" {% if course.academic_disciplines == 'Health Sciences and Medicine' %}selected{% endif %}>Health Sciences and Medicine</option>
+                                    <option value="Social Science and Humanities" {% if course.academic_disciplines == 'Social Science and Humanities' %}selected{% endif %}>Social Science and Humanities</option>
+                                    <option value="Science" {% if course.academic_disciplines == 'Science' %}selected{% endif %}>Science</option>
+                                </select>
+                                <span id="academic_disciplinesspan" style="font-size: 12px;"></span>
+
+                                
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="coursedesc">Course Description *</label>
+                            <textarea class="form-control" id="course_desc"
+                                name="course_desc" rows="4" required>{{ course.course_desc }}</textarea>
+                                <span id="course_descspan" style="font-size: 12px;"></span>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="eligibility">Eligibility *</label>
+                            <textarea class="form-control" id="eligibility"
+                                name="eligibility" rows="4" required>{{  course.eligibility }}</textarea>
+                                <span id="eligibilityspan" style="font-size: 12px;"></span>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="fees">Fees per Semester * (in $)</label>
+                            <input type="number" class="form-control" id="fees"
+                                name="fees" value="{{ course.fees }}" required>
+                                <span id="feesspan" style="font-size: 12px;"></span>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="duration">Duration *</label>
+                            <select class="form-control" id="duration"
+                                name="duration">
+                                <option value="3 months" {% if course.duration == '3 months' %}selected{% endif %}>3 months</option>
+                                <option value="6 months" {% if course.duration == '6 months' %}selected{% endif %}>6 months</option>
+                                <option value="9 months" {% if course.duration == '9 months' %}selected{% endif %}>9 months</option>
+                                <option value="1 year" {% if course.duration == '1 year' %}selected{% endif %}>1 year</option>
+                                <option value="2 years" {% if course.duration == '2 years' %}selected{% endif %}>2 years</option>
+                                <option value="3 years" {% if course.duration == '3 years' %}selected{% endif %}>3 years</option>
+                                <option value="4 years" {% if course.duration == '4 years' %}selected{% endif %}>4 years</option>
+                                <option value="5 years" {% if course.duration == '5 years' %}selected{% endif %}>5 years</option>
+                            </select>
+                            <span id="durationspan" style="font-size: 12px;"></span>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="opendate">Application Opening Date *</label>
+                            <input type="date" class="form-control"
+                                id="opendate" name="opendate"
+                                value="{{ course.opendate|date:'Y-m-d' }}" required>
+                                <span id="opendatespan" style="font-size: 12px;"></span>
+
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="appdeadline">Application Deadline *</label>
+                            <input type="date" class="form-control"
+                                id="appdeadline" name="appdeadline"
+                                value="{{ course.appdeadline|date:'Y-m-d' }}"
+                                required>
+                                <span id="appdeadlinespan" style="font-size: 12px;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="seats_available">Number of Seats Available *</label>
+                            <input type="number" class="form-control" id="seats_available" name="seats_available" value="{{ course.seat_available }}" required>
+                            <span id="seats_availablespan" style="font-size: 12px;"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="thumbnail_image">Thumbnail Image *</label>
+                            <input type="file" class="form-control-file" id="thumbnail_image" name="thumbnail_image" accept="image/jpeg, image/jpg, image/png" value="{{ course.thumbnail_image }}" required>
+                            <span id="thumbnail_imagespan" style="font-size: 12px;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-center"> <!-- Center-align the buttons -->
+                        <input type="submit" class="btn btn-primary" id="submitBtn" value="Update Course">
+                        <a href="{% url 'courselisting' %}" class="btn btn-primary">Cancel</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+        <!-- Add this code block inside the <head> section of your HTML -->
+            <script>
+                var opendateInput = document.getElementById('opendate');
+                var errorSpan = document.getElementById('date-error');
+            
+                // Function to validate the date
+                function validateDate() {
+                    var selectedDate = new Date(opendateInput.value);
+                    var currentDate = new Date();
+                    var maxDate = new Date();
+                    maxDate.setMonth(maxDate.getMonth() + 2);
+            
+                    if (selectedDate < currentDate || selectedDate > maxDate) {
+                        errorSpan.textContent = "Please select a date between today and 2 months from today.";
+                        errorSpan.style.color = "red";
+                        opendateInput.setCustomValidity("Invalid date");
+                    } else {
+                        errorSpan.textContent = ""; // Clear the error message
+                        opendateInput.setCustomValidity(""); // Reset custom validity
+                    }
+                }
+            
+                // Add event listener for date input
+                opendateInput.addEventListener('input', validateDate);
+            </script>
+            
+            
+
+
+        <!-- Bootstrap JS scripts -->
+        <script
+            src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script
+            src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+            <script src="{% static '/addcourse.js' %}"></script>
+    </body>
+</html>

@@ -1,0 +1,5 @@
+.background-image {
+    background-image: url('main\static\bg.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+}   

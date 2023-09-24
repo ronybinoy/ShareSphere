@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="tab-content" id="orders-table-tab-content">
+        <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">
+            <div class="app-card app-card-orders-table shadow-sm mb-5">
+                <div class="app-card-body">
+                    <div class="table-responsive">
+                        <table class="table app-table-hover mb-0 text-left">
+                            <thead>
+                                <tr>
+                                    <th class="cell"></th> <!-- Add an empty header cell for checkboxes -->
+                                    <th class="cell">Product</th>
+                                    <th class="cell">Supplier</th>
+                                    <th class="cell">Warehouse</th>
+                                    <th class="cell">Date</th>
+                                    <th class="cell">Quantity</th>
+                                    <th class="cell">Status</th>
+                                    <th class="cell"></th>
+                                    <th class="cell"></th>
+                                    <th class="cell"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in page %}
+                                <tr class="order-row">
+                                    <td class="cell">
+                                        <input type="checkbox" class="order-checkbox"
+                                            data-order-id="{{ order.order_id }}">
+                                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                    </td>
+                                    <td class="cell order-name"><span class="truncate">{{ order.product }}</span></td>
+                                    <td class="cell">{{ order.supplier }}</td>
+                                    <td class="cell">{{ order.warehouse }}</td>
+                                    <td class="cell">{{ order.order_datetime }}</td>
+                                    <td class="cell">{{ order.quantity }}</td>
+                                    <td class="cell">{{ order.order_status }}</td>
+                                    <td class="cell">
+                                        {% if order.order_status == 'cancelled' %}
+                                        <button class="btn btn-danger text-white" disabled>Cancelled</button>
+                                        {% elif order.order_status == 'Delivered' %}
+                                        <a class="btn btn-danger text-white return-order" href="#"
+                                            data-order-id="{{ order.order_id }}">Return</a>
+                                        {% elif order.order_status == 'Return Initiated' %}
+                                        <a class="btn btn-danger text-white delivered-order" href="#"
+                                            data-order-id="{{ order.order_id }}">Cancel Return</a>
+                                        {% elif order.order_status == 'Return Completed' %}
+                                        <button class="btn btn-danger text-white" disabled>Returned</a>
+                                            {% else %}
+                                            <a class="btn btn-danger text-white cancel-order" href="#"
+                                                data-order-id="{{ order.order_id }}">Cancel</a>
+                                            {% endif %}
+                                    </td>
+                                    <td class="cell">
+                                        {% if order.order_status == 'cancelled' %}
+                                        <button class="btn btn-primary text-white" disabled>Cancelled</button>
+                                        {% elif order.order_status == 'Delivered' %}
+                                        <button class="btn btn-primary text-white" disabled>Update</button>
+                                        {% elif order.order_status == 'Return Initiated' %}
+                                        <button class="btn btn-primary text-white" disabled>Update</button>
+                                        {% elif order.order_status == 'Return Completed' %}
+                                        <button class="btn btn-danger text-white" disabled>Returned</a>
+                                            {% else %}
+
+                                            <a class="btn btn-primary text-white update-order" href="#"
+                                                data-order-id="{{ order.order_id }}">Update</a>
+                                            {% endif %}
+                                    </td>
+                                    <td class="cell">
+                                        {% if order.order_status == 'cancelled' %}
+                                        <button class="btn btn-danger text-white" disabled>Cancelled</button>
+                                        {% elif order.order_status == 'Delivered' %}
+                                        <button class="btn btn-danger text-white" disabled>Mark as Delivered</button>
+                                        {% elif order.order_status == 'Return Initiated' %}
+                                        <button class="btn btn-danger text-white returned-order"
+                                            data-order-id="{{ order.order_id }}">Mark as Return Complete</button>
+                                        {% elif order.order_status == 'Return Completed' %}
+                                        <button class="btn btn-danger text-white" disabled>Returned</a>
+                                            {% else %}
+                                            <a class="btn btn-danger text-white delivered-order" href="#"
+                                                data-order-id="{{ order.order_id }}">Mark as Delivered</a>
+                                            {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+
+                        </table>
+
+                        <!-- Add a "Delete All" button that starts as disabled -->
+
+                    </div><!--//table-responsive-->
+                </div><!--//app-card-body-->
+            </div><!--//app-card-->
+        </div>
+    </div>
+</body>
+
+</html>
