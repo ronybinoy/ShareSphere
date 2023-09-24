@@ -97,6 +97,7 @@ class Inst_info(models.Model):
 class Course_Application(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)  # Reference CustomUser model
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    application_id = models.CharField(primary_key=True,max_length=7, default='0000000')    
     full_name = models.CharField(default='',max_length=255)  # Official Full Name
     email = models.EmailField(default='')  # Email (Taken from CustomUser)
     gender = models.CharField(default='', max_length=10)  # Gender
@@ -113,11 +114,13 @@ class Course_Application(models.Model):
     percentage1 = models.DecimalField(default=0.0, max_digits=5, decimal_places=2)  # Overall Percentage of the Course
     passing_year1 = models.IntegerField(default=0)  # Year of Passout
     english_proficiency_test = models.CharField(default='', max_length=10)  # English Proficiency Test
-    english_score = models.DecimalField(default= '', max_digits=4, decimal_places=2)  # Test Score
+    english_score = models.DecimalField(default=0.0, max_digits=4, decimal_places=2)  # Test Score
     english_validity = models.IntegerField(default=0)  # Validity (Year)
     proficiency_result = models.FileField(null=True, upload_to='proficiency_results/')  # Proficiency Result (PDF)
     policy_declaration = models.BooleanField(default=True)  # Policy Declaration Agreement
     average_percentage = models.DecimalField(default=0.0, max_digits=5, decimal_places=2)  # Average Percentage
+    application_date = models.DateTimeField(default=timezone.now)
+
 
     
 

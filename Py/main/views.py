@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect
+from random import randint
+from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404
@@ -12,6 +13,8 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.template.defaultfilters import register
 from datetime import date
+from django.utils import timezone
+from decimal import Decimal
 
 
 def is_migrant(user):
@@ -186,7 +189,7 @@ def addcourse(request):
         fees = request.POST.get("fees")
         appdeadline = request.POST.get("appdeadline")
         opendate = request.POST.get("opendate")
-        seat_available = request.POST.get("seat_available")
+        seat_available = request.POST.get("seats_available")
 
         # Handle image upload
         thumbnail_image = request.FILES.get("thumbnail_image")
@@ -257,7 +260,7 @@ def editcourse(request, course_id):
         course.fees = request.POST.get("fees")
         course.appdeadline = request.POST.get("appdeadline")
         course.opendate = request.POST.get("opendate")
-        course.seat_available = request.POST.get("seat_available")
+        course.seat_available = request.POST.get("seats_available")
 
         # Check if a new thumbnail image was uploaded
         new_thumbnail_image = request.FILES.get("thumbnail_image")
@@ -335,7 +338,15 @@ def institute_dashboard(request):
 def courselisting(request):
     user = request.user
     courses = Course.objects.filter(user=user)
-    return render(request, "courselisting.html", {"courses": courses})
+    current_date = timezone.now().date()
+
+    # Create a list of tuples, each containing a course and a boolean indicating whether to disable the buttons
+    course_list = []
+    for course in courses:
+        is_disabled = course.opendate < current_date
+        course_list.append((course, is_disabled))
+
+    return render(request, "courselisting.html", {"courses": course_list})
 
 
 def education(request):
@@ -548,6 +559,15 @@ def course_already_applied(course, user):
     return Course_Application.objects.filter(course=course, user=user).exists()
 
 
+def generate_unique_application_id():
+    while True:
+        # Generate a random 7-digit ID
+        application_id = randint(1000000, 9999999)
+        # Check if the generated ID already exists in the database
+        if not Course_Application.objects.filter(application_id=application_id).exists():
+            return application_id
+
+
 def application_form(request):
     if request.method == "POST":
         user = request.user
@@ -558,6 +578,9 @@ def application_form(request):
             course__course_name=course_name, user=user
         ).exists():
             return HttpResponse("You have already applied for this course.")
+
+        # Generate a unique 7-digit application ID
+        application_id = generate_unique_application_id()
 
         full_name = request.POST["fullName"]
         email = request.POST["email"]
@@ -572,36 +595,37 @@ def application_form(request):
         contact_number = request.POST["contactNumber"]
         qualification1 = request.POST["qualification1"]
         institute1 = request.POST["institute1"]
-        percentage1 = float(request.POST["percentage1"])
+        percentage1 = Decimal(request.POST["percentage1"])  # Convert to Decimal
         passing_year1 = int(request.POST["passingYear1"])
         english_proficiency_test = request.POST["englishProficiencyTest"]
-        english_score = float(request.POST["englishScore"])
+        english_score = Decimal(request.POST["englishScore"])  # Convert to Decimal
         english_validity = request.POST["englishValidity"]
         proficiency_result = request.FILES.get("proficiencyResult")
         policy_declaration = request.POST.get("policyDeclaration") == "on"
 
         # Calculate the average percentage
-        ielts_max_score = 9  # Maximum score for IELTS
-        toefl_max_score = 120  # Maximum score for TOEFL
+        ielts_max_score = Decimal('9.0')  # Maximum score for IELTS
+        toefl_max_score = Decimal('120.0')  # Maximum score for TOEFL
 
         if english_proficiency_test == "ielts":
-            english_percentage = (english_score / ielts_max_score) * 100
+            english_percentage = (english_score / ielts_max_score) * Decimal('100.0')
         elif english_proficiency_test == "toefl":
-            english_percentage = (english_score / toefl_max_score) * 100
+            english_percentage = (english_score / toefl_max_score) * Decimal('100.0')
         else:
-            english_percentage = 0  # Set a default value if no test is selected
+            english_percentage = Decimal('0.0')  # Set a default value if no test is selected
 
-        average_percentage = (english_percentage + percentage1) / 2
-        
+        average_percentage = (english_percentage + percentage1) / Decimal('2.0')
+
         # Create and save the Course_Application instance
-
         try:
             course = Course.objects.get(course_name=course_name)
         except Course.DoesNotExist:
             return HttpResponse(f'Course "{course_name}" does not exist.')
 
+        application_date = timezone.now().date()
         applicant = Course_Application(
-            user=user,  # Use the current user
+            application_id=application_id,
+            user=user,
             course=course,
             full_name=full_name,
             email=email,
@@ -624,10 +648,18 @@ def application_form(request):
             proficiency_result=proficiency_result,
             policy_declaration=policy_declaration,
             average_percentage=average_percentage,
+            application_date=application_date
         )
+        
 
-        print(applicant)
         applicant.save()
+
+        if course.course_type == "Diploma Programme":
+            return redirect(reverse('course_view_diploma'))
+        elif course.course_type == "Bachelor Degree":
+            return redirect(reverse('course_view_bachelor'))
+        elif course.course_type == "Master Degree":
+            return redirect(reverse('course_view_master'))
 
     return render(request, "courseview.html")
 
@@ -637,3 +669,28 @@ def display_applications(request):
     user_applications = Course_Application.objects.filter(user=request.user)
 
     return render(request, 'viewapplication.html', {'user_applications': user_applications})
+
+@login_required
+@user_passes_test(is_institute)
+def manage_applications(request, course_id):
+    user = request.user
+    course = get_object_or_404(Course, id=course_id, user=user)
+
+    applications = Course_Application.objects.filter(course=course)
+
+    return render(request, "manage_applications.html", {"course": course, "applications": applications})
+
+
+
+# def course_applications(request, course_id):
+#     course = Course.objects.get(id=course_id)
+    
+#     # Assuming you have a ForeignKey field 'course' in your Application model
+#     applications = Course_Application.objects.filter(course=course, user=request.user)
+    
+#     context = {
+#         'course': course,
+#         'applications': applications,
+#     }
+    
+#     return render(request, 'manage_application.html', context)

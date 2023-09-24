@@ -7,18 +7,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShareSphere | Course Applications</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static '/home.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-edu-meeting.css' %}">
     <script src="{% static 'assets/js/script.js' %}"></script>
-    <script src="{% static 'courseview.js' %}"></script>
     <!-- Link to your styles.css file -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
 
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <!-- Additional CSS Files -->
-    <link rel="stylesheet" href="{% static 'assets/css/templatemo-edu-meeting.css' %}">
+
 
     <style>
+        
     </style>
 
 </head>
@@ -136,35 +135,38 @@
             <h1 class="text-center mb-4">Your Course Applications</h1>
 
             <div class="row">
-                <div class="col-md-6">
-                    <h2 class="mb-3">Applications Made by You</h2>
+                <!-- ... -->
+                <div class="col-12">
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>Sl No.</th>
+                                    <th>Application ID</th>
                                     <th>Course Name</th>
                                     <th>Institute Name</th>
-                                    <th>Applied On</th>
+                                    <th>Applied On</th> <!-- Changed the header text -->
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for application in user_applications %}
                                 <tr>
                                     <td>{{ forloop.counter }}</td>
+                                    <td>{{ application.application_id }}</td>
                                     <td>{{ application.course.course_name }}</td>
                                     <td>{{ application.course.user.first_name }}</td>
-                                    <td>{{ application.date }}</td>
+                                    <td>{{ application.application_date|date:"F d, Y" }}</td> <!-- Display formatted date -->
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="3">You haven't made any applications yet.</td>
+                                    <td colspan="5">You haven't made any applications yet.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                 </div>
+
             </div>
         </div>
     </section>

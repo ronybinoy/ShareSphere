@@ -241,10 +241,10 @@ $(document).ready(function () {
         var maxAppDeadline = new Date(today);
 
         // Calculate the minimum opendate (today + 2 days)
-        minOpenDate.setDate(minOpenDate.getDate() + 2);
+        minOpenDate.setDate(minOpenDate.getDate() + 5);
 
         // Calculate the maximum opendate (today + 2 days + 1 month)
-        maxOpenDate.setDate(maxOpenDate.getDate() + 2);
+        maxOpenDate.setDate(maxOpenDate.getDate() + 5);
         maxOpenDate.setMonth(maxOpenDate.getMonth() + 1);
 
         // Calculate the minimum appdeadline (opendate + 1 month)

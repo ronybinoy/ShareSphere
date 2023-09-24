@@ -20,6 +20,7 @@ urlpatterns = [
 
     
     path('institute-dashboard/', views.institute_dashboard, name='institute_dashboard'),
+    path('manage_applications/<int:course_id>/', views.manage_applications, name='manage_applications'),
     path('addcourse/', views.addcourse, name='addcourse'),
     path('course_view_diploma/', views.course_view_diploma, name='course_view_diploma'),
     path('course_view_bachelor/', views.course_view_bachelor, name='course_view_bachelor'),
