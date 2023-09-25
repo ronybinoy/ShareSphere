@@ -60,7 +60,10 @@
                             <a class="nav-link active" aria-current="page" href="#">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link " href="#">Scholarships</a>
+                            <a class="nav-link " href="{% url 'courselisting' %}">Manage Courses</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " href="{% url "course_application_analytics" %}">Analytics</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link " href="#">Contact Us</a>
@@ -158,12 +161,11 @@
                 <div class="col-md-4">
                     <div class="card shadow text-center p-4 rounded-xl">
                         <div class="card-body">
-                            <h5 class="card-title">Manage Course
+                            <h5 class="card-title">Manage Scholarships
                                 applications</h5>
 
-                            <a href="{% url "manage_application" %}"><button class="btn btn-primary mt-3">Manage</button></a>
+                            <a href="#"><button class="btn btn-primary mt-3">Manage</button></a>
 
-                            <!-- Added the "Learn More" button -->
                         </div>
                     </div>
                 </div>

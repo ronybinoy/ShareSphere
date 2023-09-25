@@ -22,9 +22,9 @@ urlpatterns = [
     path('institute-dashboard/', views.institute_dashboard, name='institute_dashboard'),
     path('manage_applications/<int:course_id>/', views.manage_applications, name='manage_applications'),
     path('addcourse/', views.addcourse, name='addcourse'),
-    path('course_view_diploma/', views.course_view_diploma, name='course_view_diploma'),
-    path('course_view_bachelor/', views.course_view_bachelor, name='course_view_bachelor'),
-    path('course_view_master/', views.course_view_master, name='course_view_master'),
+    path('courses/diploma/', views.course_view, {'course_type': 'Diploma Programme'}, name='course_view_diploma'),
+    path('courses/bachelor/', views.course_view, {'course_type': 'Bachelor Degree'}, name='course_view_bachelor'),
+    path('courses/master/', views.course_view, {'course_type': 'Master Degree'}, name='course_view_master'),
     path('get_institute_name/', views.get_institute_name, name='get_institute_name'),
 
 
@@ -32,12 +32,16 @@ urlpatterns = [
     path('application_form/', views.application_form, name='application_form'),
     path('user/display_applications/', views.display_applications, name='display_applications'),
     path('search_courses/', views.search_courses, name='search_courses'),
+    path('course_application_analytics/', views.course_application_analytics, name='course_application_analytics'),
+
     
 
     path('courselisting/', views.courselisting, name='courselisting'),
     path('editcourse/<int:course_id>/', views.editcourse, name='editcourse'),
     path('deletecourse/<int:course_id>/', views.deletecourse, name='deletecourse'),
     path('reject_course/<int:course_id>/', views.reject_course, name='reject_course'),
+    path('send_emails/<int:course_id>/', views.send_emails, name='send_emails'),
+
 
 
     path("inst_signup/", views.inst_signup, name="inst_signup"),

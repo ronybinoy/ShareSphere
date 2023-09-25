@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404
 from .models import Course, Room, Message, CustomUser, Inst_info, Course_Application
 from django.contrib.auth import authenticate, login as auth_login, logout
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.http import require_GET
 from django.core.exceptions import ValidationError
 from django.core.files import File
@@ -15,6 +15,9 @@ from django.template.defaultfilters import register
 from datetime import date
 from django.utils import timezone
 from decimal import Decimal
+from django.core.mail import send_mail
+from django.core.paginator import Paginator
+from django.db.models import Count, Avg
 
 
 def is_migrant(user):
@@ -193,7 +196,6 @@ def addcourse(request):
 
         # Handle image upload
         thumbnail_image = request.FILES.get("thumbnail_image")
-        print(thumbnail_image)
 
         # Check if the uploaded file is an image
         if thumbnail_image:
@@ -304,7 +306,7 @@ def deletecourse(request, course_id):
 
 # views.py
 
-
+@login_required
 def validate_institute(request):
     if request.method == "POST":
         license_number = request.POST.get("license_number")
@@ -348,7 +350,7 @@ def courselisting(request):
 
     return render(request, "courselisting.html", {"courses": course_list})
 
-
+@login_required
 def education(request):
     return render(request, "index.html")
 
@@ -382,10 +384,12 @@ def admin_dashboard(request):
     return render(request, "admin/admin_index.html", {"users": users})
 
 
+@login_required
 def user_listing(request):
     return render(request, "http://127.0.0.1:8000/admin/main/customuser/")
 
 
+@login_required
 def filtered_users(request, role):
     if role == "all":
         users = CustomUser.objects.all()
@@ -413,6 +417,7 @@ def filtered_users(request, role):
     return JsonResponse({"users": user_data})
 
 
+@login_required
 def course_listing(request):
     # Retrieve pending courses with related user data
     courses = Course.objects.filter(status="pending").select_related("user")
@@ -441,30 +446,23 @@ def course_listing(request):
     return JsonResponse({"courses": serialized_courses})
 
 
-def course_view_diploma(request):
+@login_required
+def course_view(request, course_type):
     today = date.today()  # Get the current date
-    courses = Course.objects.filter(
-        status="approved", course_type="Diploma Programme", appdeadline__gte=today
+    courses_list = Course.objects.filter(
+        status="approved", course_type=course_type, appdeadline__gte=today
     )
+    
+    # Number of courses to display per page
+    per_page = 10
+
+    paginator = Paginator(courses_list, per_page)
+    page_number = request.GET.get('page')
+    courses = paginator.get_page(page_number)
+
     return render(request, "courseview.html", {"courses": courses, "today": today})
 
-
-def course_view_bachelor(request):
-    today = date.today()  # Get the current date
-    courses = Course.objects.filter(
-        status="approved", course_type="Bachelor Degree", appdeadline__gte=today
-    )
-    return render(request, "courseview.html", {"courses": courses, "today": today})
-
-
-def course_view_master(request):
-    today = date.today()  # Get the current date
-    courses = Course.objects.filter(
-        status="approved", course_type="Master Degree", appdeadline__gte=today
-    )
-    return render(request, "courseview.html", {"courses": courses, "today": today})
-
-
+@login_required
 @require_GET
 def update_course_status(request, course_id, status):
     # Get the course instance
@@ -484,7 +482,7 @@ def update_course_status(request, course_id, status):
 
 
 
-
+@login_required
 def reject_course(request, course_id):
     if request.method == 'POST':
         try:
@@ -505,6 +503,8 @@ def reject_course(request, course_id):
 
     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
+
+@login_required
 def search_courses(request):   
     keyword = request.GET.get("keyword", "")
 
@@ -539,6 +539,7 @@ def search_courses(request):
     return JsonResponse({"courses": serialized_results})
 
 
+@login_required
 def get_institute_name(request):
     if request.method == "GET":
         user_id = request.GET.get("user_id")  # Get the user ID from the AJAX request
@@ -554,11 +555,13 @@ def get_institute_name(request):
         return JsonResponse({"error": "Invalid request"}, status=400)
 
 
+@login_required
 @register.filter
 def course_already_applied(course, user):
     return Course_Application.objects.filter(course=course, user=user).exists()
 
 
+@login_required
 def generate_unique_application_id():
     while True:
         # Generate a random 7-digit ID
@@ -567,7 +570,7 @@ def generate_unique_application_id():
         if not Course_Application.objects.filter(application_id=application_id).exists():
             return application_id
 
-
+@login_required
 def application_form(request):
     if request.method == "POST":
         user = request.user
@@ -663,7 +666,7 @@ def application_form(request):
 
     return render(request, "courseview.html")
 
-
+@login_required
 def display_applications(request):
     # Retrieve the user's applications
     user_applications = Course_Application.objects.filter(user=request.user)
@@ -676,21 +679,66 @@ def manage_applications(request, course_id):
     user = request.user
     course = get_object_or_404(Course, id=course_id, user=user)
 
-    applications = Course_Application.objects.filter(course=course)
+    # Get the number of available seats for the course
+    available_seats = course.seat_available
 
-    return render(request, "manage_applications.html", {"course": course, "applications": applications})
+    # Get all applications for the course ordered by average_percentage in descending order
+    all_applications = Course_Application.objects.filter(course=course).order_by('-average_percentage')
+
+    # Separate approved, pending, and rejected applications
+    approved_applications = all_applications[:available_seats]
+    pending_applications = all_applications[available_seats:available_seats + 2]
+    rejected_applications = all_applications[available_seats + 2:]
+
+    return render(request, "manage_applications.html", {
+        "course": course,
+        "all_applications": all_applications,  # Add this line
+        "approved_applications": approved_applications,
+        "pending_applications": pending_applications,
+        "rejected_applications": rejected_applications
+    })
 
 
+@login_required
+def send_emails(request, course_id):
+    if request.method == 'POST':
+        selected_application_ids = request.POST.getlist('selected_applications')
+        print(selected_application_ids)
+        
+        # Get the approved applications
+        approved_applications = Course_Application.objects.filter(pk__in=selected_application_ids)
+        
+        # Compose and send email for each approved application
+        subject = 'Course Application Approved'
+        from_email = 'sharesphereedu@gmail.com'  # Use your sender email address
 
-# def course_applications(request, course_id):
-#     course = Course.objects.get(id=course_id)
-    
-#     # Assuming you have a ForeignKey field 'course' in your Application model
-#     applications = Course_Application.objects.filter(course=course, user=request.user)
-    
-#     context = {
-#         'course': course,
-#         'applications': applications,
-#     }
-    
-#     return render(request, 'manage_application.html', context)
+        for application in approved_applications:
+            recipient_email = application.email
+            message = f'Congratulations! Your course application for the {application.course.course_name} at {application.user.first_name}, {application.user.region} has been approved.'
+            send_mail(subject, message, from_email, [recipient_email])
+
+        # Redirect to the 'manage_applications' view with the course_id argument
+        return redirect(reverse('manage_applications', args=[course_id]))
+
+    return JsonResponse({'message': 'Invalid request method'})
+
+
+def course_application_analytics(request):
+    # Calculate the total number of course applications
+    total_applications = Course_Application.objects.count()
+
+    # Find the most applied course
+    most_applied_course = Course_Application.objects.values('course__course_name').annotate(application_count=Count('application_id')).order_by('-application_count').first()
+
+    # Calculate the average percentage of applicants
+    average_percentage = Course_Application.objects.aggregate(avg_percentage=Avg('average_percentage'))['avg_percentage']
+
+    # Count the number of applicants from each country
+    countries = Course_Application.objects.values('country').annotate(count=Count('application_id'))
+
+    return render(request, 'analytics.html', {
+        'total_applications': total_applications,
+        'most_applied_course': most_applied_course,
+        'average_percentage': average_percentage,
+        'countries': {entry['country']: entry['count'] for entry in countries},
+    })

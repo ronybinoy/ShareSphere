@@ -87,56 +87,249 @@
             </div>
         </nav>
     </header>
-    <section>
-        <div class="container">
-            <h3 class="mt-3 mb-2 text-center text-dark p-2">
-                Applications for {{ course.course_name }}
-            </h3>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <a class="nav-link" id="v-pills-all-tab" data-toggle="pill" href="#v-pills-all" role="tab"
+                        aria-controls="v-pills-all" aria-selected="false">All Applications</a>
+                    <a class="nav-link active" id="v-pills-approved-tab" data-toggle="pill" href="#v-pills-approved"
+                        role="tab" aria-controls="v-pills-approved" aria-selected="true">Approved Applications</a>
+                    <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending" role="tab"
+                        aria-controls="v-pills-pending" aria-selected="false">Pending Applications</a>
+                    <a class="nav-link" id="v-pills-rejected-tab" data-toggle="pill" href="#v-pills-rejected" role="tab"
+                        aria-controls="v-pills-rejected" aria-selected="false">Rejected Applications</a>
 
-            {% if applications %}
-            <div class="table-responsive mt-4">
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Sl no</th>
-                            <th>App ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>App Date</th>
-                            <th>Education</th>
-                            <th>Percentage</th>
-                            <th>English Proficiency Test</th>
-                            <th>Test Score</th>
-                            <th>Average Percentage</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for application in applications %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <!-- Sl.No column -->
-                            <td>{{ application.application_id }}</td>
-                            <td>{{ application.full_name }}</td>
-                            <td>{{ application.email }}</td>
-                            <td>{{ application.application_date }}</td>
-                            <td>{{ application.qualification1 }}</td>
-                            <td>{{ application.percentage1 }}</td>
-                            <td>{{ application.english_proficiency_test }}</td>
-                            <td>{{ application.english_score }}</td>
-                            <td>{{ application.average_percentage }}</td>
-                            <!-- Add more columns as needed -->
-                            
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                </div>
             </div>
+            <div class="col-md-9">
+                <div class="tab-content" id="v-pills-tabContent">
+                    <!-- all applications -->
+                    <div class="tab-pane fade" id="v-pills-all" role="tabpanel" aria-labelledby="v-pills-all-tab">
+                        {% if all_applications %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Sl no</th>
+                                        <th>App ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>App Date</th>
+                                        <th>Education</th>
+                                        <th>Percentage</th>
+                                        <th>English Proficiency Test</th>
+                                        <th>Test Score</th>
+                                        <th>Average Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in all_applications %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <!-- Sl.No column -->
+                                        <td>{{ application.application_id }}</td>
+                                        <td>{{ application.full_name }}</td>
+                                        <td>{{ application.email }}</td>
+                                        <td>{{ application.application_date|date:"Y-m-d" }}</td>
+                                        <td>{{ application.qualification1 }}</td>
+                                        <td>{{ application.percentage1 }}</td>
+                                        <td>{{ application.english_proficiency_test }}</td>
+                                        <td>{{ application.english_score }}</td>
+                                        <td>{{ application.average_percentage }}</td>
+                                        <!-- Add more columns as needed -->
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <button id="export-csv" class="btn btn-primary">Export to CSV</button>
+                        <!-- Add the export button -->
+                        <script>
+                            // JavaScript code to handle CSV export
+                            document.getElementById('export-csv').addEventListener('click', function () {
+                                // Define the table element
+                                var table = document.querySelector('.table');
+                                // Create a new CSV Blob
+                                var blob = new Blob([tableToCSV(table)], { type: 'text/csv;charset=utf-8;' });
+                                // Create a download link
+                                var link = document.createElement("a");
+                                if (link.download !== undefined) {
+                                    var url = URL.createObjectURL(blob);
+                                    link.setAttribute("href", url);
+                                    link.setAttribute("download", 'all_applications.csv');
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                }
+                            });
 
-            {% else %}
-            <p class="text-white">No applications received for this course.</p>
-            {% endif %}
+                            // Function to convert table data to CSV format
+                            function tableToCSV(table) {
+                                var rows = [];
+                                for (var i = 0; i < table.rows.length; i++) {
+                                    var row = [];
+                                    for (var j = 0; j < table.rows[i].cells.length; j++) {
+                                        row.push(table.rows[i].cells[j].textContent);
+                                    }
+                                    rows.push(row.join(","));
+                                }
+                                return rows.join("\n");
+                            }
+                        </script>
+                        {% else %}
+                        <p class="text-dark">No applications for this course.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Approved Applications -->
+                    <div class="tab-pane fade show active" id="v-pills-approved" role="tabpanel"
+                        aria-labelledby="v-pills-approved-tab">
+                        {% if approved_applications %}
+                        <div class="table-responsive">
+                            <form id="emailForm" method="post" action="{% url 'send_emails' course_id=course.id %}">
+                                {% csrf_token %}
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Select</th> <!-- Add a checkbox column -->
+                                            <th>Sl no</th>
+                                            <th>App ID</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>App Date</th>
+                                            <th>Education</th>
+                                            <th>Percentage</th>
+                                            <th>English Proficiency Test</th>
+                                            <th>Test Score</th>
+                                            <th>Average Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for application in approved_applications %}
+                                        <tr>
+                                            <td><input type="checkbox" name="selected_applications"
+                                                    value="{{ application.application_id }}"></td>
+                                            <!-- Checkbox for selecting applications -->
+                                            <td>{{ forloop.counter }}</td>
+                                            <!-- Sl.No column -->
+                                            <td>{{ application.application_id }}</td>
+                                            <td>{{ application.full_name }}</td>
+                                            <td>{{ application.email }}</td>
+                                            <td>{{ application.application_date|date:"Y-m-d" }}</td>
+                                            <!-- Use the date filter to format the date -->
+                                            <td>{{ application.qualification1 }}</td>
+                                            <td>{{ application.percentage1 }}</td>
+                                            <td>{{ application.english_proficiency_test }}</td>
+                                            <td>{{ application.english_score }}</td>
+                                            <td>{{ application.average_percentage }}</td>
+                                            <!-- Add more columns as needed -->
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="submit" class="btn btn-primary">Send Email</button>
+                                <!-- Add a submit button for sending emails -->
+                            </form>
+                        </div>
+                        {% else %}
+                        <p class="text-dark">No approved applications for this course.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Pending Applications -->
+                    <div class="tab-pane fade" id="v-pills-pending" role="tabpanel"
+                        aria-labelledby="v-pills-pending-tab">
+                        {% if pending_applications %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Sl no</th>
+                                        <th>App ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>App Date</th>
+                                        <th>Education</th>
+                                        <th>Percentage</th>
+                                        <th>English Proficiency Test</th>
+                                        <th>Test Score</th>
+                                        <th>Average Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in pending_applications %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <!-- Sl.No column -->
+                                        <td>{{ application.application_id }}</td>
+                                        <td>{{ application.full_name }}</td>
+                                        <td>{{ application.email }}</td>
+                                        <td>{{ application.application_date|date:"Y-m-d" }}</td>
+                                        <td>{{ application.qualification1 }}</td>
+                                        <td>{{ application.percentage1 }}</td>
+                                        <td>{{ application.english_proficiency_test }}</td>
+                                        <td>{{ application.english_score }}</td>
+                                        <td>{{ application.average_percentage }}</td>
+                                        <!-- Add more columns as needed -->
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-dark">No pending applications for this course.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Rejected Applications -->
+                    <div class="tab-pane fade" id="v-pills-rejected" role="tabpanel"
+                        aria-labelledby="v-pills-rejected-tab">
+                        {% if rejected_applications %}
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Sl no</th>
+                                        <th>App ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>App Date</th>
+                                        <th>Education</th>
+                                        <th>Percentage</th>
+                                        <th>English Proficiency Test</th>
+                                        <th>Test Score</th>
+                                        <th>Average Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in rejected_applications %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <!-- Sl.No column -->
+                                        <td>{{ application.application_id }}</td>
+                                        <td>{{ application.full_name }}</td>
+                                        <td>{{ application.email }}</td>
+                                        <td>{{ application.application_date|date:"Y-m-d" }}</td>
+                                        <td>{{ application.qualification1 }}</td>
+                                        <td>{{ application.percentage1 }}</td>
+                                        <td>{{ application.english_proficiency_test }}</td>
+                                        <td>{{ application.english_score }}</td>
+                                        <td>{{ application.average_percentage }}</td>
+                                        <!-- Add more columns as needed -->
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <p class="text-dark">No rejected applications for this course.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
 
     <!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">

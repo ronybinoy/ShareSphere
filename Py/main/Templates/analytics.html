@@ -16,9 +16,31 @@
     <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
 
 
-    <style>
-        
-    </style>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            // Replace the following data with dynamic data from your backend
+            var courseData = [
+                ['Course', 'Applications'],
+                ['Diploma Courses', {{ diploma_applications_count }}],
+                ['Undergraduate Courses', {{ undergraduate_applications_count }}],
+                ['Graduate Courses', {{ graduate_applications_count }}]
+            ];
+
+            var data = google.visualization.arrayToDataTable(courseData);
+
+            var options = {
+                title: 'Course Applications by Type'
+            };
+
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+
+            chart.draw(data, options);
+        }
+    </script>
 
 </head>
 
@@ -54,6 +76,10 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link " href="#">Course Applications</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link " href="#">Scholarships</a>
                         </li>
 
                         <li class="nav-item">
@@ -127,44 +153,8 @@
         </nav>
     </header>
     <section>
-        <div class="container mt-5">
-            <h1 class="text-center mb-4">Your Course Applications</h1>
+        <div id="piechart" style="width: 900px; height: 500px;"></div>
 
-            <div class="row">
-                <!-- ... -->
-                <div class="col-12">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Sl No.</th>
-                                    <th>Application ID</th>
-                                    <th>Course Name</th>
-                                    <th>Institute Name</th>
-                                    <th>Applied On</th> <!-- Changed the header text -->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for application in user_applications %}
-                                <tr>
-                                    <td>{{ forloop.counter }}</td>
-                                    <td>{{ application.application_id }}</td>
-                                    <td>{{ application.course.course_name }}</td>
-                                    <td>{{ application.course.user.first_name }}</td>
-                                    <td>{{ application.application_date|date:"F d, Y" }}</td> <!-- Display formatted date -->
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="5">You haven't made any applications yet.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </div>
     </section>
 
 
