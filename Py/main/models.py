@@ -131,8 +131,7 @@ class Course_Application(models.Model):
     policy_declaration = models.BooleanField(default=True)  # Policy Declaration Agreement
     average_percentage = models.DecimalField(default=0.0, max_digits=5, decimal_places=2)  # Average Percentage
     application_date = models.DateTimeField(default=timezone.now)
-
-
+    application_status = models.BooleanField(default=False)
     
 
     def __str__(self):

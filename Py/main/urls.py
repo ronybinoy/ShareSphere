@@ -17,7 +17,8 @@ urlpatterns = [
     path('update_course_status/<int:course_id>/<str:status>/', views.update_course_status, name='update_course_status'),
 
 
-
+    path('payment1/', views.payment1, name='payment1'), 
+    path('paymenthandler/', views.paymenthandler, name='paymenthandler'),  # Define the URL pattern for paymenthandler view
     
     path('institute-dashboard/', views.institute_dashboard, name='institute_dashboard'),
     path('manage_applications/<int:course_id>/', views.manage_applications, name='manage_applications'),
@@ -73,4 +74,8 @@ urlpatterns = [
 
     path('rooms', views.rooms, name='rooms'),
     path('<slug:slug>/', views.room, name='room'),
+    
+    
+    
+  
 ]

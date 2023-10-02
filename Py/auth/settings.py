@@ -170,6 +170,10 @@ EMAIL_HOST_PASSWORD = 'hwyr mrwx kpol iobt'
 DEFAULT_FROM_EMAIL = 'sharesphereedu@gmail.com'
 EMAIL_TIMEOUT = 10
 
+
+RAZOR_KEY_ID = "rzp_test_eZKNZyFjMFp4jy"
+RAZOR_KEY_SECRET = "peW7KRBBQnAEnzGShuSGBX39"
+
 # jazzmin_setting
 
 JAZZMIN_SETTINGS = {
