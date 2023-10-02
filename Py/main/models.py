@@ -1,24 +1,35 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 
 class CustomUser(AbstractUser):
     username=models.CharField(max_length=32, blank=True, null=True)
     USERNAME_FIELD = 'email'
     email = models.EmailField(unique=True)
-    img=models.ImageField(upload_to='pics',default='https://img.freepik.com/free-icon/man_318-677829.jpg',null=True)
-    is_migrant=models.BooleanField('is_migrant',default=False,null=True)
-    is_institute=models.BooleanField('is_institute',default=False,null=True)
-    is_landlord=models.BooleanField('is_landlord',default=False,null=True)
-    migrant_uid = models.CharField(("migrant_uid"),default='',max_length=20,null=True)
-    institute_lis_no = models.CharField(("institute_lis_no"),default='',max_length=30,null=True)
-    landlord_uid = models.CharField(("landlord_uid"),default='',max_length=20,null=True)
-    nationality = models.CharField(("nationality"),default='',max_length=30,null=True)
-    region = models.CharField(("region"),default='',max_length=30,null=True)
-    institute_type = models.CharField(("institute_type"),default='',max_length=20,null=True)
+    is_migrant = models.BooleanField('is_migrant', default=False, null=True)
+    is_institute = models.BooleanField('is_institute', default=False, null=True)
+    migrant_uid = models.CharField(("migrant_uid"), default='', max_length=20, null=True)
+    institute_lis_no = models.CharField(("institute_lis_no"), default='', max_length=30, null=True)
+    nationality = models.CharField(("nationality"), default='', max_length=30, null=True)
+    region = models.CharField(("region"), default='', max_length=30, null=True)
     REQUIRED_FIELDS = []
 
+class Migrant(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,  # Use the custom user model as the target
+        on_delete=models.CASCADE,
+    )
+    dob = models.DateField(("Date of Birth"), null=True, blank=True)
+    contact_no = models.CharField(("Contact Number"), max_length=15, null=True, blank=True)
+    profile_photo = models.ImageField(
+        ("Profile Photo"),
+        upload_to='profile_photos/',
+        default='default_profile.png',  # Use the filename of your default profile photo
+        null=True,
+        blank=True
+    )
 
 
 class Course(models.Model):

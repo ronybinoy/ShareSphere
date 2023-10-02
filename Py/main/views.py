@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404
-from .models import Course, Room, Message, CustomUser, Inst_info, Course_Application
+from .models import Course, Room, Message, CustomUser, Inst_info, Course_Application, Migrant
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.decorators.http import require_GET
@@ -18,6 +18,8 @@ from decimal import Decimal
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import Count, Avg
+from django.core.files.storage import default_storage
+
 
 
 def is_migrant(user):
@@ -325,8 +327,50 @@ def validate_institute(request):
         return JsonResponse(data)
 
 
+@login_required
 def home(request):
-    return render(request, "home.html")
+    user = request.user
+    profile_photo_url = None  # Initialize as None, in case there's no profile photo
+
+    # Check if the user has a migrant profile
+    migrant, created = Migrant.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+        # Update user profile fields
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.save()
+
+        # Update migrant profile fields
+        migrant.dob = request.POST.get('dob')
+        migrant.street_address = request.POST.get('street_address')
+        migrant.state = request.POST.get('state')
+        migrant.pincode = request.POST.get('pincode')
+        migrant.city = request.POST.get('city')
+        migrant.contact_no = request.POST.get('contact_no')
+
+        # Handle profile photo update
+        profile_photo = request.FILES.get('profile_photo')
+        print(profile_photo)
+        if profile_photo:
+            # Delete the old profile photo if it exists
+            if migrant.profile_photo:
+                default_storage.delete(migrant.profile_photo.name)
+            # Save the new profile photo
+            migrant.profile_photo = profile_photo
+
+        migrant.save()
+
+        # Redirect to a success page or reload the current page
+        return redirect('home')
+
+    # Check if a profile photo exists and get its URL
+    if migrant.profile_photo:
+        profile_photo_url = migrant.profile_photo.url
+
+    return render(request, "home.html", {'user': user, 'profile_photo_url': profile_photo_url})
+
+
 
 
 @login_required
@@ -449,18 +493,37 @@ def course_listing(request):
 @login_required
 def course_view(request, course_type):
     today = date.today()  # Get the current date
+    query = request.GET.get('q')  # Get the search query from the request
+
+    # Filter and group courses by country
+    courses_by_country = {}
     courses_list = Course.objects.filter(
         status="approved", course_type=course_type, appdeadline__gte=today
-    )
+    ).select_related('user')  # Use select_related to fetch related user data efficiently
+
+    if query:
+        # Filter courses based on the search query (course name or institute name)
+        courses_list = courses_list.filter(
+            Q(course_name__icontains=query) | Q(user__first_name__icontains=query)
+        )
+
+    for course in courses_list:
+        country = course.user.nationality  # Assuming the user's region represents the country
+        if country not in courses_by_country:
+            courses_by_country[country] = []
+        courses_by_country[country].append(course)
     
-    # Number of courses to display per page
     per_page = 10
 
-    paginator = Paginator(courses_list, per_page)
-    page_number = request.GET.get('page')
-    courses = paginator.get_page(page_number)
+    for country, country_courses in courses_by_country.items():
+        paginator = Paginator(country_courses, per_page)
+        page_number = request.GET.get('page')
+        country_courses_paginated = paginator.get_page(page_number)
+        courses_by_country[country] = country_courses_paginated
 
-    return render(request, "courseview.html", {"courses": courses, "today": today})
+    return render(request, "courseview.html", {"courses_by_country": courses_by_country, "today": today})
+
+
 
 @login_required
 @require_GET

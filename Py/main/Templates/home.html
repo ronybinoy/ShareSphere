@@ -18,20 +18,11 @@
     <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/lightbox.css' %}">
     <!-- Font Awesome -->
-    <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    rel="stylesheet"
-    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <!-- Google Fonts -->
-    <link
-    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-    rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- MDB -->
-    <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.css"
-    rel="stylesheet"
-    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.css" rel="stylesheet" />
 
     <style>
         .navbar-nav .nav-item a.nav-link {
@@ -41,6 +32,9 @@
 
         .navbar-nav .nav-item a.nav-link:hover {
             text-decoration: underline;
+        }
+        .fa-regular, .far {
+            margin-top: 13px;
         }
     </style>
 </head>
@@ -67,7 +61,7 @@
                         <li class="nav-item">
                             <a class="nav-link " href="{% url 'education' %}">Education</a>
                         </li>
-                       
+
                         <li class="nav-item">
                             <a class="nav-link " href="#">About Us</a>
                         </li>
@@ -182,22 +176,14 @@
                             <p class="card-text">Find comfortable and
                                 affordable accommodation options in your
                                 location.</p>
-                            <a href=""><button class="btn btn-primary mt-3">Learn More</button></a>                         
+                            <a href=""><button class="btn btn-primary mt-3">Learn More</button></a>
+                        </div>
                     </div>
-                </div>  
-            </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- <hr>
-
-    <section>
-    </section> -->
-    <!-- Button trigger modal
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLong">
-        Launch demo modal
-    </button> -->
 
     <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalTitle"
         aria-hidden="true">
@@ -210,91 +196,112 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="profileForm" action="{% url "home" %}">
+                    <!-- Edit Profile Photo Section -->
+                    <form id="profileForm" method="POST" action="{% url 'home' %}" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="form-group">
-                            <label for="uid_no">UID No</label>
-                            <input type="text" class="form-control" id="uid_no" value="{{user.migrant_uid}}" name="uid_no" readonly>
+                        <div class="text-center mb-3">
+                            <img src="{{ profile_photo_url }}" alt="Profile Photo" class="img-thumbnail rounded-circle"
+                                style="max-width: 150px;" id="profileImage">
+                            <br>
+                            <button type="button" class="btn btn-link mt-2" id="editProfilePhotoButton">Edit Profile
+                                Photo</button><br>
+                            <input type="file" class="form-control-file d-none" id="profile_photo" name="profile_photo">
                         </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="text" class="form-control" id="email" value="{{user.email}}" name="email" readonly>
-                        </div>
+
+                        <!-- Display user details -->
                         <div class="form-group">
                             <label for="first_name">First Name</label>
-                            <input type="text" class="form-control" id="first_name" value="{{user.first_name}}" name="first_name">
+                            <input type="text" class="form-control" id="first_name" value="{{ user.first_name }}"
+                                name="first_name" readonly>
                         </div>
                         <div class="form-group">
                             <label for="last_name">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" value="{{user.last_name}}" name="last_name">
+                            <input type="text" class="form-control" id="last_name" value="{{ user.last_name }}"
+                                name="last_name">
                         </div>
+
                         <div class="form-group">
-                            <label for="password">Password</label>
-                            <input type="password" class="form-control" id="password" value="{{user.password}}" name="password">
+                            <label for="dob">Date of Birth</label>
+                            <input type="date" class="form-control" id="dob" value="{{ user.migrant.dob }}" name="dob">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contact_no">Contact Number</label>
+                            <input type="text" class="form-control" id="contact_no"
+                                value="{{ user.migrant.contact_no }}" name="contact_no">
+                        </div>
+
+                        <!-- Add hidden input fields to store user ID and migrant ID -->
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <input type="hidden" name="migrant_id" value="{{ user.migrant.id }}">
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
                         </div>
                     </form>
-    
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" id="saveProfileChanges" href="{% url 'edit_profile' %}" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
     </div>
+
+
     <footer class="bg-dark text-center text-white">
         <!-- Grid container -->
         <div class="container p-4 pb-0">
-          <!-- Section: Social media -->
-          <section class="mb-4">
-            <!-- Facebook -->
-            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
-              ><i class="fab fa-facebook-f"></i
-            ></a>
-      
-            <!-- Twitter -->
-            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
-              ><i class="fab fa-twitter"></i
-            ></a>
-      
-            <!-- Google -->
-            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
-              ><i class="fab fa-google"></i
-            ></a>
-      
-            <!-- Instagram -->
-            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
-              ><i class="fab fa-instagram"></i
-            ></a>
-      
-            <!-- Linkedin -->
-          
-            <!-- Github -->
-            <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"
-              ><i class="fab fa-github"></i
-            ></a>
-          </section>
-          <!-- Section: Social media -->
+            <!-- Section: Social media -->
+            <section class="mb-4">
+                <!-- Facebook -->
+                <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"><i
+                        class="fab fa-facebook-f"></i></a>
+
+                <!-- Twitter -->
+                <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"><i
+                        class="fab fa-twitter"></i></a>
+
+                <!-- Google -->
+                <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"><i
+                        class="fab fa-google"></i></a>
+
+                <!-- Instagram -->
+                <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"><i
+                        class="fab fa-instagram"></i></a>
+
+                <!-- Linkedin -->
+
+                <!-- Github -->
+                <a class="btn btn-outline-light btn-floating m-1" href="#!" role="button"><i
+                        class="fab fa-github"></i></a>
+            </section>
+            <!-- Section: Social media -->
         </div>
         <!-- Grid container -->
-      
+
         <!-- Copyright -->
         <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-          © 2020 Copyright:
-          <a class="text-white" href="#">ShareSphere.com</a>
+            © 2020 Copyright:
+            <a class="text-white" href="#">ShareSphere.com</a>
         </div>
         <!-- Copyright -->
-      </footer>
+    </footer>
     <script>
         function openProfileModal() {
             $('#profileModal').modal('show');
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const editProfilePhotoButton = document.getElementById('editProfilePhotoButton');
+            const profilePhotoInput = document.getElementById('profile_photo');
         
+            editProfilePhotoButton.addEventListener('click', function() {
+                profilePhotoInput.classList.remove('d-none');
+            });
+        });
+
     </script>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-    
 </body>
 
 </html>
