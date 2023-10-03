@@ -138,4 +138,16 @@ class Course_Application(models.Model):
         return f"{self.user.first_name}'s Application for {self.course.course_name}"
 
 
-        
+class Payment(models.Model):
+    application = models.ForeignKey(Course_Application, on_delete=models.CASCADE)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_datetime = models.DateTimeField()
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    payment_status = models.CharField(max_length=20, choices=(
+        ('Pending', 'Pending'),
+        ('Successful', 'Successful'),
+        ('Failed', 'Failed'),
+    ))
+
+    def __str__(self):
+        return f"Payment for Application {self.application_id}"

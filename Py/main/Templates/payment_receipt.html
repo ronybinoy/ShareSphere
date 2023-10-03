@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Invoices</title>
+    <!-- Add your CSS styles here -->
+</head>
+<body>
+    <h1>Payment Invoices</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Invoice ID</th>
+                <th>Course Name</th>
+                <th>Institute Name</th>
+                <th>Payment Amount</th>
+                <th>Payment Date and Time</th>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.id }}</td>
+                <td>{{ invoice.application.course.course_name }}</td>
+                <td>{{ invoice.application.institute1 }}</td>
+                <td>{{ invoice.payment_amount }}</td>
+                <td>{{ invoice.payment_datetime }}</td>
+                <td>{{ invoice.user.username }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No invoices available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

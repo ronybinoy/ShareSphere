@@ -196,17 +196,15 @@
                                         <div class="card-body">
                                             <h5 class="card-title text-center">{{ course.course_name }}</h5>
                                             <p class="card-title text-center">{{ course.user.first_name }}</p>
-                                            <hr />
+                                            <hr>
                                             <p class="card-text"><strong>Course Mode:</strong> {{ course.course_mode }}
                                             </p>
                                             <p class="card-text"><strong>Course Type:</strong> {{ course.course_type }}
                                             </p>
                                             <p class="card-text"><strong>Fees Per Semester:</strong> ${{ course.fees }}
                                             </p>
-                                            <p class="card-text"><strong>Application Deadline:</strong> {{
-                                                course.appdeadline }}</p>
-                                            <p class="card-text"><strong>College Location:</strong> {{
-                                                course.user.region }}</p>
+                                            <p class="card-text"><strong>Application Deadline:</strong> {{ course.appdeadline }}</p>
+                                            <p class="card-text"><strong>College Location:</strong> {{ course.user.region }}</p>
 
                                             <!-- Add more fields here as needed -->
 
@@ -428,7 +426,7 @@
                     </div>
                     <div class="modal-footer">
                         <input type="button" class="btn btn-secondary" data-bs-dismiss="modal" value="Close" />
-                        <input type="submit" class="btn btn-primary" id="submitBtn" disabled />
+                        <input type="submit" class="btn btn-primary" id="submitBtn" />
                     </div>
                 </div>
             </form>
