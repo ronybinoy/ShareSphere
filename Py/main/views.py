@@ -3,6 +3,7 @@ from random import randint
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import AnonymousUser            
 from django.shortcuts import get_object_or_404
 from .models import (
     Course,
@@ -34,7 +35,15 @@ import razorpay
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseBadRequest
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import AnonymousUser
+import pdfkit
+from django.template.loader import get_template
+from django.http import HttpResponse
 
+
+User = get_user_model()
 
 def is_migrant(user):
     return user.is_authenticated and user.is_migrant
@@ -46,6 +55,7 @@ def is_institute(user):
 
 def is_staff(user):
     return user.is_authenticated and user.is_staff
+
 
 
 # def is_landlord(user):
@@ -64,6 +74,9 @@ def login(request):
         # elif request.user.is_landlord:
         #     # Redirect to the landlord dashboard or your desired URL for landlords
         #     return redirect('landlord_dashboard')  # Replace with your URL name
+        elif request.user.id != AnonymousUser.id:
+            return redirect("home")
+
         else:
             # Redirect to a generic home page or your desired URL
             return redirect("home")  # Replace with your URL name
@@ -342,52 +355,33 @@ def validate_institute(request):
         return JsonResponse(data)
 
 
-@user_passes_test(is_migrant)
 def home(request):
     user = request.user
     profile_photo_url = None  # Initialize as None, in case there's no profile photo
 
-    # Check if the user has a migrant profile
-    migrant, created = Migrant.objects.get_or_create(user=user)
+    # Check if the user is authenticated (not an AnonymousUser)
+    if not isinstance(user, AnonymousUser):
+        # Check if the user has a migrant profile
+        migrant, created = Migrant.objects.get_or_create(user=user)
 
-    if request.method == "POST":
-        # Update user profile fields
-        user.first_name = request.POST.get("first_name")
-        user.last_name = request.POST.get("last_name")
-        user.save()
+        if request.method == "POST":
+            # Update user profile fields
+            user.first_name = request.POST.get("first_name")
+            user.last_name = request.POST.get("last_name")
+            user.save()
 
-        # Update migrant profile fields
-        migrant.dob = request.POST.get("dob")
-        migrant.street_address = request.POST.get("street_address")
-        migrant.state = request.POST.get("state")
-        migrant.pincode = request.POST.get("pincode")
-        migrant.city = request.POST.get("city")
-        migrant.contact_no = request.POST.get("contact_no")
+            # Rest of your POST handling code...
 
-        # Handle profile photo update
-        profile_photo = request.FILES.get("profile_photo")
-        print(profile_photo)
-        if profile_photo:
-            # Delete the old profile photo if it exists
-            if migrant.profile_photo:
-                default_storage.delete(migrant.profile_photo.name)
-            # Save the new profile photo
-            migrant.profile_photo = profile_photo
-
-        migrant.save()
-
-        # Redirect to a success page or reload the current page
-        return redirect("home")
-
-    # Check if a profile photo exists and get its URL
-    if migrant.profile_photo:
-        profile_photo_url = migrant.profile_photo.url
+        # Check if a profile photo exists and get its URL
+        if migrant.profile_photo:
+            profile_photo_url = migrant.profile_photo.url
 
     return render(
         request, "home.html", {"user": user, "profile_photo_url": profile_photo_url}
     )
-
-
+    
+    
+    
 @login_required
 @user_passes_test(is_institute)
 def institute_dashboard(request):
@@ -949,5 +943,56 @@ def paymenthandler(request, application_id):
     
 
 
+def invoice_view(request, application_id):
+    try:
+        application = Course_Application.objects.get(application_id=application_id)
+        payments = Payment.objects.filter(application=application)
+    except Course_Application.DoesNotExist:
+        application = None
+        payments = None
+
+    return render(request, 'payment_receipt.html', {'application': application, 'payments': payments})
 
 
+
+def generate_pdf(request,application_id):
+    # Get the HTML template
+    template = get_template('payment_receipt.html')
+
+    try:
+        application = Course_Application.objects.get(application_id=application_id)
+    except Course_Application.DoesNotExist:
+        application = None
+
+# Retrieve payment data related to the application (replace with your actual query)
+    if application:
+        payments = Payment.objects.filter(application=application)
+    else:
+        payments = None
+
+    # Create the context dictionary
+    context = {
+        'application': application,
+        'payments': payments,
+    }
+    # Render the template with the context
+    html = template.render(context)
+
+    # PDF generation options (you can customize these)
+    options = {
+        'page-size': 'A4',
+        'margin-top': '0mm',
+        'margin-right': '0mm',
+        'margin-bottom': '0mm',
+        'margin-left': '0mm',
+        'encoding': 'UTF-8',
+    }
+
+    # Generate PDF from the HTML content
+    pdf = pdfkit.from_string(html, False, options=options)
+
+    # Create an HTTP response with the PDF content
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
+
+    return response

@@ -19,6 +19,11 @@ urlpatterns = [
 
     path('payment1/<int:application_id>/', views.payment1, name='payment1'),
     path('paymenthandler/<int:application_id>/', views.paymenthandler, name='paymenthandler'),
+    path('invoice/<str:application_id>/', views.invoice_view, name='invoice'),
+    path('generate_pdf/<int:application_id>/', views.generate_pdf, name='generate_pdf'),
+
+
+
 
     
     path('institute-dashboard/', views.institute_dashboard, name='institute_dashboard'),
@@ -77,6 +82,4 @@ urlpatterns = [
     path('<slug:slug>/', views.room, name='room'),
     
     
-    
-  
 ]

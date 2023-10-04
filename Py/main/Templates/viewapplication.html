@@ -141,7 +141,7 @@
                                     <th>Course Name</th>
                                     <th>Institute Name</th>
                                     <th>Applied On</th>
-                                    <th>Status</th>
+                                    <th>Payment Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -162,8 +162,7 @@
                                         </td>
                                         <td>
                                             {% if application.application_status %}
-                                                <a href=""
-                                                    class="btn btn-success">Download Receipt</a>
+                                            <a href="{% url 'invoice' application_id=application.application_id %}" class="btn btn-success" target="_blank">View Receipt</a>
                                             {% else %}
                                                 <a href="{% url "payment1" application.application_id %}"
                                                     class="btn btn-primary">Complete Payment</a>
