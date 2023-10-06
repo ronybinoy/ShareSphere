@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admissions Prediction</title>
+    <!-- Include Bootstrap CSS (you should have Bootstrap installed) -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Add the shadow class to the card -->
+        <div class="card shadow">
+            <div class="card-header">
+                <h1 class="card-title">Admissions Prediction</h1>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'predict_admission' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="percentage_12th">12th Percentage:</label>
+                        <input type="text" class="form-control" name="percentage_12th" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="GRE_Score">GRE Score:</label>
+                        <input type="text" class="form-control" name="GRE_Score" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="TOEFL_Score">TOEFL Score:</label>
+                        <input type="text" class="form-control" name="TOEFL_Score" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="CGPA">CGPA:</label>
+                        <input type="text" class="form-control" name="CGPA" required>
+                    </div>
+
+                    <input type="submit" class="btn btn-primary" value="Predict">
+                </form>
+
+                {% if probability %}
+                <div class="mt-4">
+                    <h4>Results:</h4>
+                    <strong><p>Probability of Admission: {{ probability }}</p></strong>
+                    <p>Accuracy: {{ accuracy }}</p>
+                    <p>Precision: {{ precision }}</p>
+                    <p>Recall: {{ recall }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS (optional) -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
