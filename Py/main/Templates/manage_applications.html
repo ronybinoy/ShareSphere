@@ -26,7 +26,6 @@
         td,
         button {
             font-size: 13px;
-
         }
 
         .btn-smaller {
@@ -54,10 +53,8 @@
                             <a class="nav-link" href="{% url 'institute_dashboard' %}">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">Course Listings</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'addcourse' %}">Add new course</a>
+                            <a class="nav-link active" aria-current="page" href="{% url 'courselisting' %}">Course
+                                Listings</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Contact Us</a>
@@ -87,47 +84,202 @@
             </div>
         </nav>
     </header>
+    {% if has_applied_applications %}
+    <div class="container mt-5 text-center">
+        <form method="post" action="{% url 'generate_results' course.id %}">
+            {% csrf_token %}
+            <button id="generate-results-button" class="btn btn-primary">Generate Results</button>
+        </form>
+    </div>
+    {% else %}
     <div class="container-fluid mt-4">
         <div class="row">
             <div class="col-md-3">
                 <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                    <a class="nav-link" id="v-pills-all-tab" data-toggle="pill" href="#v-pills-all" role="tab"
+                    <a class="nav-link active" id="v-pills-all-tab" data-toggle="pill" href="#v-pills-all" role="tab"
                         aria-controls="v-pills-all" aria-selected="false">All Applications</a>
-                    <a class="nav-link active" id="v-pills-approved-tab" data-toggle="pill" href="#v-pills-approved"
-                        role="tab" aria-controls="v-pills-approved" aria-selected="true">Approved Applications</a>
+                    <a class="nav-link" id="v-pills-approved-tab" data-toggle="pill" href="#v-pills-approved" role="tab"
+                        aria-controls="v-pills-approved" aria-selected="true">Approved Applications</a>
                     <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending" role="tab"
                         aria-controls="v-pills-pending" aria-selected="false">Pending Applications</a>
                     <a class="nav-link" id="v-pills-rejected-tab" data-toggle="pill" href="#v-pills-rejected" role="tab"
                         aria-controls="v-pills-rejected" aria-selected="false">Rejected Applications</a>
-
                 </div>
             </div>
             <div class="col-md-9">
                 <div class="tab-content" id="v-pills-tabContent">
                     <!-- all applications -->
-                    <div class="tab-pane fade" id="v-pills-all" role="tabpanel" aria-labelledby="v-pills-all-tab">
+                    <div class="tab-pane fade show active" id="v-pills-all" role="tabpanel"
+                        aria-labelledby="v-pills-all-tab">
                         {% if all_applications %}
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Sl no</th>
-                                        <th>App ID</th>
+                                        <th>Application ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>App Date</th>
-                                        <th>Education</th>
+                                        <th>Application Date</th>
+                                        <th>Qualification</th>
                                         <th>Percentage</th>
-                                        <th>English Proficiency Test</th>
+                                        <th>Qualifying Test</th>
                                         <th>Test Score</th>
-                                        <th>Average Percentage</th>
+                                        <th>Final Percentage</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for application in all_applications %}
                                     <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <!-- Sl.No column -->
+                                        <td>{{ application.application_id }}</td>
+                                        <td>{{ application.full_name }}</td>
+                                        <td>{{ application.email }}</td>
+                                        <td>{{ application.application_date|date:"Y-m-d" }}</td>
+                                        <td>{{ application.qualification1 }}</td>
+                                        <td>{{ application.percentage1 }}</td>
+                                        <td>{{ application.english_proficiency_test }}</td>
+                                        <td>{{ application.english_score }}</td>
+                                        <td>{{ application.average_percentage }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-secondary" data-toggle="modal"
+                                                data-target="#myModal{{ application.application_id }}">
+                                                View Details
+                                            </button>
+                                        </td>
+                                        <!-- Add more columns as needed -->
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <button id="email-all" class="btn btn-secondary" data-course-id="{{ course.id }}">Send
+                            Emails</button>
+
+                        <button id="export-csv" class="btn btn-primary">
+                            Export to CSV
+                        </button>
+                        <!-- Add the export button -->
+                        <script>
+                            <!-- ... (Previous JavaScript code) ... -->
+
+                            // Function to handle sending emails to all applicants
+                            document.getElementById("email-all").addEventListener("click", function () {
+                                var emailCategory = ""; // Set the email category based on the tab
+                                if (
+                                    document
+                                        .querySelector(".nav-link.active")
+                                        .getAttribute("id") === "v-pills-approved-tab"
+                                ) {
+                                    emailCategory = "approved";
+                                } else if (
+                                    document
+                                        .querySelector(".nav-link.active")
+                                        .getAttribute("id") === "v-pills-pending-tab"
+                                ) {
+                                    emailCategory = "pending";
+                                } else if (
+                                    document
+                                        .querySelector(".nav-link.active")
+                                        .getAttribute("id") === "v-pills-rejected-tab"
+                                ) {
+                                    emailCategory = "rejected";
+                                } else {
+                                    emailCategory = "all";
+                                }
+
+                                // Retrieve the course_id from the data attribute
+                                var courseId = document.getElementById("email-all").getAttribute("data-course-id");
+
+                                // Construct the URL dynamically
+                                var url = "/send_emails/" + courseId + "/" + emailCategory + "/";
+
+                                // Send the email category to the server for processing
+                                $.ajax({
+                                    url: url,
+                                    method: "POST",
+                                    data: {
+                                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                                        email_category: emailCategory,
+                                    },
+                                    success: function (response) {
+                                        alert(response.message); // Show a success message returned from the server
+                                    },
+                                    error: function (xhr, status, error) {
+                                        console.error(xhr.responseText);
+                                        alert("An error occurred while sending emails.");
+                                    },
+                                });
+                            });
+
+                            // JavaScript code to handle CSV export
+                            document
+                                .getElementById("export-csv")
+                                .addEventListener("click", function () {
+                                    // Define the table element
+                                    var table = document.querySelector(".table");
+                                    // Create a new CSV Blob
+                                    var blob = new Blob([tableToCSV(table)], {
+                                        type: "text/csv;charset=utf-8;",
+                                    });
+                                    // Create a download link
+                                    var link = document.createElement("a");
+                                    if (link.download !== undefined) {
+                                        var url = URL.createObjectURL(blob);
+                                        link.setAttribute("href", url);
+                                        link.setAttribute("download", "all_applications.csv");
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                    }
+                                });
+
+                            // Function to convert table data to CSV format
+                            function tableToCSV(table) {
+                                var rows = [];
+
+                                // Add the heading row
+                                var headingRow = [];
+                                for (var h = 0; h < table.rows[0].cells.length; h++) {
+                                    headingRow.push(table.rows[0].cells[h].textContent);
+                                } rows.push(headingRow.join(",")); for
+                                    (var i = 1; i < table.rows.length; i++) {
+                                        var row = []; var cells = table.rows[i].cells; for (var
+                                            j = 0; j < cells.length - 1; j++) { // Skip the last cell (View Details button)
+                                            row.push(cells[j].textContent);
+                                        } rows.push(row.join(","));
+                                } return rows.join("\n");
+                            }
+                        </script>
+
+                            {% else %}
+                            <p class="text-dark">No applications for this course.</p>
+                            {% endif %}
+                    </div>
+
+                    <!-- Approved Applications -->
+                    <div class="tab-pane fade" id="v-pills-approved" role="tabpanel"
+                        aria-labelledby="v-pills-approved-tab">
+                        {% if approved_applications %}
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+
+                                        <th>Application ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Application Date</th>
+                                        <th>Qualification</th>
+                                        <th>Percentage</th>
+                                        <th>Qualifying Test</th>
+                                        <th>Test Score</th>
+                                        <th>Final Percentage</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for application in approved_applications %}
+                                    <tr>
+
                                         <td>{{ application.application_id }}</td>
                                         <td>{{ application.full_name }}</td>
                                         <td>{{ application.email }}</td>
@@ -143,101 +295,12 @@
                                 </tbody>
                             </table>
                         </div>
-                        <button id="export-csv" class="btn btn-primary">Export to CSV</button>
-                        <!-- Add the export button -->
-                        <script>
-                            // JavaScript code to handle CSV export
-                            document.getElementById('export-csv').addEventListener('click', function () {
-                                // Define the table element
-                                var table = document.querySelector('.table');
-                                // Create a new CSV Blob
-                                var blob = new Blob([tableToCSV(table)], { type: 'text/csv;charset=utf-8;' });
-                                // Create a download link
-                                var link = document.createElement("a");
-                                if (link.download !== undefined) {
-                                    var url = URL.createObjectURL(blob);
-                                    link.setAttribute("href", url);
-                                    link.setAttribute("download", 'all_applications.csv');
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                }
-                            });
 
-                            // Function to convert table data to CSV format
-                            function tableToCSV(table) {
-                                var rows = [];
-                                for (var i = 0; i < table.rows.length; i++) {
-                                    var row = [];
-                                    for (var j = 0; j < table.rows[i].cells.length; j++) {
-                                        row.push(table.rows[i].cells[j].textContent);
-                                    }
-                                    rows.push(row.join(","));
-                                }
-                                return rows.join("\n");
-                            }
-                        </script>
-                        {% else %}
-                        <p class="text-dark">No applications for this course.</p>
-                        {% endif %}
-                    </div>
-
-                    <!-- Approved Applications -->
-                    <div class="tab-pane fade show active" id="v-pills-approved" role="tabpanel"
-                        aria-labelledby="v-pills-approved-tab">
-                        {% if approved_applications %}
-                        <div class="table-responsive">
-                            <form id="emailForm" method="post" action="{% url 'send_emails' course_id=course.id %}">
-                                {% csrf_token %}
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Select</th> <!-- Add a checkbox column -->
-                                            <th>Sl no</th>
-                                            <th>App ID</th>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>App Date</th>
-                                            <th>Education</th>
-                                            <th>Percentage</th>
-                                            <th>English Proficiency Test</th>
-                                            <th>Test Score</th>
-                                            <th>Average Percentage</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for application in approved_applications %}
-                                        <tr>
-                                            <td><input type="checkbox" name="selected_applications"
-                                                    value="{{ application.application_id }}"></td>
-                                            <!-- Checkbox for selecting applications -->
-                                            <td>{{ forloop.counter }}</td>
-                                            <!-- Sl.No column -->
-                                            <td>{{ application.application_id }}</td>
-                                            <td>{{ application.full_name }}</td>
-                                            <td>{{ application.email }}</td>
-                                            <td>{{ application.application_date|date:"Y-m-d" }}</td>
-                                            <!-- Use the date filter to format the date -->
-                                            <td>{{ application.qualification1 }}</td>
-                                            <td>{{ application.percentage1 }}</td>
-                                            <td>{{ application.english_proficiency_test }}</td>
-                                            <td>{{ application.english_score }}</td>
-                                            <td>{{ application.average_percentage }}</td>
-                                            <!-- Add more columns as needed -->
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                                <button type="submit" class="btn btn-primary">Send Email</button>
-                                <!-- Add a submit button for sending emails -->
-                            </form>
-                        </div>
                         {% else %}
                         <p class="text-dark">No approved applications for this course.</p>
                         {% endif %}
                     </div>
 
-                    <!-- Pending Applications -->
                     <div class="tab-pane fade" id="v-pills-pending" role="tabpanel"
                         aria-labelledby="v-pills-pending-tab">
                         {% if pending_applications %}
@@ -245,23 +308,20 @@
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Sl no</th>
-                                        <th>App ID</th>
+                                        <th>Application ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>App Date</th>
-                                        <th>Education</th>
+                                        <th>Application Date</th>
+                                        <th>Qualification</th>
                                         <th>Percentage</th>
-                                        <th>English Proficiency Test</th>
+                                        <th>Qualifying Test</th>
                                         <th>Test Score</th>
-                                        <th>Average Percentage</th>
+                                        <th>Final Percentage</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for application in pending_applications %}
                                     <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <!-- Sl.No column -->
                                         <td>{{ application.application_id }}</td>
                                         <td>{{ application.full_name }}</td>
                                         <td>{{ application.email }}</td>
@@ -271,7 +331,6 @@
                                         <td>{{ application.english_proficiency_test }}</td>
                                         <td>{{ application.english_score }}</td>
                                         <td>{{ application.average_percentage }}</td>
-                                        <!-- Add more columns as needed -->
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -290,23 +349,20 @@
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Sl no</th>
-                                        <th>App ID</th>
+                                        <th>Application ID</th>
                                         <th>Name</th>
                                         <th>Email</th>
-                                        <th>App Date</th>
-                                        <th>Education</th>
+                                        <th>Application Date</th>
+                                        <th>Qualification</th>
                                         <th>Percentage</th>
-                                        <th>English Proficiency Test</th>
+                                        <th>Qualifying Test</th>
                                         <th>Test Score</th>
-                                        <th>Average Percentage</th>
+                                        <th>Final Percentage</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for application in rejected_applications %}
                                     <tr>
-                                        <td>{{ forloop.counter }}</td>
-                                        <!-- Sl.No column -->
                                         <td>{{ application.application_id }}</td>
                                         <td>{{ application.full_name }}</td>
                                         <td>{{ application.email }}</td>
@@ -330,52 +386,53 @@
             </div>
         </div>
     </div>
-
-    <!-- <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    {% endif %} {% for application in all_applications %}
+    <div class="modal fade" id="myModal{{ application.application_id }}">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Application Details</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                    <h4 class="modal-title">
+                        Additional Details for Application ID: {{ application.application_id }}
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal">
+                        &times;
                     </button>
                 </div>
                 <div class="modal-body">
-                    <ul>
-                        <li><strong>Application ID:</strong> <span id="appID"></span></li>
-                        <li><strong>Full Name:</strong> <span id="fullName"></span></li>
-                        <li><strong>Email:</strong> <span id="email"></span></li>
-                        <li><strong>Gender:</strong> <span id="gender"></span></li>
-                        <li><strong>Date of Birth:</strong> <span id="dob"></span></li>
-                        <li><strong>Citizenship:</strong> <span id="citizenship"></span></li>
-                        <li><strong>Country:</strong> <span id="country"></span></li>
-                        <li><strong>Province/State/Territory:</strong> <span id="province"></span></li>
-                        <li><strong>Street Address 1:</strong> <span id="address1"></span></li>
-                        <li><strong>Street Address 2:</strong> <span id="address2"></span></li>
-                        <li><strong>Postal/Zip Code:</strong> <span id="postalCode"></span></li>
-                        <li><strong>Contact Number:</strong> <span id="contactNumber"></span></li>
-                        <li><strong>Qualification Name:</strong> <span id="qualification"></span></li>
-                        <li><strong>Institute Name:</strong> <span id="institute"></span></li>
-                        <li><strong>Overall Percentage:</strong> <span id="percentage"></span></li>
-                        <li><strong>Year of Passout:</strong> <span id="passingYear"></span></li>
-                        <li><strong>English Proficiency Test:</strong> <span id="englishTest"></span></li>
-                        <li><strong>Test Score:</strong> <span id="englishScore"></span></li>
-                        <li><strong>Validity (Year):</strong> <span id="englishValidity"></span></li>
-                        <li><strong>Policy Declaration Agreement:</strong> <span id="policyDeclaration"></span></li>
-                        <li><strong>Average Percentage:</strong> <span id="averagePercentage"></span></li>
-                        <li><strong>Application Date:</strong> <span id="appDate"></span></li>
-                    </ul>
+                    <p>Name: {{ application.full_name }}</p>
+                    <p>Email: {{ application.email }}</p>
+                    <p>Gender: {{ application.gender }}</p>
+                    <p>Date of Birth: {{ application.date_of_birth }}</p>
+                    <p>Citizenship: {{ application.citizenship }}</p>
+                    <p>Country: {{ application.country }}</p>
+                    <p>Province/State/Territory: {{ application.province }}</p>
+                    <p>Street Address 1: {{ application.street_address1 }}</p>
+                    <p>Street Address 2: {{ application.street_address2 }}</p>
+                    <p>Postal/Zip Code: {{ application.postal_code }}</p>
+                    <p>Contact Number: {{ application.contact_number }}</p>
+                    <p>Qualification Name: {{ application.qualification1 }}</p>
+                    <p>Institute Name: {{ application.institute1 }}</p>
+                    <p>Overall Percentage: {{ application.percentage1 }}</p>
+                    <p>Year of Passout: {{ application.passing_year1 }}</p>
+                    <p>
+                        English Proficiency Test: {{ application.english_proficiency_test }}
+                    </p>
+                    <p>Test Score: {{ application.english_score }}</p>
+                    <p>Validity (Year): {{ application.english_validity }}</p>
+                    <!-- Add more fields as needed -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">
+                        Close
+                    </button>
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
+    {% endfor %}
 
     <!-- Add Bootstrap JS scripts at the end of the body if needed -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>

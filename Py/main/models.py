@@ -131,7 +131,19 @@ class Course_Application(models.Model):
     policy_declaration = models.BooleanField(default=True)  # Policy Declaration Agreement
     average_percentage = models.DecimalField(default=0.0, max_digits=5, decimal_places=2)  # Average Percentage
     application_date = models.DateTimeField(default=timezone.now)
-    application_status = models.BooleanField(default=False)
+    status = models.BooleanField(default=False)
+    APPLICATION_STATUS_CHOICES = (
+        ('applied', 'Applied'),
+        ('approved', 'Approved'),
+        ('pending', 'Pending'),
+        ('rejected', 'Rejected'),
+    )
+    application_status = models.CharField(
+        max_length=10,
+        choices=APPLICATION_STATUS_CHOICES,
+        default='applied',  # Set the default status to 'pending'
+    )
+
     
 
     def __str__(self):

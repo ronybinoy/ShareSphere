@@ -154,14 +154,14 @@
                                         <td>{{ application.institute1 }}</td>
                                         <td>{{ application.application_date|date:"F d, Y" }}</td>
                                         <td>
-                                            {% if application.application_status %}
+                                            {% if application.status %}
                                                 <span class="text-success">Success</span>
                                             {% else %}
                                                 <span class="text-danger">Unsuccessful</span>
                                             {% endif %}
                                         </td>
                                         <td>
-                                            {% if application.application_status %}
+                                            {% if application.status %}
                                             <a href="{% url 'invoice' application_id=application.application_id %}" class="btn btn-success" target="_blank">View Receipt</a>
                                             {% else %}
                                                 <a href="{% url "payment1" application.application_id %}"

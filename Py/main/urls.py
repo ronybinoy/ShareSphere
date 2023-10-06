@@ -47,7 +47,9 @@ urlpatterns = [
     path('editcourse/<int:course_id>/', views.editcourse, name='editcourse'),
     path('deletecourse/<int:course_id>/', views.deletecourse, name='deletecourse'),
     path('reject_course/<int:course_id>/', views.reject_course, name='reject_course'),
-    path('send_emails/<int:course_id>/', views.send_emails, name='send_emails'),
+    path('send_emails/<int:course_id>/<str:email_category>/', views.send_emails, name='send_emails'),
+    path('generate_results/<int:course_id>/', views.generate_results, name='generate_results'),
+
 
 
 

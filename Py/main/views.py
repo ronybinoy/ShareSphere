@@ -355,6 +355,8 @@ def validate_institute(request):
         return JsonResponse(data)
 
 
+
+
 def home(request):
     user = request.user
     profile_photo_url = None  # Initialize as None, in case there's no profile photo
@@ -364,23 +366,42 @@ def home(request):
         # Check if the user has a migrant profile
         migrant, created = Migrant.objects.get_or_create(user=user)
 
-        if request.method == "POST":
+        if request.method == 'POST':
             # Update user profile fields
-            user.first_name = request.POST.get("first_name")
-            user.last_name = request.POST.get("last_name")
+            user.first_name = request.POST.get('first_name')
+            user.last_name = request.POST.get('last_name')
             user.save()
 
-            # Rest of your POST handling code...
+            # Check if the user has a migrant profile
+            migrant, created = Migrant.objects.get_or_create(user=user)
 
-        # Check if a profile photo exists and get its URL
+            # Update migrant profile fields
+            migrant.dob = request.POST.get('dob')
+            migrant.contact_no = request.POST.get('contact_no')
+
+            # Handle profile photo update
+            profile_photo = request.FILES.get('profile_photo')
+            if profile_photo:
+                # Delete the old profile photo if it exists
+                if migrant.profile_photo:
+                    default_storage.delete(migrant.profile_photo.name)
+                # Save the new profile photo
+                migrant.profile_photo = profile_photo
+
+            migrant.save()
+
+            # Redirect to a success page or reload the current page
+            return redirect('home')
+
+        # Retrieve the current profile photo URL
         if migrant.profile_photo:
             profile_photo_url = migrant.profile_photo.url
 
     return render(
         request, "home.html", {"user": user, "profile_photo_url": profile_photo_url}
     )
-    
-    
+
+
     
 @login_required
 @user_passes_test(is_institute)
@@ -388,19 +409,24 @@ def institute_dashboard(request):
     return render(request, "inst_home.html")
 
 
+
 @login_required
 @user_passes_test(is_institute)
 def courselisting(request):
     user = request.user
     courses = Course.objects.filter(user=user)
-    current_date = timezone.now().date()
+    current_date = date.today()  # Get the current date
 
-    # Create a list of tuples, each containing a course and a boolean indicating whether to disable the buttons
+    # Create a list of dictionaries, each containing course information
     course_list = []
     for course in courses:
         is_disabled = course.opendate < current_date
-        course_list.append((course, is_disabled))
-
+        course_data = {
+            'course': course,
+            'is_disabled': is_disabled,
+            'today': current_date,  # Include today's date in the course data
+        }
+        course_list.append(course_data)
     return render(request, "courselisting.html", {"courses": course_list})
 
 
@@ -471,6 +497,8 @@ def filtered_users(request, role):
     return JsonResponse({"users": user_data})
 
 
+
+#for admin dashboard
 @login_required
 def course_listing(request):
     # Retrieve pending courses with related user data
@@ -770,52 +798,85 @@ def manage_applications(request, course_id):
     available_seats = course.seat_available
 
     # Get all applications for the course ordered by average_percentage in descending order
-    all_applications = Course_Application.objects.filter(course=course).order_by(
-        "-average_percentage"
-    )
+    all_applications = Course_Application.objects.filter(course=course).order_by('-average_percentage')
 
     # Separate approved, pending, and rejected applications
     approved_applications = all_applications[:available_seats]
-    pending_applications = all_applications[available_seats : available_seats + 2]
-    rejected_applications = all_applications[available_seats + 2 :]
+    pending_applications = all_applications[available_seats:available_seats + 2]
+    rejected_applications = all_applications[available_seats + 2:]
 
-    return render(
-        request,
-        "manage_applications.html",
-        {
-            "course": course,
-            "all_applications": all_applications,  # Add this line
-            "approved_applications": approved_applications,
-            "pending_applications": pending_applications,
-            "rejected_applications": rejected_applications,
-        },
-    )
+    # Check if any application has a status of "applied"
+    has_applied_applications = any(application.application_status == 'applied' for application in all_applications)
+
+    return render(request, "manage_applications.html", {
+        "course": course,
+        "all_applications": all_applications,
+        "approved_applications": approved_applications,
+        "pending_applications": pending_applications,
+        "rejected_applications": rejected_applications,
+        "has_applied_applications": has_applied_applications  # Pass the flag to the template
+    })
 
 
 @login_required
-def send_emails(request, course_id):
-    if request.method == "POST":
-        selected_application_ids = request.POST.getlist("selected_applications")
-        print(selected_application_ids)
+@user_passes_test(is_institute)
+def generate_results(request, course_id):
+    user = request.user
+    course = get_object_or_404(Course, id=course_id, user=user)
 
-        # Get the approved applications
-        approved_applications = Course_Application.objects.filter(
-            pk__in=selected_application_ids
-        )
+    # Get the number of available seats for the course
+    available_seats = course.seat_available
 
-        # Compose and send email for each approved application
-        subject = "Course Application Approved"
-        from_email = "sharesphereedu@gmail.com"  # Use your sender email address
+    # Get all applications for the course ordered by average_percentage in descending order
+    all_applications = Course_Application.objects.filter(course=course).order_by('-average_percentage')
 
-        for application in approved_applications:
-            recipient_email = application.email
-            message = f"Congratulations! Your course application for the {application.course.course_name} at {application.user.first_name}, {application.user.region} has been approved."
-            send_mail(subject, message, from_email, [recipient_email])
+    # Update application statuses
+    for i, application in enumerate(all_applications):
+        if i < available_seats:
+            application.application_status = 'approved'
+        elif i < available_seats + 2:
+            application.application_status = 'pending'
+        else:
+            application.application_status = 'rejected'
+        application.save()
 
-        # Redirect to the 'manage_applications' view with the course_id argument
-        return redirect(reverse("manage_applications", args=[course_id]))
+    return redirect('manage_applications', course_id=course.id)
 
-    return JsonResponse({"message": "Invalid request method"})
+
+
+@login_required
+def send_emails(request, course_id, email_category):
+    # Get the course and the user who posted the course
+    print(course_id, email_category)
+    course = get_object_or_404(Course, pk=course_id)
+    posteduser = course.user
+
+    # Filter applications based on the email_category
+    if email_category == 'all':
+        applications = Course_Application.objects.filter(course=course)
+    elif email_category == 'approved':
+        applications = Course_Application.objects.filter(course=course, status='approved')
+    elif email_category == 'pending':
+        applications = Course_Application.objects.filter(course=course, status='pending')
+    elif email_category == 'rejected':
+        applications = Course_Application.objects.filter(course=course, status='rejected')
+    else:
+        # Handle invalid email_category (e.g., return an error response)
+        return JsonResponse({'message': 'Invalid email category'})
+
+    # Compose and send email for each selected application
+    subject = 'Course Application Status'
+    from_email = 'sharesphereedu@gmail.com'  # Use your sender email address
+
+    for application in applications:
+        recipient_email = application.email
+        status = 'Approved' if application.application_status == 'approved' else 'Pending' if application.application_status == 'pending' else 'Rejected'
+        message = f'Your course application for the {course.course_name} at {posteduser.first_name}, {posteduser.region} has been {status}.'
+        send_mail(subject, message, from_email, [recipient_email])
+
+    return JsonResponse({'message': 'Emails sent successfully'})
+
+
 
 
 def course_application_analytics(request):
@@ -904,13 +965,14 @@ def paymenthandler(request, application_id):
                 
                 # Capture the payment
                 payment_info = razorpay_client.payment.fetch(payment_id)
-                amount = payment_info["amount"]  # Use the actual amount from the payment
+                amount = payment_info["amount"]
+                rupees= amount/100
                 razorpay_client.payment.capture(payment_id, amount)
 
                 # Update the status of the Course_Application to True
                 application = get_object_or_404(Course_Application, application_id=application_id)
-                application.application_status = True
-                application.save()
+                application.status = True
+                application.save()                                                      
 
                 # Parse the created_at_str
                 created_at_ts = payment_info["created_at"]
@@ -921,7 +983,7 @@ def paymenthandler(request, application_id):
                 # Create a Payment instance
                 payment = Payment(
                     application=application,
-                    payment_amount=amount,  # Use the actual amount from the payment
+                    payment_amount=rupees,  # Use the actual amount from the payment
                     payment_datetime=created_at,  # Use the parsed datetime
                     user=request.user,
                     payment_status='Successful'  # Set payment status to 'Successful'
