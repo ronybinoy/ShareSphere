@@ -1,103 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>GFG</title>
-	<style>
-	
-	* {
-		box-sizing: border-box;
-		padding: 0px;
-		margin: 0px;
-		font-family: cursive;
-	}
-	html,
-	body {
-		height: 100%;
-	}
-	body {
-		background-color: #f1f5f8;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-	.card {
-		background-color: white;
-		padding: 25px;
-		border: 1px solid #bbbbbb;
-		border-radius: 5px;
-		box-shadow: 1px 1px 10px 0px rgb(0 0 0 / 25%);
-	}
-	.title {
-		text-align: center;
-		letter-spacing: 1px;
-	}
-	.muted {
-		color: #8e7f7f;
-		display: block;
-		margin-bottom: 10px;
-		text-align: center;
-	}
-	.btn_container {
-		padding: 20px;
-		text-align: center;
-	}
-	.btn {
-		border-radius: 4px;
-		cursor: pointer;
-		padding: 4px 8px;
-		background-color: #ffaaa7;
-		color: white;
-		font-size: 1.2em;
-		font-weight: 600;
-		letter-spacing: 1px;
-	}
-	</style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Application</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #404040;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .title {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #007BFF;
+        }
+
+        .description {
+            font-size: 1.1em;
+            color: #666;
+
+            margin-bottom: 40px;
+        }
+
+        .btn-container {
+            text-align: center;
+        }
+
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-	<div class="card">
-	<h1 class="title">Buy Me a Chai </h1>
-	<small class="muted"
-		>If you like my work, you can support me by donating ₹200</small
-	>
-	<div class="btn_container">
-		<!-- Payment Button -->
-		<button class="btn" id="pay-btn">Donate</button>
-	</div>
-	</div>
-</body>
+    <div class="container">
+        <h1 class="title mb-5">Course Application</h1>
+        <p class="description text-grey  ">To apply for this course, please make a application fee payment of ₹200.</p>
+        <div class="btn-container ">
+            <!-- Payment Button -->
+            <button class="btn" id="pay-btn">Pay Now</button>
+        </div>
+    </div>
 
-<!-- Razorpay's Javascript code. -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-	var options = {
-	
-	// Enter the Key ID generated from the Dashboard
-	key: "{{ razorpay_merchant_key }}",
-	
-	// Amount is in currency subunits.
-	// Default currency is INR. Hence,
-	// 50000 refers to 50000 paise
-	amount: "{{ razorpay_amount }}",
-	currency: "{{ currency }}",
-	
-	// Your/store name.
-	name: "Dj Razorpay",
-	
-	// Pass the `id` obtained in the response of Step 1
-	order_id: "{{ razorpay_order_id }}",
-	callback_url: "{{ callback_url }}",
-	};
-	
-	// initialise razorpay with the options.
-	var rzp1 = new Razorpay(options);
-	
-	// add event listener to the payment button.
-	document.getElementById("pay-btn").onclick = function (e) {
-	rzp1.open();
-	e.preventDefault();
-	};
-</script>
+    <!-- Razorpay's Javascript code. -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        var options = {
+            // Enter the Key ID generated from the Dashboard
+            key: "{{ razorpay_merchant_key }}",
+            
+            // Amount is in currency subunits.
+            // Default currency is INR. Hence,
+            // 50000 refers to 50000 paise
+            amount: "{{ razorpay_amount }}",
+            currency: "{{ currency }}",
+            
+            // Your/store name.
+            name: "ShareSphere Education",
+            
+            // Pass the `id` obtained in the response of Step 1
+            order_id: "{{ razorpay_order_id }}",
+            callback_url: "{{ callback_url }}",
+        };
+        
+        // Initialize Razorpay with the options.
+        var rzp1 = new Razorpay(options);
+        
+        // Add event listener to the payment button.
+        document.getElementById("pay-btn").onclick = function (e) {
+            rzp1.open();
+            e.preventDefault();
+        };
+    </script>
+</body>
 </html>

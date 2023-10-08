@@ -13,6 +13,7 @@ urlpatterns = [
     path('user_listing/', views.user_listing, name='user_listing'),
     path('filtered_users/<str:role>/', views.filtered_users, name='filtered_users'),
     path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('update_user_status/<int:user_id>/', views.update_user_status, name='update_user_status'),
     path('pending_courses/', views.course_listing, name='pending_courses'),
     path('update_course_status/<int:course_id>/<str:status>/', views.update_course_status, name='update_course_status'),
 
@@ -29,7 +30,6 @@ urlpatterns = [
     path('institute-dashboard/', views.institute_dashboard, name='institute_dashboard'),
     path('manage_applications/<int:course_id>/', views.manage_applications, name='manage_applications'),
     path('addcourse/', views.addcourse, name='addcourse'),
-    path('courses/diploma/', views.course_view, {'course_type': 'Diploma Programme'}, name='course_view_diploma'),
     path('courses/bachelor/', views.course_view, {'course_type': 'Bachelor Degree'}, name='course_view_bachelor'),
     path('courses/master/', views.course_view, {'course_type': 'Master Degree'}, name='course_view_master'),
     path('get_institute_name/', views.get_institute_name, name='get_institute_name'),

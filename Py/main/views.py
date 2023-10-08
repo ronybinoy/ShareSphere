@@ -464,6 +464,23 @@ def admin_dashboard(request):
     users = CustomUser.objects.all()
     return render(request, "admin/admin_index.html", {"users": users})
 
+@login_required
+@user_passes_test(is_staff)
+def update_user_status(request, user_id):
+    if request.method == 'POST':
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            new_status = request.POST.get('status')
+            if new_status == 'active':
+                user.is_active = True
+            elif new_status == 'inactive':
+                user.is_active = False
+            user.save()
+            return JsonResponse({'success': True})
+        except CustomUser.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'User not found'})
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
 
 @login_required
 def user_listing(request):
@@ -918,7 +935,7 @@ razorpay_client = razorpay.Client(
 )
 def payment1(request, application_id):
     currency = "INR"
-    amount = 20000  # Rs. 200  <- Make sure this matches the amount you want to capture
+    amount = 70000  # Rs. 200  <- Make sure this matches the amount you want to capture
 
     # Create a Razorpay Order
     razorpay_order = razorpay_client.order.create(

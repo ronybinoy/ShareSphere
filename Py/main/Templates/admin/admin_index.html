@@ -53,12 +53,6 @@
                 <span class="icon document" aria-hidden="true"></span>Listing Requests
               </a>
             </li>
-
-            <a href="#">
-              <span class="icon message" aria-hidden="true"></span>
-              Report Requests
-            </a>
-            </li>
           </ul>
           <span class="system-menu__title">system</span>
           <ul class="sidebar-body-menu">
@@ -116,17 +110,6 @@
               <span class="sr-only">Toggle menu</span>
               <span class="icon menu-toggle--gray" aria-hidden="true"></span>
             </button>
-            {% comment %} <div class="lang-switcher-wrapper">
-              <button class="lang-switcher transparent-btn" type="button">
-                EN
-                <i data-feather="chevron-down" aria-hidden="true"></i>
-              </button>
-              <ul class="lang-menu dropdown">
-                <li><a href="##">English</a></li>
-                <li><a href="##">French</a></li>
-                <li><a href="##">Uzbek</a></li>
-              </ul>
-            </div> {% endcomment %}
             <button class="theme-switcher gray-circle-btn" type="button" title="Switch theme">
               <span class="sr-only">Switch theme</span>
               <i class="sun-icon" data-feather="sun" aria-hidden="true"></i>
@@ -193,11 +176,8 @@
                     <i data-feather="user" aria-hidden="true"></i>
                     <span>Profile</span>
                   </a></li>
-                <li><a href="##">
-                    <i data-feather="settings" aria-hidden="true"></i>
-                    <span>Account settings</span>
-                  </a></li>
-                <li><a class="danger" href="##">
+
+                <li><a class="danger" href="{% url 'logout' %}">
                     <i data-feather="log-out" aria-hidden="true"></i>
                     <span>Log out</span>
                   </a></li>
@@ -229,12 +209,7 @@
                             <option value="institute">Institutes</option>
                           </select>
                         </div>
-                        <div class="main-nav-start">
-                          <div class="search-wrapper">
-                            <i data-feather="search" aria-hidden="true"></i>
-                            <input type="text" placeholder="Enter keywords ..." required>
-                          </div>
-                        </div>
+
                         <div class="row">
 
                           <div class="col-lg-12" id="innerdiv">
@@ -248,7 +223,7 @@
                                       <th><span>Created</span></th>
                                       <th class="text-left"><span>Status</span></th>
                                       <th><span>Email</span></th>
-                                      <th>&nbsp;</th>
+                                      <th>Action</th>
                                     </tr>
                                   </thead>
                                   <tbody>
@@ -281,18 +256,20 @@
                                         <a href="mailto:{{ user.email }}">{{ user.email }}</a>
                                       </td>
                                       <td style="width: 10%;">
-                                        <a href="#" class="table-link edit-user" data-user-id="{{ user.id }}">
+                                        <!-- <a href="#" class="table-link edit-user" data-user-id="{{ user.id }}">
                                           <span class="fa-stack">
                                             <i class="fa fa-square fa-stack-2x"></i>
                                             <i class="fa fa-pencil fa-stack-1x fa-inverse"></i>
                                           </span>
-                                        </a>
-                                        <a href="#" class="table-link danger">
-                                          <span class="fa-stack">
-                                            <i class="fa fa-square fa-stack-2x"></i>
-                                            <i class="fa fa-trash-o fa-stack-1x fa-inverse"></i>
-                                          </span>
-                                        </a>
+                                        </a> -->
+
+                                        {% if user.is_active %}
+                                        <button class="btn btn-danger btn-toggle-status" data-user-id="{{ user.id }}"
+                                          data-new-status="inactive">Inactive</button>
+                                        {% else %}
+                                        <button class="btn btn-success btn-toggle-status" data-user-id="{{ user.id }}"
+                                          data-new-status="active">Active</button>
+                                        {% endif %}
                                       </td>
                                     </tr>
                                     {% endfor %}
@@ -338,7 +315,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <form method="post" id="rejectCourseForm">
-        {% csrf_token %}
+          {% csrf_token %}
           <input type="hidden" name="courseId" id="courseId" value="">
           <div class="modal-header">
             <h5 class="modal-title" id="rejectCourseModalLabel">Enter Remarks for Rejection</h5>
@@ -367,165 +344,218 @@
   <script src="{% static 'assets/plugins/feather.min.js' %}"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
     crossorigin="anonymous"></script>
 
 
-<script>
-  
+  <script>
 
-$(document).ready(function () {
-  $('#users-content').show();
-  $('#course-listing-content').hide();
+    function toggleTheme() {
+      const body = document.body;
+      if (body.classList.contains('light-theme')) {
+        body.classList.remove('light-theme');
+        body.classList.add('dark-theme');
+      } else {
+        body.classList.remove('dark-theme');
+        body.classList.add('light-theme');
+      }
+    }
 
-  // Add click event listeners to the buttons in the sidebar
-  $('.show-users-btn').click(function () {
+    // Add a click event listener to your theme switcher button
+    const themeSwitcher = document.querySelector('.theme-switcher');
+    themeSwitcher.addEventListener('click', toggleTheme);
+
+    $(document).ready(function () {
+
+      $('.btn-toggle-status').click(function () {
+        const userId = $(this).data('user-id');
+        const newStatus = $(this).data('new-status');
+        const buttonElement = $(this); // Store the button element to access it inside the AJAX success callback
+    
+        // Send an AJAX request to update the user's status
+        $.ajax({
+            url: `/update_user_status/${userId}/`, // URL to your update_user_status view
+            method: 'POST',
+            data: {
+                status: newStatus,
+                csrfmiddlewaretoken: "{{ csrf_token }}"
+            },
+            success: function (response) {
+                // Handle success
+                if (response.success) {
+                    // Update the user's status in the table
+                    if (newStatus === 'active') {
+                        // Show the "Inactive" button
+                        buttonElement.removeClass('btn-success').addClass('btn-danger').text('Inactive').data('new-status', 'inactive');
+                    } else {
+                        // Show the "Active" button
+                        buttonElement.removeClass('btn-danger').addClass('btn-success').text('Active').data('new-status', 'active');
+                    }
+    
+                    // Reload the page after the status is updated
+                    location.reload();
+                } else {
+                    console.error('User status update failed:', response.message);
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    });
+    
+
       $('#users-content').show();
       $('#course-listing-content').hide();
-  });
 
-  $('.show-course-listing-btn').click(function () {
-      loadCourseDetails(); // Fetch and display pending courses
-      $('#users-content').hide();
-      $('#course-listing-content').show();
-  });
-});
+      // Add click event listeners to the buttons in the sidebar
+      $('.show-users-btn').click(function () {
+        $('#users-content').show();
+        $('#course-listing-content').hide();
+      });
 
-
-
-// Function to display the rejection modal
-function displayRejectCourseModal(courseId) {
-  // Fetch the course details using AJAX or any other method
-  const course = fetchCourseDetails(courseId); // Replace with your implementation to fetch course details
-
-  // Update the modal content with course information
-  $('#rejectCourseModalLabel').text(`Reject Course: ${course.courseName}`);
-  $('#rejectRemarks').val(''); // Clear any previous remarks
-
-  // Show the modal
-  $('#rejectCourseModal').modal('show');
-
-  // Attach an event listener to the Reject button inside the modal
-  $('#rejectCourseButton').off('click').on('click', function () {
-      const remarks = $('#rejectRemarks').val();
-      // Call a function to handle course rejection with remarks
-      rejectCourseWithRemarks(courseId, remarks);
-      // Close the modal
-      $('#rejectCourseModal').modal('hide');
-  });
-}
+      $('.show-course-listing-btn').click(function () {
+        loadCourseDetails(); // Fetch and display pending courses
+        $('#users-content').hide();
+        $('#course-listing-content').show();
+      });
+    });
 
 
-function rejectCourseWithRemarks(courseId, remarks) {
-  $.ajax({
-      url: `/reject_course/${courseId}/`,
-      method: 'POST',
-      data: {
+
+    // Function to display the rejection modal
+    function displayRejectCourseModal(courseId) {
+      // Fetch the course details using AJAX or any other method
+      const course = fetchCourseDetails(courseId); // Replace with your implementation to fetch course details
+
+      // Update the modal content with course information
+      $('#rejectCourseModalLabel').text(`Reject Course: ${course.courseName}`);
+      $('#rejectRemarks').val(''); // Clear any previous remarks
+
+      // Show the modal
+      $('#rejectCourseModal').modal('show');
+
+      // Attach an event listener to the Reject button inside the modal
+      $('#rejectCourseButton').off('click').on('click', function () {
+        const remarks = $('#rejectRemarks').val();
+        // Call a function to handle course rejection with remarks
+        rejectCourseWithRemarks(courseId, remarks);
+        // Close the modal
+        $('#rejectCourseModal').modal('hide');
+      });
+    }
+
+
+    function rejectCourseWithRemarks(courseId, remarks) {
+      $.ajax({
+        url: `/reject_course/${courseId}/`,
+        method: 'POST',
+        data: {
           remarks: remarks,
           csrfmiddlewaretoken: "{{ csrf_token }}"
-      },
-      success: function (response) {
-        // Handle success
-        if (response.success) {
+        },
+        success: function (response) {
+          // Handle success
+          if (response.success) {
             // Remove the course card from the listing if it was rejected successfully
             $(`#course-card-${courseId}`).remove();
-        } else {
+          } else {
             // Handle the case where rejection fails
             console.error('Course rejection failed:', response.message);
-        }
-    },
-      error: function (error) {
+          }
+        },
+        error: function (error) {
           // handle error  
-      }
-  });
+        }
+      });
 
-}
-
-
+    }
 
 
-document.addEventListener("DOMContentLoaded", function () {
-  const userListTable = document.getElementById("user-list-table");
-  const roleFilter = document.getElementById("role-filter");
 
-  roleFilter.addEventListener("change", function () {
-      const selectedRole = roleFilter.value;
 
-      // Make an AJAX request to the filtered_users view
-      fetch(`/filtered_users/${selectedRole}/`)
+    document.addEventListener("DOMContentLoaded", function () {
+      const userListTable = document.getElementById("user-list-table");
+      const roleFilter = document.getElementById("role-filter");
+
+      roleFilter.addEventListener("change", function () {
+        const selectedRole = roleFilter.value;
+
+        // Make an AJAX request to the filtered_users view
+        fetch(`/filtered_users/${selectedRole}/`)
           .then(response => response.json())
           .then(data => {
-              const users = data.users;
+            const users = data.users;
 
-              // Loop through the table rows and update the table
-              const rows = userListTable.getElementsByTagName("tr");
-              for (let i = 1; i < rows.length; i++) {
-                  const row = rows[i];
-                  const userId = parseInt(row.cells[0].textContent);
+            // Loop through the table rows and update the table
+            const rows = userListTable.getElementsByTagName("tr");
+            for (let i = 1; i < rows.length; i++) {
+              const row = rows[i];
+              const userId = parseInt(row.cells[0].textContent);
 
-                  // Check if the user ID exists in the received data
-                  const user = users.find(u => u.id === userId);
-                  if (user) {
-                      row.style.display = ""; // Show the row
-                  } else {
-                      row.style.display = "none"; // Hide the row
-                  }
+              // Check if the user ID exists in the received data
+              const user = users.find(u => u.id === userId);
+              if (user) {
+                row.style.display = ""; // Show the row
+              } else {
+                row.style.display = "none"; // Hide the row
               }
+            }
           })
           .catch(error => {
-              console.error('Error:', error);
+            console.error('Error:', error);
           });
-  });
-});
+      });
+    });
 
 
-// Function to update the status of a course in the database
-function updateCourseStatus(courseId, status) {
-  // Make an AJAX request to update the course status
-  $.ajax({
-      url: `/update_course_status/${courseId}/${status}/`, // Replace with the actual URL
-      type: 'GET',
-      dataType: 'json', // Specify JSON dataType
-      success: function (data) {
+    // Function to update the status of a course in the database
+    function updateCourseStatus(courseId, status) {
+      // Make an AJAX request to update the course status
+      $.ajax({
+        url: `/update_course_status/${courseId}/${status}/`, // Replace with the actual URL
+        type: 'GET',
+        dataType: 'json', // Specify JSON dataType
+        success: function (data) {
           // Check if the status was updated successfully
           if (data.success) {
-              // Remove the course card from the listing if it's no longer pending
-              if (status !== 'pending') {
-                  // Find the course card by course ID and remove it
-                  $(`#course-card-${courseId}`).remove();
-              }
+            // Remove the course card from the listing if it's no longer pending
+            if (status !== 'pending') {
+              // Find the course card by course ID and remove it
+              $(`#course-card-${courseId}`).remove();
+            }
           } else {
-              console.error('Error updating course status:', data.message);
+            console.error('Error updating course status:', data.message);
           }
-      },
-      error: function (error) {
+        },
+        error: function (error) {
           console.error('Error:', error);
-      }
-  });
-}
+        }
+      });
+    }
 
-// Function to load and display course details
-function renderCourseDataToHTML(courses) {
-  const container = $('#course-listing-content');
+    // Function to load and display course details
+    function renderCourseDataToHTML(courses) {
+      const container = $('#course-listing-content');
 
-  // Clear any existing content inside the container
-  container.empty();
+      // Clear any existing content inside the container
+      container.empty();
 
-  if (courses.length > 0) {
-      // Create a new row div for every 3 cards
-      let rowDiv;
-      courses.forEach((course, index) => {
+      if (courses.length > 0) {
+        // Create a new row div for every 3 cards
+        let rowDiv;
+        courses.forEach((course, index) => {
           if (index % 3 === 0) {
-              // Start a new row for every 3 cards
-              rowDiv = $('<div>').addClass('row custom-margin-row');
+            // Start a new row for every 3 cards
+            rowDiv = $('<div>').addClass('row custom-margin-row');
           }
 
           // Create a course card template
           const courseCard = $('<div>')
-              .addClass('col-lg-4 col-md-6 col-sm-12 mb-4')
-              .attr('id', `course-card-${course.id}`); // Add unique ID to the course card
+            .addClass('col-lg-4 col-md-6 col-sm-12 mb-4')
+            .attr('id', `course-card-${course.id}`); // Add unique ID to the course card
 
           const cardDiv = $('<div>').addClass('card course-card rounded-xl');
 
@@ -535,74 +565,74 @@ function renderCourseDataToHTML(courses) {
           const cardBodyDiv = $('<div>').addClass('card-body'); // Removed 'text-center'
 
           const button = $('<button>')
-              .addClass('btn btn-warning mb-3')
-              .prop('disabled', true)
-              .text('Pending');
+            .addClass('btn btn-warning mb-3')
+            .prop('disabled', true)
+            .text('Pending');
           const cardImage = $('<img>')
-              .addClass('card-img-top') // Add any necessary classes
-              .attr('src', course.thumbnail_image_url) // Set the image URL here
-              .attr('alt', 'Image Alt Text'); // Set the alt text for accessibility
+            .addClass('card-img-top') // Add any necessary classes
+            .attr('src', course.thumbnail_image_url) // Set the image URL here
+            .attr('alt', 'Image Alt Text'); // Set the alt text for accessibility
 
           // Append the image to the card body
 
 
           const courseTitle = $('<h5>')
-              .addClass('card-title')
-              .text(course.course_name);
+            .addClass('card-title')
+            .text(course.course_name);
 
           const courseMode = $('<p>')
-              .addClass('card-text mb-2') // Added 'mb-2' for spacing
-              .html(`<strong>Course Mode:</strong> ${course.course_mode}`);
+            .addClass('card-text mb-2') // Added 'mb-2' for spacing
+            .html(`<strong>Course Mode:</strong> ${course.course_mode}`);
 
           const courseType = $('<p>')
-              .addClass('card-text mb-2') // Added 'mb-2' for spacing
-              .html(`<strong>Course Type:</strong> ${course.course_type}`);
+            .addClass('card-text mb-2') // Added 'mb-2' for spacing
+            .html(`<strong>Course Type:</strong> ${course.course_type}`);
 
           const eligibility = $('<p>')
-              .addClass('card-text mb-2') // Added 'mb-2' for spacing
-              .html(`<strong>Eligibility:</strong> ${course.eligibility}`);
+            .addClass('card-text mb-2') // Added 'mb-2' for spacing
+            .html(`<strong>Eligibility:</strong> ${course.eligibility}`);
 
           const duration = $('<p>')
-              .addClass('card-text mb-2') // Added 'mb-2' for spacing
-              .html(`<strong>Duration:</strong> ${course.duration}`);
+            .addClass('card-text mb-2') // Added 'mb-2' for spacing
+            .html(`<strong>Duration:</strong> ${course.duration}`);
 
           const fees = $('<p>')
-              .addClass('card-text mb-2') // Added 'mb-2' for spacing
-              .html(`<strong>Fees per Semester:</strong> $${course.fees}`);
+            .addClass('card-text mb-2') // Added 'mb-2' for spacing
+            .html(`<strong>Fees per Semester:</strong> $${course.fees}`);
 
           const instituteName = $('<p>')
-              .addClass('card-text mb-2') // Added 'mb-2' for spacing
-              .html(`<strong>Institute Name:</strong> ${course.user.first_name}`);
+            .addClass('card-text mb-2') // Added 'mb-2' for spacing
+            .html(`<strong>Institute Name:</strong> ${course.user.first_name}`);
 
           const approvalButton = $('<button>')
-              .addClass('btn btn-success')
-              .text('Approve')
-              .on('click', function () {
-                  updateCourseStatus(course.id, 'approved'); // Call the updateCourseStatus function with 'approved'
-              });
+            .addClass('btn btn-success')
+            .text('Approve')
+            .on('click', function () {
+              updateCourseStatus(course.id, 'approved'); // Call the updateCourseStatus function with 'approved'
+            });
 
           const rejectionButton = $('<button>')
-              .addClass('btn btn-danger ms-2')
-              .text('Reject')
-              .on('click', function () {
-                  displayRejectCourseModal(course.id);
-              });
+            .addClass('btn btn-danger ms-2')
+            .text('Reject')
+            .on('click', function () {
+              displayRejectCourseModal(course.id);
+            });
 
 
 
           // Append elements to the card
           cardBodyDiv.append(cardImage);
           cardBodyDiv.append(
-              button,
-              courseTitle,
-              $('<hr>'),
-              courseMode,
-              courseType,
-              eligibility,
-              duration,
-              fees,
-              instituteName,
-              $('<div>').append(approvalButton, rejectionButton) // Removed 'text-center'
+            button,
+            courseTitle,
+            $('<hr>'),
+            courseMode,
+            courseType,
+            eligibility,
+            duration,
+            fees,
+            instituteName,
+            $('<div>').append(approvalButton, rejectionButton) // Removed 'text-center'
           );
 
           cardDiv.append(cardBodyDiv);
@@ -612,82 +642,82 @@ function renderCourseDataToHTML(courses) {
           rowDiv.append(courseCard);
 
           if ((index + 1) % 3 === 0 || index === courses.length - 1) {
-              // If we've added 3 cards or reached the end of the list, append the row to the container
-              container.append(rowDiv);
+            // If we've added 3 cards or reached the end of the list, append the row to the container
+            container.append(rowDiv);
           }
-      });
-  } else {
-      // Display a message if there are no pending courses
-      const message = $('<p>').addClass('text-dark').text('There are no pending courses.');
-      container.append(message);
-  }
-}
-
-function loadCourseDetails() {
-  $.ajax({
-      url: '/pending_courses/', // Replace with the actual URL
-      type: 'GET',
-      dataType: 'json', // Specify JSON dataType
-      success: function (data) {
-          try {
-              // Assuming the server sends a JSON array of course objects
-              if (Array.isArray(data.courses)) {
-                  renderCourseDataToHTML(data.courses);
-                  $('#course-listing-content').show();
-                  $('#users-content').hide();
-              } else {
-                  console.error('Invalid JSON response:', data);
-              }
-          } catch (error) {
-              console.error('Error parsing JSON:', error);
-          }
-      },
-      error: function (error) {
-          console.error('Error:', error);
+        });
+      } else {
+        // Display a message if there are no pending courses
+        const message = $('<p>').addClass('text-dark').text('There are no pending courses.');
+        container.append(message);
       }
-  });
-}
+    }
+
+    function loadCourseDetails() {
+      $.ajax({
+        url: '/pending_courses/', // Replace with the actual URL
+        type: 'GET',
+        dataType: 'json', // Specify JSON dataType
+        success: function (data) {
+          try {
+            // Assuming the server sends a JSON array of course objects
+            if (Array.isArray(data.courses)) {
+              renderCourseDataToHTML(data.courses);
+              $('#course-listing-content').show();
+              $('#users-content').hide();
+            } else {
+              console.error('Invalid JSON response:', data);
+            }
+          } catch (error) {
+            console.error('Error parsing JSON:', error);
+          }
+        },
+        error: function (error) {
+          console.error('Error:', error);
+        }
+      });
+    }
 
 
-$(document).ready(function () {
-  $('#users-content').show();
-  $('#course-listing-content').hide();
-
-  // Add click event listeners to the buttons in the sidebar
-  $('.show-users-btn').click(function () {
+    $(document).ready(function () {
       $('#users-content').show();
       $('#course-listing-content').hide();
-  });
 
-  $('.show-course-listing-btn').click(function () {
-      loadCourseDetails(); // Fetch and display pending courses
-      $('#users-content').hide();
-      $('#course-listing-content').show();
-  });
-});
+      // Add click event listeners to the buttons in the sidebar
+      $('.show-users-btn').click(function () {
+        $('#users-content').show();
+        $('#course-listing-content').hide();
+      });
 
-
-
-
-
-
-
-
-
-// Function to fetch course details (you need to implement this)
-function fetchCourseDetails(courseId) {
-  // Replace this with your code to fetch course details by courseId
-  // You might need to make an AJAX request to get the course information
-  const course = {
-      courseId: courseId,
-      courseName: 'add remark here', // Replace with actual course name
-  };
-  return course;
-}
+      $('.show-course-listing-btn').click(function () {
+        loadCourseDetails(); // Fetch and display pending courses
+        $('#users-content').hide();
+        $('#course-listing-content').show();
+      });
+    });
 
 
 
-</script>
+
+
+
+
+
+
+    // Function to fetch course details (you need to implement this)
+    function fetchCourseDetails(courseId) {
+      // Replace this with your code to fetch course details by courseId
+      // You might need to make an AJAX request to get the course information
+      const course = {
+        courseId: courseId,
+        courseName: 'add remark here', // Replace with actual course name
+      };
+      return course;
+    }
+
+
+
+  </script>
 
   <!-- Custom scripts -->
   <script src="{% static 'assets/js/script.js' %}"></script>

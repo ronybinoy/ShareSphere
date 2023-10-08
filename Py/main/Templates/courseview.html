@@ -59,9 +59,7 @@
                                 role="button" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">Course</a>
                             <ul class="dropdown-menu" aria-labelledby="coursesDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'course_view_diploma' %}">Diploma Courses</a>
-                                </li>
+                                
                                 <li>
                                     <a class="dropdown-item" href="{% url 'course_view_bachelor' %}">Undergraduate
                                         Courses</a>
@@ -84,41 +82,35 @@
                     </ul>
 
                     {% if request.session.username %}
-                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-30 d-flex justify-content-lg-end">
-                        <li><i class="bi bi-person"></i></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-success" style="font-size: 30px; font-weight: bold" href="#"
+                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-30 d-flex justify-content-lg-end ">
+                        <li><i class="bi bi-person"></i>
+                        </li>
+                        <li class="nav-item dropdown ">
+                            <a class="nav-link text-success" style="font-size: 30px; font-weight: bold;" href="#"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 {{ request.session.username }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'logout' %}">Profile</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'logout' %}">Log Out</a>
-                                </li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Profile</a></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
                         </li>
                     </ul>
                     {% elif user.is_authenticated%}
 
-                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end">
-                        <li><i class="far fa-circle-user"></i></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link text-success" style="font-size: 20px; font-weight: bold" href="#"
+                    <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
+                        <li>
+                            <img src="{{ profile_photo_url }}" alt="Profile Photo" class="img-thumbnail rounded-circle"
+                                style="max-width: 40px; max-height: 40px;">
+                        </li>
+                        <li class="nav-item dropdown ">
+                            <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <p>{{ user.first_name }}</p>
+                                <p>{{ user.first_name }} {{ user.last_name }}</p>
                             </a>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="#" onclick="openProfileModal()">
-                                        Profile
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'logout' %}">Log Out</a>
-                                </li>
+                                
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -127,23 +119,22 @@
                     <ul class="navbar-nav mb-2 mb-lg-0 w-50 d-flex justify-content-lg-end">
                         <li class="nav-item dropdown">
                             <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <button class="btn btn-outline-success">Sign Up</button>
+                                <button class="btn btn-outline-success">Sign
+                                    Up</button>
                             </a>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="{%url 'signup' %}">Register as Migrant</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'inst_signup' %}">Register as Institute</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="#">Register as Landlord</a>
-                                </li>
+                                <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
+                                        Migrant</a></li>
+                                <li><a class="dropdown-item" href="{% url 'inst_signup' %}">Register
+                                        as Institute</a></li>
+                                <li><a class="dropdown-item" href="#">Register
+                                        as Landlord</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{%url 'login' %}" role="button" aria-expanded="false">
-                                <button class="btn btn-outline-success">Log In</button>
+                                <button class="btn btn-outline-success">Log
+                                    In</button>
                             </a>
                         </li>
                     </ul>
