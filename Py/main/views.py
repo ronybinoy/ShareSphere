@@ -373,10 +373,11 @@ def home(request):
             user.save()
 
             # Check if the user has a migrant profile
-            migrant, created = Migrant.objects.get_or_create(user=user)
+            if migrant.dob is None:  # Check if dob is empty in the database
+                dob = request.POST.get('dob')
+                if dob:
+                    migrant.dob = dob
 
-            # Update migrant profile fields
-            migrant.dob = request.POST.get('dob')
             migrant.contact_no = request.POST.get('contact_no')
 
             # Handle profile photo update
