@@ -149,6 +149,7 @@
                                     <th>Institute Name</th>
                                     <th>Applied On</th>
                                     <th>Payment Status</th>
+                                    <th>Application Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -165,6 +166,17 @@
                                                 <span class="text-success">Success</span>
                                             {% else %}
                                                 <span class="text-danger">Unsuccessful</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if application.application_status == 'applied' %}
+                                                <span class="text-primary">Applied</span>
+                                            {% elif application.application_status == 'approved' %}
+                                                <span class="text-success">Approved</span>
+                                            {% elif application.application_status == 'pending' %}
+                                                <span class="text-warning">Pending</span>
+                                            {% elif application.application_status == 'rejected' %}
+                                                <span class="text-danger">Rejected</span>
                                             {% endif %}
                                         </td>
                                         <td>

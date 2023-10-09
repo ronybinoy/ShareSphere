@@ -805,7 +805,6 @@ def display_applications(request):
         request, "viewapplication.html", {"user_applications": user_applications}
     )
 
-
 @login_required
 @user_passes_test(is_institute)
 def manage_applications(request, course_id):
