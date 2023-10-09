@@ -17,22 +17,26 @@
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="percentage_12th">12th Percentage:</label>
-                        <input type="text" class="form-control" name="percentage_12th" required>
+                        <input type="text" class="form-control" name="percentage_12th" id="percentage_12th" required>
+                        <small id="percentage_12th_error" class="text-danger"></small>
                     </div>
 
                     <div class="form-group">
                         <label for="GRE_Score">GRE Score:</label>
-                        <input type="text" class="form-control" name="GRE_Score" required>
+                        <input type="text" class="form-control" name="GRE_Score" id="GRE_Score" required>
+                        <small id="GRE_Score_error" class="text-danger"></small>
                     </div>
 
                     <div class="form-group">
                         <label for="TOEFL_Score">TOEFL Score:</label>
-                        <input type="text" class="form-control" name="TOEFL_Score" required>
+                        <input type="text" class="form-control" name="TOEFL_Score" id="TOEFL_Score" required>
+                        <small id="TOEFL_Score_error" class="text-danger"></small>
                     </div>
 
                     <div class="form-group">
                         <label for="CGPA">CGPA:</label>
-                        <input type="text" class="form-control" name="CGPA" required>
+                        <input type="text" class="form-control" name="CGPA" id="CGPA" required>
+                        <small id="CGPA_error" class="text-danger"></small>
                     </div>
 
                     <input type="submit" class="btn btn-primary" value="Predict">
@@ -53,5 +57,62 @@
 
     <!-- Include Bootstrap JS (optional) -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Include jQuery (you should have jQuery installed) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        // Function to validate 12th Percentage
+        $('#percentage_12th').on('input', function() {
+            var value = parseFloat($(this).val());
+            var errorElement = $('#percentage_12th_error');
+            if (isNaN(value) || value < 30 || value > 100) {
+                errorElement.text('Enter a valid percentage between 30 and 100');
+                $(this).addClass('is-invalid');
+            } else {
+                errorElement.text('');
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        // Function to validate GRE Score
+        $('#GRE_Score').on('input', function() {
+            var value = parseFloat($(this).val());
+            var errorElement = $('#GRE_Score_error');
+            if (isNaN(value) || value < 260 || value > 340) {
+                errorElement.text('Enter a valid GRE score between 260 and 340');
+                $(this).addClass('is-invalid');
+            } else {
+                errorElement.text('');
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        // Function to validate TOEFL Score
+        $('#TOEFL_Score').on('input', function() {
+            var value = parseFloat($(this).val());
+            var errorElement = $('#TOEFL_Score_error');
+            if (isNaN(value) || value < 0 || value > 120) {
+                errorElement.text('Enter a valid TOEFL score between 0 and 120');
+                $(this).addClass('is-invalid');
+            } else {
+                errorElement.text('');
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        // Function to validate CGPA
+        $('#CGPA').on('input', function() {
+            var value = parseFloat($(this).val());
+            var errorElement = $('#CGPA_error');
+            if (isNaN(value) || value < 1 || value > 10) {
+                errorElement.text('Enter a valid CGPA between 1 and 10');
+                $(this).addClass('is-invalid');
+            } else {
+                errorElement.text('');
+                $(this).removeClass('is-invalid');
+            }
+        });
+    </script>
 </body>
 </html>
