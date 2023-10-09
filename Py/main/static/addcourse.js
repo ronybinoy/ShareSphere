@@ -1,4 +1,8 @@
 $(document).ready(function () {
+    const a= document.getElementById("#fortest")
+    a.addEventListener(function(){
+        
+    });
     const fields = [
         { id: "#course_name", validate: validatecourse_name },
         { id: "#course_mode", validate: validatecourse_mode },

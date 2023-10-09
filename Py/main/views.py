@@ -415,11 +415,17 @@ def institute_dashboard(request):
 @user_passes_test(is_institute)
 def courselisting(request):
     user = request.user
+    
+    # Count the active courses posted by the current user
+    active_count = Course.objects.filter(user=user, is_active=True).count()
+    
+    # Retrieve all courses posted by the current user
     courses = Course.objects.filter(user=user)
     current_date = date.today()  # Get the current date
 
     # Create a list of dictionaries, each containing course information
     course_list = []
+
     for course in courses:
         is_disabled = course.opendate < current_date
         course_data = {
@@ -428,7 +434,8 @@ def courselisting(request):
             'today': current_date,  # Include today's date in the course data
         }
         course_list.append(course_data)
-    return render(request, "courselisting.html", {"courses": course_list})
+
+    return render(request, "courselisting.html", {"courses": course_list, "active_count": active_count})
 
 
 @login_required
