@@ -13,9 +13,12 @@ urlpatterns = [
     path('user_listing/', views.user_listing, name='user_listing'),
     path('filtered_users/<str:role>/', views.filtered_users, name='filtered_users'),
     path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('add_room/', views.add_room, name='add_room'),
+    path('toggle_room_status/', views.toggle_room_status, name='toggle_room_status'),
     path('update_user_status/<int:user_id>/', views.update_user_status, name='update_user_status'),
     path('pending_courses/', views.course_listing, name='pending_courses'),
     path('update_course_status/<int:course_id>/<str:status>/', views.update_course_status, name='update_course_status'),
+
 
 
     path('payment1/<int:application_id>/', views.payment1, name='payment1'),

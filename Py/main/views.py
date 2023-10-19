@@ -222,6 +222,11 @@ def addcourse(request):
         appdeadline = request.POST.get("appdeadline")
         opendate = request.POST.get("opendate")
         seat_available = request.POST.get("seats_available")
+        course_code = request.POST.get("course_code")
+
+        # Course code validation
+        if Course.objects.filter(course_code=course_code).exists():
+            return JsonResponse({"error": "Course code already exists."})
 
         # Handle image upload
         thumbnail_image = request.FILES.get("thumbnail_image")
@@ -247,6 +252,7 @@ def addcourse(request):
                     is_active=True,
                     thumbnail_image=thumbnail_image,
                     seat_available=seat_available,
+                    course_code=course_code  # Set the course_code
                 )
                 course.save()
         else:
@@ -265,6 +271,7 @@ def addcourse(request):
                 opendate=opendate,
                 seat_available=seat_available,
                 is_active=True,
+                course_code=course_code  # Set the course_code
             )
             course.save()
 
@@ -272,6 +279,7 @@ def addcourse(request):
         return redirect("institute_dashboard")
 
     return render(request, "addcourse.html")
+
 
 
 @login_required
@@ -454,7 +462,7 @@ def chatapp(request):
 
 @login_required
 def rooms(request):
-    rooms = Room.objects.all()
+    rooms = Room.objects.filter(is_active=True)  # Filter rooms with is_active=True
     return render(request, "chatroom/rooms.html", {"rooms": rooms})
 
 
@@ -469,7 +477,11 @@ def room(request, slug):
 @user_passes_test(is_staff)
 def admin_dashboard(request):
     users = CustomUser.objects.all()
-    return render(request, "admin/admin_index.html", {"users": users})
+
+    # Fetch room names and message counts using an annotation
+    room_data = Room.objects.all().annotate(message_count=Count('messages'))
+
+    return render(request, "admin/admin_index.html", {"users": users, "room_data": room_data})
 
 @login_required
 @user_passes_test(is_staff)
@@ -478,10 +490,26 @@ def update_user_status(request, user_id):
         try:
             user = CustomUser.objects.get(id=user_id)
             new_status = request.POST.get('status')
-            if new_status == 'active':
+
+            if new_status == 'active' and not user.is_active:
                 user.is_active = True
-            elif new_status == 'inactive':
+                send_mail(
+                    'Your Sharesphere Account is Reactivated',
+                    'Your Sharesphere account has been reactivated. Email to sharesphereedu@gmail.com for more details ',
+                    'sharesphereedu@gmail.com',
+                    [user.email],
+                    fail_silently=False,
+                )
+            elif new_status == 'inactive' and user.is_active:
                 user.is_active = False
+                send_mail(
+                    'Your Sharesphere Account is Deactivated',
+                    'Your Sharesphere account has been deactivated. Email to sharesphereedu@gmail.com for more details',
+                    'sharesphereedu@gmail.com',
+                    [user.email],
+                    fail_silently=False,
+                )
+
             user.save()
             return JsonResponse({'success': True})
         except CustomUser.DoesNotExist:
@@ -633,6 +661,9 @@ def reject_course(request, course_id):
             return JsonResponse({"success": False, "message": str(e)})
 
     return JsonResponse({"success": False, "message": "Invalid request method"})
+
+
+
 
 
 @login_required
@@ -1082,3 +1113,40 @@ def generate_pdf(request,application_id):
     response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
 
     return response
+
+@csrf_exempt  # This decorator is used for simplicity in this example. You should use proper CSRF protection.
+def add_room(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        slug = request.POST.get('slug')
+
+        # Create and save the Room object
+        room = Room(name=name, slug=slug)
+        room.save()
+
+        # You can return a success message or JSON response
+        return JsonResponse({'message': 'Room added successfully'})
+    else:
+        # Handle other HTTP methods if needed
+        return JsonResponse({'message': 'Invalid request'}, status=400)
+
+
+
+
+
+@csrf_exempt
+def toggle_room_status(request):
+    # Get the room ID from the POST request
+    room_id = request.POST.get('room_id')
+
+    # Retrieve the room object
+    try:
+        room = Room.objects.get(id=room_id)
+    except Room.DoesNotExist:
+        return JsonResponse({'error': 'Room not found'}, status=404)
+
+    # Toggle the room's status (active to inactive or vice versa)
+    room.is_active = not room.is_active
+    room.save()
+
+    return JsonResponse({'message': 'Room status updated successfully'})

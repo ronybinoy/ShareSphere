@@ -60,6 +60,8 @@ class Course(models.Model):
     thumbnail_image = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
     seat_available = models.IntegerField(null=True, blank=True)
     rejection_remark = models.TextField(blank=True, null=True)
+    course_code = models.CharField(max_length=20, default='ABC1234')  # You can adjust max_length as needed
+    
 
 
     def approve(self):
@@ -85,6 +87,8 @@ class Course(models.Model):
 class Room(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
+    is_active = models.BooleanField(default=True) 
+
 
 class Message(models.Model):
     room = models.ForeignKey(Room, related_name='messages', on_delete=models.CASCADE)

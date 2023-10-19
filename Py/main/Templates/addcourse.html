@@ -53,6 +53,43 @@
             </div>
             <div class="row">
                 <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="course_code">Course Code *</label>
+                        <input type="text" class="form-control" id="course_code" name="course_code" placeholder="Eg: ABCd123" required>
+                        <span id="course_codespan" style="font-size: 12px;"></span>
+                        <p>The course be unique for each courses</p>
+                    </div>
+                    
+                </div>
+            </div>
+            <script>
+                $(document).ready(function () {
+                    // Attach an event listener to the course code input field
+                    $("#course_code").on("input", function () {
+                        var courseCode = $(this).val();
+                        if (courseCode) {
+                            // Send an AJAX request to check for duplicate course codes
+                            $.ajax({
+                                url: "addcourse/", // Replace with the actual URL for checking course code
+                                type: "POST",
+                                data: { course_code: courseCode },
+                                success: function (data) {
+                                    if (data.error) {
+                                        // Display the error message in the span
+                                        $("#course_codespan").text(data.error);
+                                    } else {
+                                        // Clear any previous error message
+                                        $("#course_codespan").text("");
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+            </script>
+            
+            <div class="row">
+                <div class="col-md-6">
                     <!-- Start Date -->
                     <div class="form-group">
                         <label for="course_name">Course Name *</label>

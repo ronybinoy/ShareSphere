@@ -260,3 +260,7 @@ table.user-list.dark-theme tr:nth-child(even) {
     /* Alternate row background color for the dark theme */
     background-color: #333;
 }
+th{
+    font-weight: 100;
+}
+
