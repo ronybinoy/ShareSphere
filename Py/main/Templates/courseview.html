@@ -59,7 +59,7 @@
                                 role="button" data-toggle="dropdown" aria-haspopup="true"
                                 aria-expanded="false">Course</a>
                             <ul class="dropdown-menu" aria-labelledby="coursesDropdown">
-                                
+
                                 <li>
                                     <a class="dropdown-item" href="{% url 'course_view_bachelor' %}">Undergraduate
                                         Courses</a>
@@ -99,14 +99,14 @@
                     {% elif user.is_authenticated%}
 
                     <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
-                        
+
                         <li class="nav-item dropdown ">
                             <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <p>{{ user.first_name }} {{ user.last_name }}</p>
                             </a>
                             <ul class="dropdown-menu">
-                                
+
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
                         </li>
@@ -163,8 +163,7 @@
                         {% endfor %}
                         <li class="nav-item ml-auto">
                             <div class="input-group mb-3">
-                                <input type="text" id="course-search-input" class="form-control"
-                                    placeholder="Search courses">
+                                <input type="text" id="search-input" class="form-control" placeholder="Search courses">
                             </div>
                         </li>
                     </ul>
@@ -173,11 +172,11 @@
                         {% for country, country_courses in courses_by_country.items %}
                         <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="pills-{{ country }}"
                             role="tabpanel" aria-labelledby="pills-{{ country }}-tab">
-                            <div class="row">
+                            <div class="row" id="resultdiv">
                                 {% for course in country_courses %}
                                 {% if course.is_active and course.appdeadline >= today %}
                                 <div class="col-lg-3 col-md-6 col-sm-12 mt-4 ">
-                                    <div class="ms-2 card course-card rounded-xl" id="resultdiv">
+                                    <div class="ms-2 card course-card rounded-xl">
                                         <img src="{{ course.thumbnail_image.url }}" alt="{{ course.course_name }}"
                                             class="card-img-top fixed-image" />
 
@@ -220,7 +219,7 @@
                 </div>
             </div>
         </div>
-
+        <div id="search-results"></div>
         <div class="pagination">
             <span class="step-links">
                 {% if courses.has_previous %}
@@ -425,8 +424,73 @@
 
     <script>
 
-        //search operation
+        $(document).ready(function () {
+            // Store the original content of the resultdiv
+            const originalContent = $("#resultdiv").html();
         
+            $("#search-input").on("input", function () {
+                const searchTerm = $(this).val();
+                const searchResultsContainer = $("#resultdiv");
+        
+                if (searchTerm === "") {
+                    // If the input is empty, reload the original content
+                    searchResultsContainer.html(originalContent);
+                    return;
+                }
+        
+                // If the input is not empty, perform the search
+                $.ajax({
+                    type: "GET",
+                    url: "/search_courses/",
+                    data: { keyword: searchTerm },
+                    success: function (data) {
+                        if (data.courses.length == 0) {
+                            searchResultsContainer.html('<p style="color: white;">No results found.</p>');
+                            return;
+                        }
+        
+                        searchResultsContainer.empty(); // Clear previous search results
+        
+                        data.courses.forEach(course => {
+                            const courseCard = `
+                            <div class="col-lg-3 col-md-6 col-sm-12 mt-4">
+                                <div class="card course-card rounded-xl">
+                                    <img src="${course.thumbnail_image}" alt="${course.course_name}" class="card-img-top fixed-image">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-center">${course.course_name}</h5>
+                                        <p class="card-title text-center">${course.user_first_name}</p>
+                                        <hr>
+                                        <p class="card-text"><strong>Course Mode:</strong> ${course.course_mode}</p>
+                                        <p class="card-text"><strong>Course Type:</strong> ${course.course_type}</p>
+                                        <p class="card-text">
+                                            <strong>Fees Per Semester:</strong> ${course.fees !== undefined ? `$${course.fees.toLocaleString()}` : '$540'}
+                                        </p>
+                                                                                <p class="card-text"><strong>Application Deadline:</strong> ${course.appdeadline}</p>
+                                        <p class="card-text"><strong>College Location:</strong> ${course.college_location}</p>
+                                        <p class="card-text"><strong>Application Fee:</strong> $10</p>
+                                        
+                                        <div class="text-center mt-4">
+                                            {% if course|course_already_applied:request.user %}
+                                                <button class="btn btn-secondary" disabled>Already Applied</button>
+
+                                            {% else %}
+                                                <button class="btn btn-primary" data-toggle="modal" data-target="#applicationModal" 
+                                                    onclick="openWithdata('${course.course_name}', '${course.user_id}')">Apply Now</button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+                            searchResultsContainer.append(courseCard);
+                        });
+                    }
+                });
+            });
+        });
+        
+
+
         // JavaScript to make the navbar sticky when scrolling
         window.addEventListener("scroll", function () {
             const navbar = document.querySelector(".navbar");

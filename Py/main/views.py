@@ -1,9 +1,10 @@
 import datetime
 from random import randint
+from sqlite3 import IntegrityError
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.models import AnonymousUser            
+from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 from .models import (
     Course,
@@ -13,7 +14,7 @@ from .models import (
     Inst_info,
     Course_Application,
     Migrant,
-    Payment
+    Payment,
 )
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.http import HttpResponseRedirect, JsonResponse
@@ -45,6 +46,7 @@ from django.http import HttpResponse
 
 User = get_user_model()
 
+
 def is_migrant(user):
     return user.is_authenticated and user.is_migrant
 
@@ -55,7 +57,6 @@ def is_institute(user):
 
 def is_staff(user):
     return user.is_authenticated and user.is_staff
-
 
 
 # def is_landlord(user):
@@ -252,7 +253,7 @@ def addcourse(request):
                     is_active=True,
                     thumbnail_image=thumbnail_image,
                     seat_available=seat_available,
-                    course_code=course_code  # Set the course_code
+                    course_code=course_code,  # Set the course_code
                 )
                 course.save()
         else:
@@ -271,7 +272,7 @@ def addcourse(request):
                 opendate=opendate,
                 seat_available=seat_available,
                 is_active=True,
-                course_code=course_code  # Set the course_code
+                course_code=course_code,  # Set the course_code
             )
             course.save()
 
@@ -279,7 +280,6 @@ def addcourse(request):
         return redirect("institute_dashboard")
 
     return render(request, "addcourse.html")
-
 
 
 @login_required
@@ -363,8 +363,6 @@ def validate_institute(request):
         return JsonResponse(data)
 
 
-
-
 def home(request):
     user = request.user
     profile_photo_url = None  # Initialize as None, in case there's no profile photo
@@ -374,22 +372,22 @@ def home(request):
         # Check if the user has a migrant profile
         migrant, created = Migrant.objects.get_or_create(user=user)
 
-        if request.method == 'POST':
+        if request.method == "POST":
             # Update user profile fields
-            user.first_name = request.POST.get('first_name')
-            user.last_name = request.POST.get('last_name')
+            user.first_name = request.POST.get("first_name")
+            user.last_name = request.POST.get("last_name")
             user.save()
 
             # Check if the user has a migrant profile
             if migrant.dob is None:  # Check if dob is empty in the database
-                dob = request.POST.get('dob')
+                dob = request.POST.get("dob")
                 if dob:
                     migrant.dob = dob
 
-            migrant.contact_no = request.POST.get('contact_no')
+            migrant.contact_no = request.POST.get("contact_no")
 
             # Handle profile photo update
-            profile_photo = request.FILES.get('profile_photo')
+            profile_photo = request.FILES.get("profile_photo")
             if profile_photo:
                 # Delete the old profile photo if it exists
                 if migrant.profile_photo:
@@ -400,7 +398,7 @@ def home(request):
             migrant.save()
 
             # Redirect to a success page or reload the current page
-            return redirect('home')
+            return redirect("home")
 
         # Retrieve the current profile photo URL
         if migrant.profile_photo:
@@ -411,22 +409,20 @@ def home(request):
     )
 
 
-    
 @login_required
 @user_passes_test(is_institute)
 def institute_dashboard(request):
     return render(request, "inst_home.html")
 
 
-
 @login_required
 @user_passes_test(is_institute)
 def courselisting(request):
     user = request.user
-    
+
     # Count the active courses posted by the current user
     active_count = Course.objects.filter(user=user, is_active=True).count()
-    
+
     # Retrieve all courses posted by the current user
     courses = Course.objects.filter(user=user)
     current_date = date.today()  # Get the current date
@@ -435,15 +431,19 @@ def courselisting(request):
     course_list = []
 
     for course in courses:
-        is_disabled = course.opendate < current_date
+        is_disabled = course.opendate <= current_date
         course_data = {
-            'course': course,
-            'is_disabled': is_disabled,
-            'today': current_date,  # Include today's date in the course data
+            "course": course,
+            "is_disabled": is_disabled,
+            "today": current_date,  # Include today's date in the course data
         }
         course_list.append(course_data)
 
-    return render(request, "courselisting.html", {"courses": course_list, "active_count": active_count})
+    return render(
+        request,
+        "courselisting.html",
+        {"courses": course_list, "active_count": active_count},
+    )
 
 
 @login_required
@@ -479,42 +479,45 @@ def admin_dashboard(request):
     users = CustomUser.objects.all()
 
     # Fetch room names and message counts using an annotation
-    room_data = Room.objects.all().annotate(message_count=Count('messages'))
+    room_data = Room.objects.all().annotate(message_count=Count("messages"))
 
-    return render(request, "admin/admin_index.html", {"users": users, "room_data": room_data})
+    return render(
+        request, "admin/admin_index.html", {"users": users, "room_data": room_data}
+    )
+
 
 @login_required
 @user_passes_test(is_staff)
 def update_user_status(request, user_id):
-    if request.method == 'POST':
+    if request.method == "POST":
         try:
             user = CustomUser.objects.get(id=user_id)
-            new_status = request.POST.get('status')
+            new_status = request.POST.get("status")
 
-            if new_status == 'active' and not user.is_active:
+            if new_status == "active" and not user.is_active:
                 user.is_active = True
                 send_mail(
-                    'Your Sharesphere Account is Reactivated',
-                    'Your Sharesphere account has been reactivated. Email to sharesphereedu@gmail.com for more details ',
-                    'sharesphereedu@gmail.com',
+                    "Your Sharesphere Account is Reactivated",
+                    "Your Sharesphere account has been reactivated. Email to sharesphereedu@gmail.com for more details ",
+                    "sharesphereedu@gmail.com",
                     [user.email],
                     fail_silently=False,
                 )
-            elif new_status == 'inactive' and user.is_active:
+            elif new_status == "inactive" and user.is_active:
                 user.is_active = False
                 send_mail(
-                    'Your Sharesphere Account is Deactivated',
-                    'Your Sharesphere account has been deactivated. Email to sharesphereedu@gmail.com for more details',
-                    'sharesphereedu@gmail.com',
+                    "Your Sharesphere Account is Deactivated",
+                    "Your Sharesphere account has been deactivated. Email to sharesphereedu@gmail.com for more details",
+                    "sharesphereedu@gmail.com",
                     [user.email],
                     fail_silently=False,
                 )
 
             user.save()
-            return JsonResponse({'success': True})
+            return JsonResponse({"success": True})
         except CustomUser.DoesNotExist:
-            return JsonResponse({'success': False, 'message': 'User not found'})
-    return JsonResponse({'success': False, 'message': 'Invalid request'})
+            return JsonResponse({"success": False, "message": "User not found"})
+    return JsonResponse({"success": False, "message": "Invalid request"})
 
 
 @login_required
@@ -550,8 +553,7 @@ def filtered_users(request, role):
     return JsonResponse({"users": user_data})
 
 
-
-#for admin dashboard
+# for admin dashboard
 @login_required
 def course_listing(request):
     # Retrieve pending courses with related user data
@@ -582,44 +584,56 @@ def course_listing(request):
 
 @login_required
 def course_view(request, course_type):
-    today = date.today()  # Get the current date
-    query = request.GET.get("q")  # Get the search query from the request
+    today = date.today()
+    query = request.GET.get("q")
+    country_filter = request.GET.get("country")
 
-    # Filter and group courses by country
-    courses_by_country = {}
+    # Query the courses
     courses_list = Course.objects.filter(
         status="approved", course_type=course_type, appdeadline__gte=today
-    ).select_related(
-        "user"
-    )  # Use select_related to fetch related user data efficiently
+    ).select_related("user")
 
+    # Apply search query
     if query:
-        # Filter courses based on the search query (course name or institute name)
         courses_list = courses_list.filter(
             Q(course_name__icontains=query) | Q(user__first_name__icontains=query)
         )
 
+    # Apply country filter if specified
+    if country_filter:
+        courses_list = courses_list.filter(user__nationality=country_filter)
+
+    # Sort courses by application deadline
+    courses_list = courses_list.order_by("appdeadline")
+
+    # Group courses by country
+    courses_by_country = {}
     for course in courses_list:
-        country = (
-            course.user.nationality
-        )  # Assuming the user's region represents the country
+        country = course.user.nationality
         if country not in courses_by_country:
             courses_by_country[country] = []
         courses_by_country[country].append(course)
 
+    # Pagination
     per_page = 10
-
     for country, country_courses in courses_by_country.items():
         paginator = Paginator(country_courses, per_page)
         page_number = request.GET.get("page")
         country_courses_paginated = paginator.get_page(page_number)
         courses_by_country[country] = country_courses_paginated
 
-    return render(
-        request,
-        "courseview.html",
-        {"courses_by_country": courses_by_country, "today": today},
-    )
+    # You can fetch a list of unique countries for the filter
+    unique_countries = Course.objects.values_list("user__nationality", flat=True).distinct()
+
+    context = {
+        "courses_by_country": courses_by_country,
+        "today": today,
+        "query": query,
+        "country_filter": country_filter,
+        "unique_countries": unique_countries,
+    }
+
+    return render(request, "courseview.html", context)
 
 
 @login_required
@@ -663,23 +677,23 @@ def reject_course(request, course_id):
     return JsonResponse({"success": False, "message": "Invalid request method"})
 
 
-
-
-
 @login_required
 def search_courses(request):
-    keyword = request.GET.get("keyword", "")
+    keyword = request.GET.get("keyword", "").strip()  # Remove leading/trailing whitespace
+    print(keyword)
+    if not keyword:
+        return JsonResponse({"courses": []})  # Return an empty list if no keyword is provided
 
     # Perform the search using a Q object to filter the Course model
     courses = Course.objects.filter(
-        Q(course_name__icontains=keyword)
-        | Q(user__first_name__icontains=keyword)
-        | Q(course_type__icontains=keyword)
+        Q(course_name__icontains=keyword) |
+        Q(user__first_name__icontains=keyword) |
+        Q(course_type__icontains=keyword)  # Add more fields as needed
     )
-
+    print(courses)
     # Serialize the results to JSON
     serialized_results = []
-
+    
     if courses.exists():
         for course in courses:
             serialized_results.append(
@@ -696,7 +710,7 @@ def search_courses(request):
             )
     else:
         print("No results found.")
-
+        
     return JsonResponse({"courses": serialized_results})
 
 
@@ -823,7 +837,7 @@ def application_form(request):
         applicant.save()
         payment_url = reverse("payment1", args=[application_id])
         return redirect(payment_url)
-    
+
         # if course.course_type == "Diploma Programme":
         #     return redirect(reverse("course_view_diploma"))
         # elif course.course_type == "Bachelor Degree":
@@ -843,6 +857,7 @@ def display_applications(request):
         request, "viewapplication.html", {"user_applications": user_applications}
     )
 
+
 @login_required
 @user_passes_test(is_institute)
 def manage_applications(request, course_id):
@@ -853,24 +868,32 @@ def manage_applications(request, course_id):
     available_seats = course.seat_available
 
     # Get all applications for the course ordered by average_percentage in descending order
-    all_applications = Course_Application.objects.filter(course=course).order_by('-average_percentage')
+    all_applications = Course_Application.objects.filter(course=course).order_by(
+        "-average_percentage"
+    )
 
     # Separate approved, pending, and rejected applications
     approved_applications = all_applications[:available_seats]
-    pending_applications = all_applications[available_seats:available_seats + 2]
-    rejected_applications = all_applications[available_seats + 2:]
+    pending_applications = all_applications[available_seats : available_seats + 2]
+    rejected_applications = all_applications[available_seats + 2 :]
 
     # Check if any application has a status of "applied"
-    has_applied_applications = any(application.application_status == 'applied' for application in all_applications)
+    has_applied_applications = any(
+        application.application_status == "applied" for application in all_applications
+    )
 
-    return render(request, "manage_applications.html", {
-        "course": course,
-        "all_applications": all_applications,
-        "approved_applications": approved_applications,
-        "pending_applications": pending_applications,
-        "rejected_applications": rejected_applications,
-        "has_applied_applications": has_applied_applications  # Pass the flag to the template
-    })
+    return render(
+        request,
+        "manage_applications.html",
+        {
+            "course": course,
+            "all_applications": all_applications,
+            "approved_applications": approved_applications,
+            "pending_applications": pending_applications,
+            "rejected_applications": rejected_applications,
+            "has_applied_applications": has_applied_applications,  # Pass the flag to the template
+        },
+    )
 
 
 @login_required
@@ -883,20 +906,21 @@ def generate_results(request, course_id):
     available_seats = course.seat_available
 
     # Get all applications for the course ordered by average_percentage in descending order
-    all_applications = Course_Application.objects.filter(course=course).order_by('-average_percentage')
+    all_applications = Course_Application.objects.filter(course=course).order_by(
+        "-average_percentage"
+    )
 
     # Update application statuses
     for i, application in enumerate(all_applications):
         if i < available_seats:
-            application.application_status = 'approved'
+            application.application_status = "approved"
         elif i < available_seats + 2:
-            application.application_status = 'pending'
+            application.application_status = "pending"
         else:
-            application.application_status = 'rejected'
+            application.application_status = "rejected"
         application.save()
 
-    return redirect('manage_applications', course_id=course.id)
-
+    return redirect("manage_applications", course_id=course.id)
 
 
 @login_required
@@ -907,31 +931,41 @@ def send_emails(request, course_id, email_category):
     posteduser = course.user
 
     # Filter applications based on the email_category
-    if email_category == 'all':
+    if email_category == "all":
         applications = Course_Application.objects.filter(course=course)
-    elif email_category == 'approved':
-        applications = Course_Application.objects.filter(course=course, status='approved')
-    elif email_category == 'pending':
-        applications = Course_Application.objects.filter(course=course, status='pending')
-    elif email_category == 'rejected':
-        applications = Course_Application.objects.filter(course=course, status='rejected')
+    elif email_category == "approved":
+        applications = Course_Application.objects.filter(
+            course=course, status="approved"
+        )
+    elif email_category == "pending":
+        applications = Course_Application.objects.filter(
+            course=course, status="pending"
+        )
+    elif email_category == "rejected":
+        applications = Course_Application.objects.filter(
+            course=course, status="rejected"
+        )
     else:
         # Handle invalid email_category (e.g., return an error response)
-        return JsonResponse({'message': 'Invalid email category'})
+        return JsonResponse({"message": "Invalid email category"})
 
     # Compose and send email for each selected application
-    subject = 'Course Application Status'
-    from_email = 'sharesphereedu@gmail.com'  # Use your sender email address
+    subject = "Course Application Status"
+    from_email = "sharesphereedu@gmail.com"  # Use your sender email address
 
     for application in applications:
         recipient_email = application.email
-        status = 'Approved' if application.application_status == 'approved' else 'Pending' if application.application_status == 'pending' else 'Rejected'
-        message = f'Your course application for the {course.course_name} at {posteduser.first_name}, {posteduser.region} has been {status}.'
+        status = (
+            "Approved"
+            if application.application_status == "approved"
+            else "Pending"
+            if application.application_status == "pending"
+            else "Rejected"
+        )
+        message = f"Your course application for the {course.course_name} at {posteduser.first_name}, {posteduser.region} has been {status}."
         send_mail(subject, message, from_email, [recipient_email])
 
-    return JsonResponse({'message': 'Emails sent successfully'})
-
-
+    return JsonResponse({"message": "Emails sent successfully"})
 
 
 def course_application_analytics(request):
@@ -970,6 +1004,8 @@ def course_application_analytics(request):
 razorpay_client = razorpay.Client(
     auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET)
 )
+
+
 def payment1(request, application_id):
     currency = "INR"
     amount = 70000  # Rs. 200  <- Make sure this matches the amount you want to capture
@@ -981,7 +1017,9 @@ def payment1(request, application_id):
 
     # Order ID of the newly created order.
     razorpay_order_id = razorpay_order["id"]
-    callback_url = reverse('paymenthandler', args=[application_id])  # Pass the application ID in the URL
+    callback_url = reverse(
+        "paymenthandler", args=[application_id]
+    )  # Pass the application ID in the URL
 
     # We need to pass these details to the frontend.
     context = {
@@ -995,9 +1033,7 @@ def payment1(request, application_id):
     return render(request, "payment1.html", context=context)
 
 
-
 from django.template.loader import render_to_string
-
 
 
 @csrf_exempt
@@ -1017,23 +1053,26 @@ def paymenthandler(request, application_id):
             # Verify the payment signature.
             result = razorpay_client.utility.verify_payment_signature(params_dict)
             if result is not None:
-                
                 # Capture the payment
                 payment_info = razorpay_client.payment.fetch(payment_id)
                 amount = payment_info["amount"]
-                rupees= amount/100
+                rupees = amount / 100
                 razorpay_client.payment.capture(payment_id, amount)
 
                 # Update the status of the Course_Application to True
-                application = get_object_or_404(Course_Application, application_id=application_id)
+                application = get_object_or_404(
+                    Course_Application, application_id=application_id
+                )
                 application.status = True
-                application.save()                                                      
+                application.save()
 
                 # Parse the created_at_str
                 created_at_ts = payment_info["created_at"]
-                created_at_dt = datetime.datetime.fromtimestamp(created_at_ts) 
+                created_at_dt = datetime.datetime.fromtimestamp(created_at_ts)
                 created_at_str = created_at_dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                created_at = datetime.datetime.strptime(created_at_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+                created_at = datetime.datetime.strptime(
+                    created_at_str, "%Y-%m-%dT%H:%M:%S.%fZ"
+                )
 
                 # Create a Payment instance
                 payment = Payment(
@@ -1041,7 +1080,7 @@ def paymenthandler(request, application_id):
                     payment_amount=rupees,  # Use the actual amount from the payment
                     payment_datetime=created_at,  # Use the parsed datetime
                     user=request.user,
-                    payment_status='Successful'  # Set payment status to 'Successful'
+                    payment_status="Successful",  # Set payment status to 'Successful'
                 )
                 payment.save()
 
@@ -1057,7 +1096,6 @@ def paymenthandler(request, application_id):
     else:
         # If other than POST request is made.
         return HttpResponseBadRequest()
-    
 
 
 def invoice_view(request, application_id):
@@ -1068,20 +1106,23 @@ def invoice_view(request, application_id):
         application = None
         payments = None
 
-    return render(request, 'payment_receipt.html', {'application': application, 'payments': payments})
+    return render(
+        request,
+        "payment_receipt.html",
+        {"application": application, "payments": payments},
+    )
 
 
-
-def generate_pdf(request,application_id):
+def generate_pdf(request, application_id):
     # Get the HTML template
-    template = get_template('payment_receipt.html')
+    template = get_template("payment_receipt.html")
 
     try:
         application = Course_Application.objects.get(application_id=application_id)
     except Course_Application.DoesNotExist:
         application = None
 
-# Retrieve payment data related to the application (replace with your actual query)
+    # Retrieve payment data related to the application (replace with your actual query)
     if application:
         payments = Payment.objects.filter(application=application)
     else:
@@ -1089,64 +1130,95 @@ def generate_pdf(request,application_id):
 
     # Create the context dictionary
     context = {
-        'application': application,
-        'payments': payments,
+        "application": application,
+        "payments": payments,
     }
     # Render the template with the context
     html = template.render(context)
 
     # PDF generation options (you can customize these)
     options = {
-        'page-size': 'A4',
-        'margin-top': '0mm',
-        'margin-right': '0mm',
-        'margin-bottom': '0mm',
-        'margin-left': '0mm',
-        'encoding': 'UTF-8',
+        "page-size": "A4",
+        "margin-top": "0mm",
+        "margin-right": "0mm",
+        "margin-bottom": "0mm",
+        "margin-left": "0mm",
+        "encoding": "UTF-8",
     }
 
     # Generate PDF from the HTML content
     pdf = pdfkit.from_string(html, False, options=options)
 
     # Create an HTTP response with the PDF content
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="invoice.pdf"'
 
     return response
 
-@csrf_exempt  # This decorator is used for simplicity in this example. You should use proper CSRF protection.
+
+# @csrf_exempt  # This decorator is used for simplicity in this example. You should use proper CSRF protection.
+# def add_room(request):
+#     if request.method == "POST":
+#         name = request.POST.get("name")
+#         slug = request.POST.get("slug")
+
+#         # Create and save the Room object
+#         room = Room(name=name, slug=slug)
+#         room.save()
+
+#         # You can return a success message or JSON response
+#         return JsonResponse({"message": "Room added successfully"})
+#     else:
+#         # Handle other HTTP methods if needed
+#         return JsonResponse({"message": "Invalid request"}, status=400)
+
+
 def add_room(request):
     if request.method == 'POST':
-        name = request.POST.get('name')
-        slug = request.POST.get('slug')
+        name = request.POST.get("name")
+        slug = request.POST.get("slug")
 
-        # Create and save the Room object
+        # Check if a room with the same slug already exists
+        if Room.objects.filter(slug=slug).exists():
+            error_message = "The slug name already exists. Please choose a different one."
+            
+            # Generate a JavaScript alert with the error message
+            script = f'<script>alert("{error_message}"); window.history.back();</script>'
+            return HttpResponse(script)
+
+        # If the room with the same slug doesn't exist, save the new room
         room = Room(name=name, slug=slug)
         room.save()
 
-        # You can return a success message or JSON response
-        return JsonResponse({'message': 'Room added successfully'})
-    else:
-        # Handle other HTTP methods if needed
-        return JsonResponse({'message': 'Invalid request'}, status=400)
+        # Generate a JavaScript alert for successful room creation
+        success_message = "Chat room added successfully!"
+        script = f'<script>alert("{success_message}");</script>'
+        return HttpResponse(script)
 
-
+    return render(request, 'admin/admin_index.html')
 
 
 
 @csrf_exempt
 def toggle_room_status(request):
     # Get the room ID from the POST request
-    room_id = request.POST.get('room_id')
+    room_id = request.POST.get("room_id")
 
     # Retrieve the room object
     try:
         room = Room.objects.get(id=room_id)
     except Room.DoesNotExist:
-        return JsonResponse({'error': 'Room not found'}, status=404)
+        return JsonResponse({"error": "Room not found"}, status=404)
 
     # Toggle the room's status (active to inactive or vice versa)
     room.is_active = not room.is_active
     room.save()
 
-    return JsonResponse({'message': 'Room status updated successfully'})
+    return JsonResponse({"message": "Room status updated successfully"})
+
+
+def check_slug(request):
+    slug = request.GET.get('slug')
+    exists = Room.objects.filter(slug=slug).exists()
+    
+    return JsonResponse({'exists': exists})

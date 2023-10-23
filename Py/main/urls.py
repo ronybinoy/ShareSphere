@@ -14,6 +14,7 @@ urlpatterns = [
     path('filtered_users/<str:role>/', views.filtered_users, name='filtered_users'),
     path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('add_room/', views.add_room, name='add_room'),
+    path('check-slug/', views.check_slug, name='check-slug'),
     path('toggle_room_status/', views.toggle_room_status, name='toggle_room_status'),
     path('update_user_status/<int:user_id>/', views.update_user_status, name='update_user_status'),
     path('pending_courses/', views.course_listing, name='pending_courses'),

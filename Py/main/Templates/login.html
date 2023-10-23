@@ -2,203 +2,155 @@
 {%block content%}
 {% load static %}
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-            rel="stylesheet" />
-        <!-- Google Fonts -->
-        <link
-            href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-            rel="stylesheet" />
-        <!-- MDB -->
-        <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.css"
-            rel="stylesheet" />
-        <!-- MDB -->
-        <script
-            type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
-        <link rel="stylesheet" href="{% static '/login.css' %}">
 
-        <script
-            src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-
-        <title>Login</title>
-
-        <script>
-            $(document).ready(function () {
-        
-                const fields = [
-                    { id: "#un", validate: validateuName },
-                    { id: "#pass", validate: validatePassword },
-                ];
-            
-                fields.forEach(field => {
-                    $(field.id).keyup(function () {
-                        field.validate();
-                    });
-            
-                    validateFieldOnBlur(field.id, field.validate);
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.css" rel="stylesheet" />
+    <!-- MDB -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.4.1/mdb.min.js"></script>
+    <link rel="stylesheet" href="{% static '/login.css' %}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <title>Login</title>
+    <script>
+        $(document).ready(function () {
+            const fields = [
+                { id: "#un", validate: validateuName },
+                { id: "#pass", validate: validatePassword },
+            ];
+            fields.forEach(field => {
+                $(field.id).keyup(function () {
+                    field.validate();
                 });
-                function checkFormValidity() {
-                    const isValid = fields.every(field => {
-                        const $field = $(field.id);
-                        const $errorSpan = $(`${field.id}span`);
-                    
-        
-                        return $field.val().trim() !== "" && $errorSpan.html() === "";
-                    });
-                
-                    $("#submitBtn").prop("disabled", !isValid);
-                }
-                
-                
-            
-                function validateFieldOnBlur(fieldId, validationFunction) {
-                    $(fieldId).blur(function () {
-                        validationFunction();
-                        checkFormValidity();
-                    });
-                }
-            
-                // Form submission
-                $("#form").submit(function (event) {
-                    if (!$("#submitBtn").prop("disabled")) {
-                        // Form is valid, allow submission
-                        return true;
-                    } else {
-                        // Form is not valid, prevent submission
-                        event.preventDefault();
-                        return false;
-                    }
-                });
-            
-                // Initial check for form validity
-                checkFormValidity();
-            
-                function validateuName() {
-                    const name = $("#un").val();
-                    if (name.trim() === "") {
-                        $("#unspan").html("Enter the Email id").css("color", "#41586B");
-                    } else {
-                        $("#unspan").html("");
-                    }
-                }
-            
-            
-                function validateEmail() {
-                    const email = $("#mail").val();
-                    const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-                    if (email === "") {
-                        $("#mailspan").html("Enter the Email Id").css("color", "#41586B");
-                    } else if (!filter.test(email)) {
-                        $("#mailspan").html("Use correct Email Id").css("color", "#41586B");
-                    } else {
-                        $("#mailspan").html("");
-                    }
-                }
-            
-                function validatePassword() {
-                    const password = $("#pass").val();
-                    const pwd_expression = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/;
-                    if (password === "") {
-                        $("#passspan").html("Enter the Password").css("color", "#41586B");
-                    } else {
-                        $("#passspan").html("");
-                        
-                    }
-                }
-            
-                
+                validateFieldOnBlur(field.id, field.validate);
             });
+            function checkFormValidity() {
+                const isValid = fields.every(field => {
+                    const $field = $(field.id);
+                    const $errorSpan = $(`${field.id}span`);
+                    return $field.val().trim() !== "" && $errorSpan.html() === "";
+                });
+                $("#submitBtn").prop("disabled", !isValid);
+            }
+
+            function validateFieldOnBlur(fieldId, validationFunction) {
+                $(fieldId).blur(function () {
+                    validationFunction();
+                    checkFormValidity();
+                });
+            }
+
+            // Form submission
+            $("#form").submit(function (event) {
+                if (!$("#submitBtn").prop("disabled")) {
+                    // Form is valid, allow submission
+                    return true;
+                } else {
+                    // Form is not valid, prevent submission
+                    event.preventDefault();
+                    return false;
+                }
+            });
+
+            // Initial check for form validity
+            checkFormValidity();
+
+            function validateuName() {
+                const name = $("#un").val();
+                if (name.trim() === "") {
+                    $("#unspan").html("Enter the Email id").css("color", "#41586B");
+                } else {
+                    $("#unspan").html("");
+                }
+            }
+
+            function validateEmail() {
+                const email = $("#mail").val();
+                const filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                if (email === "") {
+                    $("#mailspan").html("Enter the Email Id").css("color", "#41586B");
+                } else if (!filter.test(email)) {
+                    $("#mailspan").html("Use correct Email Id").css("color", "#41586B");
+                } else {
+                    $("#mailspan").html("");
+                }
+            }
+
+            function validatePassword() {
+                const password = $("#pass").val();
+                const pwd_expression = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-])/;
+                if (password === "") {
+                    $("#passspan").html("Enter the Password").css("color", "#41586B");
+                } else {
+                    $("#passspan").html("");
+
+                }
+            }
+        });
     </script>
-    </head>
-    <body>
-        <section class="background-radial-gradient overflow-hidden vh-100">
-            <form action method="post" id="form">
-                {% csrf_token %}
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-                            <div class="card border-0 shadow rounded-3 my-5">
-                                <div class="card-body p-4 p-sm-5">
-                                    <h5
-                                        class="card-title text-center mb-4 fw-medium fs-3">Sign
-                                        In</h5>
+</head>
 
-                                    <div class="form-floating mb-3">
-                                        <input type="email"
-                                            class="form-control border"
-                                            id="email"
-                                            name="email"
-                                            placeholder="Email">
-                                        <label for="floatingInput">Email</label>
-                                        <span id="unspan"
-                                            style="font-size: 12px;"></span>
+<body>
+    <section class="background-radial-gradient overflow-hidden vh-100">
+        <form action method="post" id="form">
+            {% csrf_token %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+                        <div class="card border-0 shadow rounded-3 my-5">
+                            <div class="card-body p-4 p-sm-5">
+                                <h5 class="card-title text-center mb-4 fw-medium fs-3">Sign
+                                    In</h5>
+                                <div class="form-floating mb-3">
+                                    <input type="email" class="form-control border" id="email" name="email"
+                                        placeholder="Email">
+                                    <label for="floatingInput">Email</label>
+                                    <span id="unspan" style="font-size: 12px;"></span>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input type="password" class="form-control border" name="password" id="pass"
+                                        placeholder="Password">
+                                    <label for="floatingPassword">Password</label>
+                                    <span id="passspan" style="font-size: 12px;"></span>
+                                </div>
+                                <div class="d-flex justify-content-center  flex-column w-100">
+                                    <button class="btn btn-primary btn-login text-uppercase fw-bold" type="submit"
+                                        id="submitBtn">Sign
+                                        in</button>
+                                    {% for message in messages %}
+                                    <div class="error-message" style="font-size: 12px; color:41586B;">{{ message }}
                                     </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="password"
-                                            class="form-control border"
-                                            name="password"
-                                            id="pass"
-                                            placeholder="Password">
-                                        <label for="floatingPassword">Password</label>
-                                        <span id="passspan"
-                                            style="font-size: 12px;"></span>
-                                    </div>
-
-                                    <div
-                                        class="d-flex justify-content-center  flex-column w-100">
-                                        <button
-                                            class="btn btn-primary btn-login text-uppercase fw-bold"
-                                            type="submit" id="submitBtn">Sign
-                                            in</button>
-                                        {% for message in messages %}
-                                        <div class="error-message" style="font-size: 12px; color:41586B;">{{ message }}</div>
-                                        {% endfor %}
-                                    </div>
-                                    
-
-                                    <p class="text-center mt-2">or sign up with:</p>
-                                    <div class="d-grid mb-2">
-                                        <button
-                                            class="btn btn-google btn-login text-uppercase fw-bold"
-                                            type="submit">
-                                            <a
-                                                href="{%url 'social:begin' 'google-oauth2' %}">
-                                                <i
-                                                    class="fab fa-google me-2"></i>
-                                                Sign in with Google</a>
-                                        </button>
-                                        <label
-                                            class="form-check-label mt-3 text-center"
-                                            for="forgotpassword">
-                                            <a href="{% url 'password_reset'%}"
-                                                style="color: #27350F; text-decoration: none">Forgot
-                                                password?</a>
-
-                                        </label>
-                                        <label
-                                            class="form-check-label mt-3 text-center"
-                                            for="forgotpassword"><a
-                                                href="{%url 'signup' %}"
-                                                style="color: #27350F; text-decoration: none">New
-                                                user? signup here</a>
-
-                                        </label>
-                                    </div>
-
+                                    {% endfor %}
+                                </div>
+                                <p class="text-center mt-2">or sign up with:</p>
+                                <div class="d-grid mb-2">
+                                    <button class="btn btn-google btn-login text-uppercase fw-bold" type="submit">
+                                        <a href="{%url 'social:begin' 'google-oauth2' %}">
+                                            <i class="fab fa-google me-2"></i>
+                                            Sign in with Google</a>
+                                    </button>
+                                    <label class="form-check-label mt-3 text-center" for="forgotpassword">
+                                        <a href="{% url 'password_reset'%}"
+                                            style="color: #27350F; text-decoration: none">Forgot
+                                            password?</a>
+                                    </label>
+                                    <label class="form-check-label mt-3 text-center" for="forgotpassword"><a
+                                            href="{%url 'signup' %}" style="color: #27350F; text-decoration: none">New
+                                            user? signup here</a>
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </form>
-        </section>
-        <!-- Section: Design Block -->
+            </div>
+        </form>
+    </section>
+</body>
 
-    </body>
 </html>
 {%endblock%}

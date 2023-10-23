@@ -30,13 +30,69 @@
             text-decoration: none;
         }
 
+        .btn.btn-outline-success:hover {
+            background-color: #28a745;
+            /* Change the background color on hover */
+            color: #fff;
+            /* Change the text color on hover */
+        }
+
         .navbar-nav .nav-item a.nav-link:hover {
             text-decoration: underline;
+        }
+
+        .nav-item a.nav-link:hover {
+            color: #28a745;
+            /* Change the text color on hover to your desired color */
+            text-decoration: underline;
+            /* Add underline on hover, you can customize this */
+        }
+
+        .nav-item a.nav-link.active {
+            color: #28a745;
+            /* Change the text color for the active page to your desired color */
         }
 
         .fa-regular,
         .far {
             margin-top: 13px;
+        }
+
+
+        .image-container {
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #img {
+            max-height: 100vh;
+        }
+
+        .image-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            background: rgba(0, 0, 0, 0.786);
+            padding: 20px;
+
+            width: 100%;
+            /* Set the width to 100% */
+        }
+
+        .image-text h2 {
+            font-size: 4.5em;
+        }
+
+        .image-text h5 {
+            font-size: 1em;
+        }
+
+        .btn.btn-primary.btn-shadow-none:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -44,7 +100,7 @@
 <body>
 
     <header>
-        <nav class="navbar navbar-expand-lg p-2" style="background-color: rgb(245, 245, 245);">
+        <nav class="navbar navbar-expand-lg p-2" style="background-color: rgba(255, 255, 255, 0.841);">
             <div class="container-fluid">
                 <h4 class="text-success">ShareSphere</h4>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -58,17 +114,16 @@
                             <a class="nav-link active" aria-current="page" href="#">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link " href="{% url 'chatapp' %}">Chatroom</a>
+                            <a class="nav-link" href="{% url 'chatapp' %}">Chatroom</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link " href="{% url 'education' %}">Education</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link " href="#">About Us</a>
+                            <a class="nav-link" href="{% url 'education' %}">Education</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link " href="#">Donate</a>
+                            <a class="nav-link" href="#">About Us</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Donate</a>
                         </li>
                     </ul>
 
@@ -139,18 +194,31 @@
             </div>
         </nav>
     </header>
+    <div class="image-container">
+        <img id="img" src="{% static 'img/home2.png' %}" alt="">
+        <div class="image-text">
+            <h2 class="text-center">ShareSphere</h2>
+            <h5 class="text-center">The one-stop solution for migration</h5>
+            <a href="#service" class="btn btn-primary btn-shadow-none">Explore</a>
+        </div>
+    </div>
+
+
+
     <section class="upcoming-meetings" id="meetings">
         <div class="container">
-            <h2 class="text-center mt-5 mb-3 text-white">Our Services</h2>
+            <h2 class="text-center mt-5 mb-3 text-white" id="service">Our Services</h2>
+            <hr style="color: #fff;">
             <div class="row ">
                 <!-- Card 1: Chat Platform -->
-                <div class="col-md-4 ">
+                <div class="col-md-6 ">
                     <div class="card shadow text-center p-4 rounded-xl ">
                         <div class="card-body">
                             <h5 class="card-title">Chat Platform</h5>
-                            <p class="card-text">Connect and communicate
-                                with others through our advanced chat
-                                platform.</p>
+                            <p class="card-text">Connect and communicate with others through our advanced chat platform.
+                                Discover new friends, share experiences, engage in lively conversations, and become part
+                                of a vibrant community where like-minded individuals connect and interact.</p>
+
                             <a href="{% url 'chatapp' %}"><button class="btn btn-primary mt-3">Learn More</button></a>
 
                             <!-- Added the "Learn More" button -->
@@ -159,12 +227,13 @@
                 </div>
 
                 <!-- Card 2: Education -->
-                <div class="col-md-4 ">
+                <div class="col-md-6 ">
                     <div class="card shadow text-center p-4 rounded-xl">
                         <div class="card-body">
                             <h5 class="card-title">Education</h5>
-                            <p class="card-text">Access quality educational
-                                resources and opportunities for growth.</p>
+                            <p class="card-text">ShareSphere Education, the key to unlock a world of educational
+                                opportunities. We recognize that pursuing courses worldwide can be a complex process,
+                                and we're here to simplify it for you. </p>
                             <a href="{% url 'education' %}"><button class="btn btn-primary mt-3">Learn More</button></a>
 
                             <!-- Added the "Learn More" button -->
@@ -172,7 +241,7 @@
                     </div>
                 </div>
 
-                <!-- Card 3: Accommodation -->
+                <!-- Card 3: Accommodation
                 <div class="col-md-4">
                     <div class="card shadow text-center p-4 rounded-xl">
                         <div class="card-body">
@@ -183,7 +252,7 @@
                             <a href=""><button class="btn btn-primary mt-3">Learn More</button></a>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
@@ -240,7 +309,7 @@
                             {% else %}
                             <input type="date" class="form-control" id="dob" value="{{ user.migrant.dob|date:'Y-m-d' }}"
                                 name="dob" required>
-                                <span id="dateOfBirthError" class="text-danger"></span>
+                            <span id="dateOfBirthError" class="text-danger"></span>
                             <div class="invalid-feedback">
                                 Date of birth is required.
                             </div>
@@ -270,9 +339,10 @@
     </div>
 
 
-    <footer class="bg-dark text-center text-white">
+    <footer class="bg-dark text-center text-white" style="background: rgba(0, 0, 0, 0.893)!important;">
+        <h4 class="pt-5">Connect With Us</h4>
         <!-- Grid container -->
-        <div class="container p-4 pb-0">
+        <div class="container p-2 pb-0">
             <!-- Section: Social media -->
             <section class="mb-4">
                 <!-- Facebook -->
@@ -299,7 +369,7 @@
         <!-- Grid container -->
 
         <!-- Copyright -->
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+        <div class="text-center p-3" style="background-color: rgba(3, 3, 3, 0.2);">
             © 2020 Copyright:
             <a class="text-white" href="#">ShareSphere.com</a>
         </div>
@@ -312,7 +382,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const editProfilePhotoButton = document.getElementById('editProfilePhotoButton');
             const profilePhotoInputDiv = document.getElementById('profilePhotoInputDiv');
-    
+
             editProfilePhotoButton.addEventListener('click', function () {
                 // Toggle the visibility of the "Choose file" input field
                 if (profilePhotoInputDiv.style.display === 'none') {
@@ -321,7 +391,7 @@
                     profilePhotoInputDiv.style.display = 'none';
                 }
             });
-    
+
             // Rest of your JavaScript code
         });
 
@@ -332,17 +402,17 @@
             const firstNameInput = document.getElementById('first_name');
             const lastNameInput = document.getElementById('last_name');
             const contactNoInput = document.getElementById('contact_no');
-        
+
             editProfilePhotoButton.addEventListener('click', function () {
                 profilePhotoInput.classList.remove('d-none');
             });
-        
+
             // Add change event listeners for validation
             firstNameInput.addEventListener('change', validateFirstName);
             lastNameInput.addEventListener('change', validateLastName);
             contactNoInput.addEventListener('change', validateContactNo);
             dobInput.addEventListener('change', validateDateOfBirth); // Add this line
-        
+
             function validateFirstName() {
                 const regex = /^[a-zA-Z]{3,}$/;
                 if (!regex.test(firstNameInput.value)) {
@@ -351,7 +421,7 @@
                     firstNameInput.setCustomValidity('');
                 }
             }
-        
+
             function validateLastName() {
                 const regex = /^[a-zA-Z]{3,}$/;
                 if (!regex.test(lastNameInput.value)) {
@@ -360,7 +430,7 @@
                     lastNameInput.setCustomValidity('');
                 }
             }
-        
+
             function validateContactNo() {
                 const regex = /^[1-9][0-9]{9}$/;
                 if (!regex.test(contactNoInput.value)) {
@@ -369,7 +439,7 @@
                     contactNoInput.setCustomValidity('');
                 }
             }
-        
+
             function validateDateOfBirth() {
                 const dob = dobInput.value;
                 if (dob.trim() === "") {
@@ -380,12 +450,12 @@
                     const year = selectedDate.getFullYear();
                     const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Add 1 to the month because it's zero-based
                     const day = String(selectedDate.getDate()).padStart(2, '0');
-            
+
                     const formattedDate = `${year}-${month}-${day}`;
-        
+
                     // Update the input value with the formatted date
                     dobInput.value = formattedDate;
-            
+
                     const currentDate = new Date();
                     const age = currentDate.getFullYear() - selectedDate.getFullYear();
                     if (age < 13) {
@@ -395,16 +465,17 @@
                     }
                 }
             }
-            
+
         });
-        
-        
+
+
 
     </script>
 
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

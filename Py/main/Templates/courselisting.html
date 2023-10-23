@@ -183,11 +183,10 @@
                                 <a href="{% url 'deletecourse' course.id %}" class="btn btn-danger btn-sm"
                                     onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">Delete</a>
                                     
-                                {% elif course_data.today > course.appdeadline %}
+                                {% elif course.appdeadline < course_data.today %}
                                     <!-- If the course is disabled and today's date is greater than the appdeadline, enable the "View Applications" button -->
                                     <a href="{% url 'manage_applications' course.id %}" class="btn btn-primary btn-sm">View Applications</a>
                                 {% else %}
-
                                     <p class="text-danger">Course listing is no longer editable, you can manage the applications for your course listing once the deadline is complete</p>
                                 {% endif %}
                                 

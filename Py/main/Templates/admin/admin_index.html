@@ -23,10 +23,255 @@
 
     /* Define the border on hover */
     .btn:hover {
-      border: 1px solid #CCCCCC;
+      border: 5px solid #CCCCCC;
       /* Use your preferred shade of gray */
     }
+
+    /* Add a background color to the search bar */
+    .text-grey {
+      background-color: #ffffff;
+      /* Choose your desired background color */
+      border: 5px solid #616161;
+      /* Add a border for better visibility */
+      padding: 10px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .text-grey::placeholder {
+      color: #4c4b4b;
+    }
+
+    /* Hover Effect */
+    .text-grey:hover {
+      border-color: #007bff;
+      /* Change border color on hover */
+      background-color: #e0e0e0;
+      /* Change background color on hover */
+    }
+
+    /* Focus Effect */
+    .text-grey:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px #007bff;
+    }
   </style>
+  <!-- <script>
+    $(document).ready(function () {
+
+      const fields = [
+        { id: "#name", validate: validateName },
+        { id: "#slug", validate: validateSlug },
+      ];
+
+      fields.forEach(field => {
+        $(field.id).keyup(function () {
+          field.validate();
+        });
+
+        validateFieldOnBlur(field.id, field.validate);
+      });
+
+      function checkFormValidity() {
+        const isValid = fields.every(field => {
+          const $field = $(field.id);
+          const $errorSpan = $(field.errorSpan); // Use the errorSpan property
+      
+          return $field.val().trim() !== "" && $errorSpan.html() === "";
+        });
+      
+        $("#saveRoomButton").prop("disabled", !isValid);
+      }
+      
+
+      function validateFieldOnBlur(fieldId, validationFunction) {
+        $(fieldId).blur(function () {
+          validationFunction();
+          checkFormValidity();
+        });
+      }
+
+      // Form submission
+      $("#addRoomForm").submit(function (event) {
+        if (!$("#saveRoomButton").prop("disabled")) {
+          // Form is valid, allow submission
+          return true;
+        } else {
+          // Form is not valid, prevent submission
+          event.preventDefault();
+          return false;
+        }
+      });
+
+      // Initial check for form validity
+      checkFormValidity();
+
+      function validateName() {
+        const name = $("#name").val();
+        if (name.trim() === "") {
+          $("#nmspan").html("Enter the Username").css("color", "#ff2600");
+        } else {
+          $("#nmspan").html("");
+        }
+      }
+
+      function validateSlug() {
+        const name = $("#slug").val();
+        const lettersWithSpaces = /^[A-Za-z\s]+$/;
+        if (name.trim() === "") {
+          $("#slspan").html("Enter the First Name").css("color", "#ff2600");
+        } else if (!lettersWithSpaces.test(name)) {
+          $("#slspan").html("First Name field required only alphabet characters with spaces").css("color", "#ff2600");
+        } else {
+          $("#slspan").html("");
+        }
+      }
+    });
+    // Wait for DOM to load
+    document.addEventListener("DOMContentLoaded", function () {
+
+      const slugInput = document.getElementById('slug');
+      const slugError = document.getElementById('slug-error');
+
+      // Attach input listener
+      slugInput.addEventListener('input', checkSlug);
+
+      function checkSlug() {
+
+        // Get current slug value
+        const slug = slugInput.value;
+
+        // Make AJAX request
+        $.ajax({
+          url: '/check-slug/',
+          data: {
+            'slug': slug
+          },
+          success: function (result) {
+
+            // Check response
+            if (result.exists) {
+              slugError.textContent = 'Slug already exists';
+            } else {
+              slugError.textContent = '';
+            }
+
+          }
+        });
+
+      }
+
+    });
+
+  </script> -->
+  <script>
+    $(document).ready(function () {
+      const fields = [
+        { id: "#name", validate: validateName, errorSpan: "#nmspan" },
+        { id: "#slug", validate: validateSlug, errorSpan: "#slspan" },
+      ];
+    
+      fields.forEach(field => {
+        $(field.id).keyup(function () {
+          field.validate();
+        });
+    
+        validateFieldOnBlur(field.id, field.validate);
+      });
+    
+      function checkFormValidity() {
+        const isValid = fields.every(field => {
+          const $field = $(field.id);
+          const $errorSpan = $(field.errorSpan);
+    
+          return $field.val().trim() !== "" && $errorSpan.html() === "";
+        });
+    
+        $("#saveRoomButton").prop("disabled", !isValid);
+      }
+    
+      function validateFieldOnBlur(fieldId, validationFunction) {
+        $(fieldId).blur(function () {
+          validationFunction();
+          checkFormValidity();
+        });
+      }
+    
+      // Form submission
+      $("#addRoomForm").submit(function (event) {
+        if (!$("#saveRoomButton").prop("disabled")) {
+          // Form is valid, allow submission
+          event.preventDefault(); // Prevent submission for this example
+          console.log("Form is valid, you can submit it."); // Replace with your submission logic
+        } else {
+          // Form is not valid, prevent submission
+          event.preventDefault();
+          console.log("Form is not valid, submission prevented.");
+        }
+      });
+    
+      // Initial check for form validity
+      checkFormValidity();
+    
+      function validateName() {
+        const name = $("#name").val();
+        if (name.trim() === "") {
+            $("#nmspan").html("Enter the Room Name").css("color", "#ff2600");
+        } else if (name.length < 2) {
+            $("#nmspan").html("Room Name should be at least 2 characters long").css("color", "#ff2600");
+        } else {
+            $("#nmspan").html("");
+        }
+    }
+    
+    function validateSlug() {
+        const slug = $("#slug").val();
+        const slugPattern = /^[A-Za-z]+$/; // Only alphabets, no spaces
+    
+        if (slug.trim() === "") {
+            $("#slspan").html("Enter the Slug").css("color", "#ff2600");
+        } else if (slug.length < 2) {
+            $("#slspan").html("Slug should be at least 2 characters long").css("color", "#ff2600");
+        } else if (!slugPattern.test(slug)) {
+            $("#slspan").html("Slug should contain only alphabet characters").css("color", "#ff2600");
+        } else {
+            $("#slspan").html("");
+        }
+    }
+    
+    });
+    
+    // Wait for DOM to load
+    document.addEventListener("DOMContentLoaded", function () {
+      const slugInput = document.getElementById('slug');
+      const slugError = document.getElementById('slug-error');
+    
+      // Attach input listener
+      slugInput.addEventListener('input', checkSlug);
+    
+      function checkSlug() {
+        // Get current slug value
+        const slug = slugInput.value;
+    
+        // Make AJAX request
+        $.ajax({
+          url: '/check-slug/',
+          data: {
+            'slug': slug
+          },
+          success: function (result) {
+            // Check response
+            if (result.exists) {
+              slugError.textContent = 'Slug already exists';
+            } else {
+              slugError.textContent = '';
+            }
+          }
+        });
+      }
+    });
+    
+  </script>
 </head>
 
 
@@ -77,8 +322,8 @@
             </li>
 
           </ul>
-          <span class="system-menu__title">system</span>
-          <ul class="sidebar-body-menu">
+          <!-- <span class="system-menu__title">system</span>
+          <ul class="sidebar-body-menu"> 
             <li>
               <a href="appearance.html"><span class="icon edit" aria-hidden="true"></span>Appearance</a>
             </li>
@@ -103,15 +348,15 @@
             {% comment %} <li>
               <a href="##"><span class="icon setting" aria-hidden="true"></span>Settings</a>
             </li> {% endcomment %}
-          </ul>
+          </ul> -->
         </div>
       </div>
       <div class="sidebar-footer">
         <a href="##" class="sidebar-user">
           <span class="sidebar-user-img">
             <picture>
-              <source srcset="{% static 'assets/img/avatar/avatar-illustrated-01.webp' %}" type="image/webp"><img
-                src="{% static 'assets/img/avatar/avatar-illustrated-01.png' %}" alt="User name">
+              <source srcset="{% static 'assets/img/avatar/avatar-illustrated-02.webp' %}" type="image/webp"><img
+                src="{% static 'assets/img/avatar/avatar-illustrated-02.png' %}" alt="User name">
             </picture>
           </span>
           <div class="sidebar-user-info">
@@ -220,19 +465,29 @@
                   <div class="row">
                     <div class="col-lg-12">
                       <div class="main-box clearfix">
-                        <div class="form-group" style="margin: 20px;">
-                          <label for="role-filter">Filter Users:</label>
-                          <select class="form-select" id="role-filter">
-                            <option value="all">All Users</option>
-                            <option value="migrant">Migrants</option>
-                            <option value="institute">Institutes</option>
-                          </select>
-                        </div>
+
 
                         <div class="row">
 
                           <div class="col-lg-12" id="innerdiv">
                             <div class="main-box clearfix">
+                              <div class="row">
+                                <div class="col-md-6">
+                                  <input type="text" class="text-grey mb-3" id="user-search" placeholder="Search users🔎">
+                                </div>
+                                <div class="col-md-6">
+                                  <div class="d-flex align-items-center">
+                                    <label for="role-filter" class="me-2">Filter Users:</label>
+                                    <select class="form-select" id="role-filter">
+                                      <option value="all">All Users</option>
+                                      <option value="migrant">Migrants</option>
+                                      <option value="institute">Institutes</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+
+
                               <div class="table-responsive">
                                 <table id="user-list-table" class="table table-striped user-list">
                                   <thead>
@@ -326,13 +581,16 @@
               <form id="addRoomForm">
                 <div class="form-group">
                   <label for="name">Name:</label>
-                  <input type="text" class="form-control" id="name" name="name"
+                  <input type="text" class="form-control mb-2" id="name" name="name"
                     style="border: 1px solid #ccc !important;">
+                  <span id="nmspan" style="font-size: 12px;"></span>
                 </div>
-                <div class="form-group">
+                <div class="form-group mt-4">
                   <label for="slug">Slug:</label>
-                  <input type="text" class="form-control" id="slug" name="slug"
+                  <input type="text" class="form-control mb-2" id="slug" name="slug"
                     style="border: 1px solid #ccc !important;">
+                    <p id="slug-error" style="font-size: 12px; color:#ff2600; margin: top 10px;"></p>
+                  <span id="slspan" style="font-size: 12px;"></span>
                 </div>
               </form>
             </div>
@@ -340,7 +598,7 @@
               <button type="button" class="btn btn-secondary" data-dismiss="modal" id="close" aria-label="Close">
                 <span aria-hidden="true">Close</span>
               </button>
-              <button type="button" class="btn btn-primary" id="saveRoomButton">Save</button>
+              <input type="submit" class="btn btn-primary" id="saveRoomButton" value="save" disabled>
             </div>
           </div>
         </div>
@@ -406,7 +664,7 @@
               <div class="card mt-2">
                 <div class="card-body ">
                   <span style="padding: 5px; border-radius: 3px; color: #fff;
-                    {% if room.is_active %}background-color:#4ac784;{% else %}background-color: #db5c69;{% endif %}">
+                    {% if room.is_active %}background-color:#4ac784;{% else %}background-color:#db5c69; {% endif %}">
                     {{ room.is_active|yesno:"Active,Inactive"|lower }}
                   </span>
                   <h5 class="card-title mt-2 p-1">{{ room.name }}</h5>
@@ -429,10 +687,42 @@
   </div>
 
   <script>
-    $(document).ready(function () {
-      // ... Your existing code ...
 
-      // Handle "Toggle Status" button click
+
+    $(document).ready(function () {
+      // Get search input
+      const searchInput = document.getElementById('user-search');
+
+      // Add input event
+      searchInput.addEventListener('input', filterUsers);
+
+      function filterUsers() {
+
+        // Get search value
+        const searchTerm = searchInput.value.toLowerCase();
+
+        // Get all table rows
+        const rows = document.querySelectorAll('#user-list-table tbody tr');
+
+        // Loop through rows
+        rows.forEach(row => {
+
+          // Get user name cell
+          const nameCell = row.querySelector('.user-link');
+
+          // If name doesn't match search term, hide row
+          if (!nameCell.textContent.toLowerCase().includes(searchTerm)) {
+            row.style.display = 'none';
+          } else {
+            row.style.display = '';
+          }
+
+        });
+
+      }
+
+
+
       $('.toggle-status').on('click', function () {
         var roomId = $(this).data('room-id');
         toggleRoomStatus(roomId);
