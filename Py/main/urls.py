@@ -33,6 +33,7 @@ urlpatterns = [
     
     path('institute-dashboard/', views.institute_dashboard, name='institute_dashboard'),
     path('manage_applications/<int:course_id>/', views.manage_applications, name='manage_applications'),
+    path('check_unique_course_code/', views.check_unique_course_code, name='check_unique_course_code'),
     path('addcourse/', views.addcourse, name='addcourse'),
     path('courses/bachelor/', views.course_view, {'course_type': 'Bachelor Degree'}, name='course_view_bachelor'),
     path('courses/master/', views.course_view, {'course_type': 'Master Degree'}, name='course_view_master'),
@@ -53,6 +54,10 @@ urlpatterns = [
     path('reject_course/<int:course_id>/', views.reject_course, name='reject_course'),
     path('send_emails/<int:course_id>/<str:email_category>/', views.send_emails, name='send_emails'),
     path('generate_results/<int:course_id>/', views.generate_results, name='generate_results'),
+
+
+
+    path('application_chart_data/', views.application_chart_data, name='application_chart_data'),
 
 
 

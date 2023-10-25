@@ -188,6 +188,8 @@
                                             </p>
                                             <p class="card-text"><strong>Course Type:</strong> {{ course.course_type }}
                                             </p>
+                                            <p class="card-text" ><strong>Eligibility:</strong><br> {{ course.eligibility }}
+                                            </p>
                                             <p class="card-text"><strong>Fees Per Semester:</strong> ${{ course.fees }}
                                             </p>
                                             <p class="card-text"><strong>Application Deadline:</strong> {{ course.appdeadline }}</p>
@@ -413,6 +415,9 @@
                             </div>
                         </div>
                     </div>
+                    <div class="alert alert-warning" style="font-size: 12px;" role="alert">
+                        <strong>Disclaimer:</strong> If you fail to meet the qualification requirements, your application will be rejected, and the application fee will not be refunded. Make sure that all the informations entered are correct before submitting.
+                    </div>
                     <div class="modal-footer">
                         <input type="button" class="btn btn-secondary" data-bs-dismiss="modal" value="Close" />
                         <input type="submit" class="btn btn-primary" id="submitBtn" />
@@ -592,7 +597,7 @@
             });
 
             // Initial check for form validity
-            //checkFormValidity();
+            checkFormValidity();
 
             // Validation Functions
             function validatefullName() {
@@ -734,7 +739,6 @@
                     clearError("#passingYear1span");
                 }
             }
-
             function validateenglishScore() {
                 const englishProficiencyTest = $("#englishProficiencyTest").val();
                 const englishScore = $("#englishScore").val();
@@ -1035,7 +1039,7 @@
             passingYearSelect.appendChild(initialOption);
 
             // Generate options for the next 30 years (from current year to 30 years behind)
-            for (var i = 0; i <= 30; i++) {
+            for (var i = 0; i <= 4; i++) {
                 var year = currentYear - i;
                 var option = document.createElement("option");
                 option.value = year;

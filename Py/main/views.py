@@ -59,7 +59,7 @@ def is_staff(user):
     return user.is_authenticated and user.is_staff
 
 
-# def is_landlord(user):
+# def is_landlord(user):    
 #     return user.is_authenticated and user.is_landlord
 
 
@@ -680,7 +680,7 @@ def reject_course(request, course_id):
 @login_required
 def search_courses(request):
     keyword = request.GET.get("keyword", "").strip()  # Remove leading/trailing whitespace
-    print(keyword)
+
     if not keyword:
         return JsonResponse({"courses": []})  # Return an empty list if no keyword is provided
 
@@ -689,11 +689,11 @@ def search_courses(request):
         Q(course_name__icontains=keyword) |
         Q(user__first_name__icontains=keyword) |
         Q(course_type__icontains=keyword)  # Add more fields as needed
-    )
-    print(courses)
+    ).filter(status='approved')  # Filter courses with status = 'approved'
+
     # Serialize the results to JSON
     serialized_results = []
-    
+
     if courses.exists():
         for course in courses:
             serialized_results.append(
@@ -710,7 +710,7 @@ def search_courses(request):
             )
     else:
         print("No results found.")
-        
+
     return JsonResponse({"courses": serialized_results})
 
 
@@ -1222,3 +1222,34 @@ def check_slug(request):
     exists = Room.objects.filter(slug=slug).exists()
     
     return JsonResponse({'exists': exists})
+
+
+
+def application_chart_data(request):
+    application_data = Course_Application.objects.all()
+    application_data_json = [
+        {
+            'application_date': app.application_date.strftime('%Y-%m-%d'),
+            'application_count': 1,  # You can modify this based on your data
+        }
+        for app in application_data
+    ]
+
+    return JsonResponse(application_data_json, safe=False)
+
+
+def check_unique_course_code(request):
+    if request.method == 'GET':
+        course_code = request.GET.get('course_code', None)  # Assuming you pass the course_code as a GET parameter
+        
+        if course_code is not None:
+            # Query the database to check if the course_code is unique
+            is_unique = not Course.objects.filter(course_code=course_code).exists()
+
+            # Return the result as JSON
+            data = {'is_unique': is_unique}
+            return JsonResponse(data)
+        
+
+    # Handle other cases (e.g., POST requests) or invalid input
+    return JsonResponse({'is_unique': False})

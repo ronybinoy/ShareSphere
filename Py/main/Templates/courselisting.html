@@ -57,6 +57,10 @@
             background-color: #fff;
             border-radius: 15px;
         }
+        .custom-card-image {
+            height: 200px; /* Adjust the height as needed */
+            object-fit: cover; /* Preserve the aspect ratio and cover the container */
+        }
     </style>
 </head>
 
@@ -144,8 +148,8 @@
                             Pending
                             {% endif %}
                         </button>
-                        <img src="{{ course.thumbnail_image.url }}" alt="{{ course.course_name }}"
-                            class="card-img-top w-100 h-100" />
+                        <img src="{{ course.thumbnail_image.url }}" alt="{{ course.course_name }}" class="card-img-top custom-card-image" />
+
                         <div class="card-body">
                             <!-- Add a non-clickable button to display the status -->
 
@@ -188,9 +192,14 @@
                                     <a href="{% url 'manage_applications' course.id %}" class="btn btn-primary btn-sm">View Applications</a>
                                 {% else %}
                                     <p class="text-danger">Course listing is no longer editable, you can manage the applications for your course listing once the deadline is complete</p>
+                                    {% if course.opendate < course_data.today and course.status == "pending" %}
+                                    <a href="{% url 'deletecourse' course.id %}" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Are you sure you want to delete this course? This action cannot be undone.');">Delete</a>
+                                    {% endif %}
                                 {% endif %}
                                 
                             </div>
+                            
 
                         </div>
                     </div>
