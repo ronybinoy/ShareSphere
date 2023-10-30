@@ -581,7 +581,6 @@ def course_listing(request):
     # Return the JSON response with courses data
     return JsonResponse({"courses": serialized_courses})
 
-
 @login_required
 def course_view(request, course_type):
     today = date.today()
@@ -605,6 +604,12 @@ def course_view(request, course_type):
 
     # Sort courses by application deadline
     courses_list = courses_list.order_by("appdeadline")
+
+    # Check if the user has already applied to each course and add a flag to the course object
+    for course in courses_list:
+        # You would need to implement your own logic here to check if the user has applied to the course
+        # Assuming you have a function called has_applied_to_course
+        course.already_applied = has_applied_to_course(request.user, course)
 
     # Group courses by country
     courses_by_country = {}
@@ -634,6 +639,12 @@ def course_view(request, course_type):
     }
 
     return render(request, "courseview.html", context)
+
+
+def has_applied_to_course(user, course):
+    return Course_Application.objects.filter(user=user, course=course).exists()
+
+
 
 
 @login_required
@@ -691,27 +702,36 @@ def search_courses(request):
         Q(course_type__icontains=keyword)  # Add more fields as needed
     ).filter(status='approved')  # Filter courses with status = 'approved'
 
+    # Get the user to check which courses they have applied for
+    user = request.user
+
     # Serialize the results to JSON
     serialized_results = []
 
     if courses.exists():
         for course in courses:
-            serialized_results.append(
-                {
-                    "id": course.id,
-                    "course_name": course.course_name,
-                    "user_first_name": course.user.first_name,
-                    "course_type": course.course_type,
-                    "thumbnail_image": course.thumbnail_image.url,
-                    "appdeadline": course.appdeadline,
-                    "course_mode": course.course_mode,
-                    "college_location": course.user.region,
-                }
-            )
+            # Check if the user has applied to this course
+            has_applied = Course_Application.objects.filter(user=user, course=course).exists()
+
+            # Only include the course in the results if the user has not applied
+            if not has_applied:
+                serialized_results.append(
+                    {
+                        "id": course.id,
+                        "course_name": course.course_name,
+                        "user_first_name": course.user.first_name,
+                        "course_type": course.course_type,
+                        "thumbnail_image": course.thumbnail_image.url,
+                        "appdeadline": course.appdeadline,
+                        "course_mode": course.course_mode,
+                        "college_location": course.user.region,
+                    }
+                )
     else:
         print("No results found.")
 
     return JsonResponse({"courses": serialized_results})
+
 
 
 @login_required

@@ -33,51 +33,51 @@
             { id: "#fn", validate: validatefName },
             { id: "#ln", validate: validatesName },
             { id: "#mail", validate: validateEmail },
+            { id: "#uid", validate: validateUid },
             { id: "#pass", validate: validatePassword },
             { id: "#cpass", validate: validateConfirmPassword }
         ];
     
-        fields.forEach(field => {
-            $(field.id).keyup(function () {
-                field.validate();
-            });
-    
-            validateFieldOnBlur(field.id, field.validate);
-        });
-        function checkFormValidity() {
-            const isValid = fields.every(field => {
-                const $field = $(field.id);
-                const $errorSpan = $(`${field.id}span`);
+        const validationStatus = {};
 
-                return $field.val().trim() !== "" && $errorSpan.html() === "";
-            });
-        
-            $("#submitBtn").prop("disabled", !isValid);
-        }
-        
-        
-    
-        function validateFieldOnBlur(fieldId, validationFunction) {
-            $(fieldId).blur(function () {
-                validationFunction();
-                checkFormValidity();
-            });
-        }
-    
-        // Form submission
-        $("#form").submit(function (event) {
-            if (!$("#submitBtn").prop("disabled")) {
-                // Form is valid, allow submission
-                return true;
-            } else {
-                // Form is not valid, prevent submission
-                event.preventDefault();
-                return false;
-            }
+    fields.forEach(field => {
+        $(field.id).keyup(function () {
+            field.validate();
+            validationStatus[field.id] = $(`${field.id}span`).html() === "";
+            checkFormValidity();
         });
-    
-        // Initial check for form validity
-        checkFormValidity();
+
+        validateFieldOnBlur(field.id, field.validate);
+    });
+
+    function checkFormValidity() {
+        const isValid = Object.values(validationStatus).every(status => status);
+
+        $("#submitBtn").prop("disabled", !isValid);
+    }
+
+    function validateFieldOnBlur(fieldId, validationFunction) {
+        $(fieldId).blur(function () {
+            validationFunction();
+            validationStatus[fieldId] = $(`${fieldId}span`).html() === "";
+            checkFormValidity();
+        });
+    }
+
+    // Form submission
+    $("#form").submit(function (event) {
+        if (!$("#submitBtn").prop("disabled")) {
+            // Form is valid, allow submission
+            return true;
+        } else {
+            // Form is not valid, prevent submission
+            event.preventDefault();
+            return false;
+        }
+    });
+
+    // Initial check for form validity
+    checkFormValidity();
     
         function validateuName() {
             const name = $("#un").val();
@@ -229,7 +229,7 @@
                                         <input type="text"
                                             id="fn"
                                             name="fname"
-                                            class="form-control border" />
+                                            class="form-control border" required/>
                                         <label class="form-label"
                                             id
                                             for="form3Example3">First Name</label>
@@ -256,7 +256,7 @@
                                             name="email"
                                             class="form-control border" />
                                         <label class="form-label"
-                                            for="form3Example3">Email
+                                            for="form3Example3" >Email
                                             address</label>
                                         <span id="mailspan"
                                             style="font-size: 12px;"></span>
@@ -317,7 +317,7 @@
 
                                     <!-- Submit button -->
                                     <button type="submit" id="submitBtn"
-                                        class="btn btn-primary btn-block mb-4">
+                                        class="btn btn-primary btn-block mb-4" disabled>
                                         Sign up
                                     </button>
 

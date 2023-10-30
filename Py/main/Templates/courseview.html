@@ -163,7 +163,7 @@
                         {% endfor %}
                         <li class="nav-item ml-auto">
                             <div class="input-group mb-3">
-                                <input type="text" id="search-input" class="form-control" placeholder="Search courses">
+                                <input type="text" id="search-input" class="form-control" placeholder="Search courses🔎">
                             </div>
                         </li>
                     </ul>
@@ -475,13 +475,11 @@
                                         <p class="card-text"><strong>Application Fee:</strong> $10</p>
                                         
                                         <div class="text-center mt-4">
-                                            {% if course|course_already_applied:request.user %}
-                                                <button class="btn btn-secondary" disabled>Already Applied</button>
-
-                                            {% else %}
-                                                <button class="btn btn-primary" data-toggle="modal" data-target="#applicationModal" 
-                                                    onclick="openWithdata('${course.course_name}', '${course.user_id}')">Apply Now</button>
-                                            {% endif %}
+                                            ${course.already_applied ? 
+                                                `<button class="btn btn-secondary" disabled>Already Applied</button>` :
+                                                `<button class="btn btn-primary" data-toggle="modal" data-target="#applicationModal" 
+                                                    onclick="openWithdata('${course.course_name}', '${course.user_id}')">Apply Now</button>`
+                                            }
                                         </div>
                                     </div>
                                 </div>
