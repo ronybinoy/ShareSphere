@@ -42,12 +42,12 @@ class Hosttest(TestCase):
         room=driver.find_element(By.CSS_SELECTOR,"a.bg-primary[href='/canada/']")
         room.click()
         time.sleep(2)
-        # roomtext=driver.find_element(By.CSS_SELECTOR,"input[name='content']#chat-message-input")
-        # roomtext.send_keys("hello this is a test message")
-        # time.sleep(2)
-        # send=driver.find_element(By.CSS_SELECTOR,"button#chat-message-submit")
-        # send.click()
-        # time.sleep(2)
+        roomtext=driver.find_element(By.CSS_SELECTOR,"input[name='content']#chat-message-input")
+        roomtext.send_keys("hello this is a test message")
+        time.sleep(2)
+        send=driver.find_element(By.CSS_SELECTOR,"button#chat-message-submit")
+        send.click()
+        time.sleep(2)
         roomsearch=driver.find_element(By.CSS_SELECTOR,"input#search-input")
         roomsearch.send_keys("hello")
         time.sleep(2)
@@ -68,18 +68,18 @@ class Hosttest(TestCase):
         modalclose=driver.find_element(By.CSS_SELECTOR,"button.btn.bg-primary.text-white[data-dismiss='modal']")
         modalclose.click()
         time.sleep(2)
-        # roomclose=driver.find_element(By.CSS_SELECTOR,"button.btn.btn-danger#close-chat-room")
-        # roomclose.click()
-        # time.sleep(2)
-        # roomclose=driver.find_element(By.CSS_SELECTOR,"button.btn.btn-danger#close-chat-room")
-        # roomclose.click()
-        # time.sleep(2)
-        # profile=driver.find_element(By.CSS_SELECTOR,"a.nav-link.text-success p")
-        # profile.click()
-        # time.sleep(2)
-        # logout = driver.find_element(By.CSS_SELECTOR, "a.dropdown-item[href='/logout/']")
-        # logout.click()
-        # time.sleep(2)
+        roomclose=driver.find_element(By.CSS_SELECTOR,"button.btn.btn-danger#close-chat-room")
+        roomclose.click()
+        time.sleep(2)
+        roomclose=driver.find_element(By.CSS_SELECTOR,"button.btn.btn-danger#close-chat-room")
+        roomclose.click()
+        time.sleep(2)
+        profile=driver.find_element(By.CSS_SELECTOR,"a.nav-link.text-success p")
+        profile.click()
+        time.sleep(2)
+        logout = driver.find_element(By.CSS_SELECTOR, "a.dropdown-item[href='/logout/']")
+        logout.click()
+        time.sleep(2)
         login=driver.find_element(By.CSS_SELECTOR,"a.nav-link[href='/login/'] button.btn.btn-outline-success")
         login.click()
         time.sleep(2)
@@ -166,16 +166,6 @@ class Hosttest(TestCase):
         
         
         
-        
-        
-        
-        
-        
-        
-
-
-        
-
     # Add more test methods as needed
 
 if __name__ == '__main__':

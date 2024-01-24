@@ -64,22 +64,23 @@ def is_staff(user):
 
 
 def login(request):
-    # Check if the user is already authenticated
+    
     if request.user.is_authenticated:
         if request.user.is_migrant:
             # Redirect to the migrant dashboard or your desired URL for migrants
+            print("migrant")
             return redirect("home")  # Replace with your URL name
         elif request.user.is_institute:
             # Redirect to the institute dashboard or your desired URL for institutes
             return redirect("institute_dashboard")  # Replace with your URL name
-        # elif request.user.is_landlord:
-        #     # Redirect to the landlord dashboard or your desired URL for landlords
-        #     return redirect('landlord_dashboard')  # Replace with your URL name
+        # Replace with your URL name
         elif request.user.id != AnonymousUser.id:
+            print("anon")
             return redirect("home")
 
         else:
             # Redirect to a generic home page or your desired URL
+            print("else")
             return redirect("home")  # Replace with your URL name
 
     if request.method == "POST":
@@ -97,9 +98,9 @@ def login(request):
                 elif user.is_institute:
                     # Redirect to the institute dashboard or your desired URL for institutes
                     return redirect("institute_dashboard")  # Replace with your URL name
-                # elif user.is_landlord:
-                #     # Redirect to the landlord dashboard or your desired URL for landlords
-                #     return redirect('landlord_dashboard')  # Replace with your URL name
+                
+                elif request.user.is_landlord:
+                    return redirect("acc_home")
                 else:
                     # Redirect to a generic home page or your desired URL
                     return redirect("home")  # Replace with your URL name
@@ -174,7 +175,7 @@ def inst_signup(request):
                 password=password,
                 institute_lis_no=institute_lis_no,
                 nationality=nation,
-                region=region,  # Updated field name
+                region=region,  
                 is_institute=True,
             )
             user.save()
@@ -607,8 +608,7 @@ def course_view(request, course_type):
 
     # Check if the user has already applied to each course and add a flag to the course object
     for course in courses_list:
-        # You would need to implement your own logic here to check if the user has applied to the course
-        # Assuming you have a function called has_applied_to_course
+        
         course.already_applied = has_applied_to_course(request.user, course)
 
     # Group courses by country
@@ -858,12 +858,6 @@ def application_form(request):
         payment_url = reverse("payment1", args=[application_id])
         return redirect(payment_url)
 
-        # if course.course_type == "Diploma Programme":
-        #     return redirect(reverse("course_view_diploma"))
-        # elif course.course_type == "Bachelor Degree":
-        #     return redirect(reverse("course_view_bachelor"))
-        # elif course.course_type == "Master Degree":
-        #     return redirect(reverse("course_view_master"))
 
     return render(request, "courseview.html")
 
@@ -1104,7 +1098,6 @@ def paymenthandler(request, application_id):
                 )
                 payment.save()
 
-                # Render the success page on successful capture of payment
                 return render(request, "paymentsuccess.html")
             else:
                 # If signature verification fails.
@@ -1273,3 +1266,51 @@ def check_unique_course_code(request):
 
     # Handle other cases (e.g., POST requests) or invalid input
     return JsonResponse({'is_unique': False})
+
+
+
+
+
+#Accomodation
+
+def acc_home(request):
+    return render(request,"accomodation/acc_home.html")
+
+
+
+def acc_signup(request):
+    if request.method == "POST":
+        username = request.POST.get("email")
+        fname = request.POST.get("fname")
+        lname = request.POST.get("lname")
+        email = request.POST.get("email")
+        phone = request.POST.get("phno")
+        ccode = request.POST.get("ccode")
+        uid = request.POST.get("uid")
+        nation = request.POST.get("nation")
+        password = request.POST.get("pass")
+        cpassword = request.POST.get("cpass")
+        print(ccode,phone)
+
+        if CustomUser.objects.filter(email=email).exists():
+            messages.error(request, "Email or Username Already Exists")
+            return render(request, "login.html")
+        
+        else:
+            user = CustomUser.objects.create_user(
+                username=username,
+                first_name=fname,
+                last_name=lname,
+                email=email,
+                phone = phone,
+                password=password,
+                country_code=ccode,
+                nationality=nation,
+                migrant_uid=uid,
+                is_landlord=True,
+            )
+            user.save()
+
+            return redirect("login")
+    else:
+        return render(request,"accomodation/acc_signup.html")

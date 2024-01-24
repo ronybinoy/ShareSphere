@@ -174,10 +174,10 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
-                                        Migrant</a></li>
+                                        User</a></li>
                                 <li><a class="dropdown-item" href="{% url 'inst_signup' %}">Register
                                         as Institute</a></li>
-                                <li><a class="dropdown-item" href="#">Register
+                                <li><a class="dropdown-item" href="{% url 'acc_signup' %}">Register
                                         as Landlord</a></li>
                             </ul>
                         </li>
@@ -211,7 +211,7 @@
             <hr style="color: #fff;">
             <div class="row ">
                 <!-- Card 1: Chat Platform -->
-                <div class="col-md-6 ">
+                <div class="col-md-4 ">
                     <div class="card shadow text-center p-4 rounded-xl ">
                         <div class="card-body">
                             <h5 class="card-title">Chat Platform</h5>
@@ -227,7 +227,7 @@
                 </div>
 
                 <!-- Card 2: Education -->
-                <div class="col-md-6 ">
+                <div class="col-md-4 ">
                     <div class="card shadow text-center p-4 rounded-xl">
                         <div class="card-body">
                             <h5 class="card-title">Education</h5>
@@ -241,18 +241,18 @@
                     </div>
                 </div>
 
-                <!-- Card 3: Accommodation
+                <!-- Card 3: Accommodation -->
                 <div class="col-md-4">
                     <div class="card shadow text-center p-4 rounded-xl">
                         <div class="card-body">
                             <h5 class="card-title">Accommodation</h5>
-                            <p class="card-text">Find comfortable and
-                                affordable accommodation options in your
-                                location.</p>
+                            <p class="card-text">Connect and communicate with others through our advanced chat platform.
+                                Discover new friends, share experiences, engage in lively conversations, and become part
+                                of a vibrant community where like-minded individuals connect and interact</p>
                             <a href=""><button class="btn btn-primary mt-3">Learn More</button></a>
                         </div>
                     </div>
-                </div> -->
+                </div>
             </div>
         </div>
     </section>
@@ -331,7 +331,7 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Save changes</button>
-                        </div>
+                        </div>y
                     </form>
                 </div>
             </div>

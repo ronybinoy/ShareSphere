@@ -10,10 +10,13 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     is_migrant = models.BooleanField('is_migrant', default=False, null=True)
     is_institute = models.BooleanField('is_institute', default=False, null=True)
+    is_landlord = models.BooleanField('is_landlord', default=False, null=True)
     migrant_uid = models.CharField(("migrant_uid"), default='', max_length=20, null=True)
     institute_lis_no = models.CharField(("institute_lis_no"), default='', max_length=30, null=True)
     nationality = models.CharField(("nationality"), default='', max_length=30, null=True)
     region = models.CharField(("region"), default='', max_length=30, null=True)
+    phone = models.CharField(("phone"), default='', max_length=15, null=True)
+    country_code = models.CharField(("country_code"), default='', max_length=5, null=True)
     REQUIRED_FIELDS = []
 
 class Migrant(models.Model):

@@ -55,8 +55,6 @@ urlpatterns = [
     path('send_emails/<int:course_id>/<str:email_category>/', views.send_emails, name='send_emails'),
     path('generate_results/<int:course_id>/', views.generate_results, name='generate_results'),
 
-
-
     path('application_chart_data/', views.application_chart_data, name='application_chart_data'),
 
 
@@ -65,6 +63,17 @@ urlpatterns = [
     path("inst_signup/", views.inst_signup, name="inst_signup"),
     path('validate_institute/', views.validate_institute, name='validate_institute'),
     path("education/", views.education, name="education"),
+    
+    
+    
+    
+    
+    
+    
+    #Accomodation 
+    path("acc_signup/", views.acc_signup, name="acc_signup"),
+    path("acc_home/", views.acc_home, name="acc_home"),
+
     
 
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
