@@ -1274,7 +1274,68 @@ def check_unique_course_code(request):
 #Accomodation
 
 def acc_home(request):
-    return render(request,"accomodation/acc_home.html")
+    if request.method == 'POST':
+
+        landlord = request.user  # Assuming you have a logged-in user
+        property_name = request.POST.get('pname')
+        address = request.POST.get('address')
+        property_location_link = request.POST.get('mlink')
+        country = request.POST.get('nation')
+        state_province = request.POST.get('region')
+        frontview_image = request.FILES.get('frontview')
+        living_room_image = request.FILES.get('living')
+        bedroom_image = request.FILES.get('bedroom')
+        bathroom_image = request.FILES.get('bathroom')
+        kitchen_image = request.FILES.get('kitchen')
+        dining_room_image = request.FILES.get('dining')
+        other1_image = request.FILES.get('other1')
+        other2_image = request.FILES.get('other2')
+        contact_number = request.POST.get('contact')
+        rent_per_month = request.POST.get('rent')
+        minimum_duration_of_rent = request.POST.get('duration')
+        number_of_bedrooms = request.POST.get('bhk')
+        parking_area = 'Parea' in request.POST
+        cctv = 'cctv' in request.POST
+        heater = 'heater' in request.POST
+        air_conditioning = 'ac' in request.POST
+        power_backup = 'pback' in request.POST
+        wifi = 'wifi' in request.POST
+
+        try:
+            Property.objects.create(
+                landlord=landlord,
+                property_name=property_name,
+                address=address,
+                property_location_link=property_location_link,
+                country=country,
+                state_province=state_province,
+                frontview_image=frontview_image,
+                living_room_image=living_room_image,
+                bedroom_image=bedroom_image,
+                bathroom_image=bathroom_image,
+                kitchen_image=kitchen_image,
+                dining_room_image=dining_room_image,
+                other1_image=other1_image,
+                other2_image=other2_image,
+                contact_number=contact_number,
+                rent_per_month=rent_per_month,
+                minimum_duration_of_rent=minimum_duration_of_rent,
+                number_of_bedrooms=number_of_bedrooms,
+                parking_area=parking_area,
+                cctv=cctv,
+                heater=heater,
+                air_conditioning=air_conditioning,
+                power_backup=power_backup,
+                wifi=wifi
+            )
+            # messages.success(request, 'Property submitted successfully!')
+            return redirect('acc_home')  # Change 'success_page' to the actual URL or view name
+        except Exception as e:
+            messages.error(request, f'Error: {str(e)}')
+            return HttpResponse(status=500)
+
+    return render(request, "accomodation/acc_home.html")
+
 
 
 
