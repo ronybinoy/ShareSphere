@@ -73,6 +73,10 @@ urlpatterns = [
     #Accomodation 
     path("acc_signup/", views.acc_signup, name="acc_signup"),
     path("acc_home/", views.acc_home, name="acc_home"),
+    path("property_submit/", views.property_submit, name="property_submit"),
+    path("property_submit", views.property_submit),
+    path('get_property_details/', views.get_property_details, name='get_property_details'),
+
 
     
 

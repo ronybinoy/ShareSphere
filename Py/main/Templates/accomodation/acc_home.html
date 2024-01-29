@@ -9,7 +9,7 @@
     <!-- Example for using Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link href="{% static '/home.css' %}" rel="stylesheet" />
     <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
 
@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}" />
     <link rel="stylesheet" href="{% static 'assets/css/lightbox.css' %}" />
     <!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
 
     <style>
         th {
@@ -32,12 +32,14 @@
         button {
             font-size: 13px;
         }
+
         .btn-smaller {
             padding: 0.25rem 0.5rem;
             /* Adjust padding to make it smaller */
             font-size: 12px;
             /* Adjust font size to make it smaller */
         }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -72,8 +74,8 @@
         }
 
         button {
-            display: block; 
-            margin: 0 auto; 
+            display: block;
+            margin: 0 auto;
             background-color: #4caf50;
             color: #fff;
             padding: 12px 20px;
@@ -81,16 +83,24 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s; 
+            transition: background-color 0.3s;
         }
-        
+
         button:hover {
             background-color: #45a049;
-            transform: scale(1.1); 
+            transform: scale(1.1);
         }
-        checkbox{
+
+        .checkbox {
             margin-right: 10px;
         }
+        
+            .property-image {
+                height: 200px; /* set your desired height */
+                width: 100%; /* 100% width to maintain responsiveness */
+                object-fit: cover; /* maintain aspect ratio and cover the container */
+            }
+        
         
     </style>
 </head>
@@ -99,7 +109,7 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <header>
-        <nav class="navbar navbar-expand-lg p-2" style="background-color: rgb(245, 245, 245)">
+        <nav class="navbar navbar-expand-lg p-2" style="background-color: rgb(226, 226, 226)">
             <div class="container-fluid">
                 <h4 class="text-success">ShareSphere</h4>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -110,12 +120,9 @@
                 <div class="collapse navbar-collapse d-flex" id="navbarSupportedContent">
                     <ul class="navbar-nav mb-lg-0 d-flex justify-content-lg-center w-100">
                         <li class="nav-item">
-                            <a class="nav-link active" href="{% url 'institute_dashboard' %}">Dashboard</a>
+                            <a class="nav-link active" href="#">Dashboard</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link " aria-current="page" href="{% url 'courselisting' %}">Course
-                                Listings</a>
-                        </li>
+                        
                         <li class="nav-item">
                             <a class="nav-link" href="#">Contact Us</a>
                         </li>
@@ -140,8 +147,8 @@
 
                     <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
                         <li>
-                            <img src="{{ profile_photo_url }}" alt="Profile Photo" class="img-thumbnail rounded-circle"
-                                style="max-width: 40px; max-height: 40px;">
+                            <img src="{{ landlord_profile_photo.url }}" alt="Profile Photo" class="img-thumbnail rounded-circle"
+                            style="max-width: 40px; max-height: 40px;">
                         </li>
                         <li class="nav-item dropdown ">
                             <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
@@ -187,625 +194,684 @@
             </div>
         </nav>
     </header>
+
     <body>
 
-    <div class="container-fluid" >
-        <div class="row">
-            <div class="col-md-2" style="background-color: grey;">
-                <div class="nav flex-column nav-pills mt-4" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                    <a class="nav-link active" id="v-pills-all-tab" data-toggle="pill" href="#v-pills-all" role="tab"
-                        aria-controls="v-pills-all" aria-selected="false">Posting</a>
-                    <a class="nav-link" id="v-pills-approved-tab" data-toggle="pill" href="#v-pills-approved" role="tab"
-                        aria-controls="v-pills-approved" aria-selected="true"> Add listing</a>
-                    <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending" role="tab"
-                        aria-controls="v-pills-pending" aria-selected="false">Pending Applications</a>
-                    <a class="nav-link" id="v-pills-rejected-tab" data-toggle="pill" href="#v-pills-rejected" role="tab"
-                        aria-controls="v-pills-rejected" aria-selected="false">Rejected Applications</a>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-2" style="background-color: rgb(253, 253, 253);">
+                    <div class="nav flex-column nav-pills mt-4" id="v-pills-tab" role="tablist"
+                        aria-orientation="vertical">
+                        <a class="nav-link active" id="v-pills-all-tab" data-toggle="pill" href="#v-pills-all"
+                            role="tab" aria-controls="v-pills-all" aria-selected="false">Posting</a>
+                        <a class="nav-link" id="v-pills-approved-tab" data-toggle="pill" href="#v-pills-approved"
+                            role="tab" aria-controls="v-pills-approved" aria-selected="true"> Add listing</a>
+                        <!-- <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending"
+                            role="tab" aria-controls="v-pills-pending" aria-selected="false">Pending Applications</a>
+                        <a class="nav-link" id="v-pills-rejected-tab" data-toggle="pill" href="#v-pills-rejected"
+                            role="tab" aria-controls="v-pills-rejected" aria-selected="false">Rejected Applications</a> -->
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-10">
-                <div class="tab-content" id="v-pills-tabContent">
-                    <!-- all applications -->
-                    <div class="tab-pane fade show active" id="v-pills-all" role="tabpanel" aria-labelledby="v-pills-all-tab">
-                        <div class="row mt-2">
-                            <!-- First Card -->
-                            <div class="col-md-4">
-                                <div class="card mb-3" style="max-width: 540px;">
-                                    <div class="row no-gutters">
-                                        <div class="col-md-4">
-                                            <img src="..." class="card-img" alt="...">
-                                        </div>
-                                        <div class="col-md-8">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Card title 1</h5>
-                                                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                                                <input class="btn btn-success" type="button" value="view">
-                                                <input class="btn btn-danger" type="button" value="Delete">
-                                                <input class="btn btn-secondary" type="button" value="Edit">
-
+                <div class="col-md-10">
+                    <div class="tab-content" id="v-pills-tabContent">
+                        <!-- all applications -->
+                        <!-- property_list.html -->
+                        <div class="tab-pane fade show active" id="v-pills-all" role="tabpanel"
+                            aria-labelledby="v-pills-all-tab">
+                            <div class="row mt-2">
+                                {% for property in properties %}
+                                <div class="col-md-4">
+                                    <div class="card mb-3" >
+                                        <div class="row no-gutters">
+                                            <div class="col-md-12">
+                                                <img src="{{ property.frontview_image.url }}" class="card-img" alt="Property Image">
+                                                <div class="ms-3 mt-2">
+                                                    <h5 class="card-title">{{ property.property_name }}</h5>
+                                                    <p class="card-text"><small>{{ property.address }}</small></p>
+                                                    <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
+                                                </div>
+                                                <div class="card-body d-flex">
+                                                    <input class="btn btn-success view-btn me-2" type="button" id="view-property" value="View" data-toggle="modal" data-target="#propertyModal" data-property-id="{{ property.id }}">
+                                                    <input class="btn btn-danger me-2" type="button" value="Mark as sold">
+                                                    <input class="btn btn-secondary" type="button" value="Edit">
+                                                </div>
                                             </div>
+                                            
+                                            
+                                                
+                                            
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- Second Card -->
-                            <div class="col-md-4">
-                                <div class="card mb-3" style="max-width: 540px;">
-                                    <div class="row no-gutters">
-                                        <div class="col-md-4">
-                                            <img src="..." class="card-img" alt="...">
-                                        </div>
-                                        <div class="col-md-8">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Card title 2</h5>
-                                                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <div class="card mb-3" style="max-width: 540px;">
-                                    <div class="row no-gutters">
-                                        <div class="col-md-4">
-                                            <img src="..." class="card-img" alt="...">
-                                        </div>
-                                        <div class="col-md-8">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Card title 2</h5>
-                                                <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                {% endfor %}
                             </div>
                         </div>
-                    </div>
-                    
 
-                    <!-- Approved Applications -->
-                    <div class="tab-pane fade" id="v-pills-approved" role="tabpanel" aria-labelledby="v-pills-approved-tab">
-                        <div class="container" style="height: 80vh; overflow-y: auto;">
-                            <h2 class="text-center">Property Rental Form</h2>
-                            <form action="/submit_property" method="POST" enctype="multipart/form-data" id="propertyForm">
-                                {% csrf_token %}
 
-                    
 
-                                <label for="pname">Property Name:</label>
-                                <input type="text" id="pname" name="pname" required>
-                                <span id="pnamespan" style="font-size: 12px;"></span>
+                        <!-- Approved Applications -->
+                        <div class="tab-pane fade" id="v-pills-approved" role="tabpanel"
+                            aria-labelledby="v-pills-approved-tab">
+                            <div class="container" style="height: 80vh; overflow-y: auto;">
+                                <h2 class="text-center">Property Rental Form</h2>
+                                <form method="post" action="{% url 'property_submit' %}" enctype="multipart/form-data"
+                                    id="propertyForm">
+                                    {% csrf_token %}
 
-                                <!-- Address -->
-                                <label for="address">Address:</label>
-                                <textarea id="address" name="address" rows="4" required></textarea>
-                                <span id="addressspan" style="font-size: 12px;"></span>
 
-                                <label for="mlink">Property location link ( Gmap ):</label>
-                                <input type="text" id="mlink" name="mlink" required>
-                                <span id="mlinkspan" style="font-size: 12px;"></span>
 
-                                <!-- Country -->
-                                <label for="nation">Country:</label>
-                                <select class="form-control border mb-4 mt-2" id="nation" name="nation" required>
-                                    <option value="">Select nation</option>
-                                    <option value="Ireland">Ireland</option>
-                                    <option value="Canada">Canada</option>
-                                </select>
-                                <span id="nationspan" style="font-size: 12px;"></span>
+                                    <label for="pname">Property Name:</label>
+                                    <input type="text" id="pname" name="pname" required>
+                                    <span id="pnamespan" style="font-size: 12px;"></span>
 
-                                <!-- State -->
-                                <label for="state">State/province:</label>
-                                <select class="form-control border mb-4 mt-2" id="region" name="region" required>
-                                    <!-- This dropdown will be populated dynamically based on the selected country -->
-                                </select>
-                                <span id="statespan" style="font-size: 12px;"></span>
+                                    <!-- Address -->
+                                    <label for="address">Address:</label>
+                                    <textarea id="address" name="address" rows="4" required></textarea>
+                                    <span id="addressspan" style="font-size: 12px;"></span>
 
-                                <!-- Contact Number -->
-                                
-                    
-                                <!-- Photographs of Property (Multiple File Upload) -->
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="frontview">Front view of Property:</label>
-                                        <input type="file" id="frontview" name="frontview" accept="image/*" required>
-                                        <span id="frontviewspan" style="font-size: 12px;"></span>
+                                    <label for="mlink">Property location link ( Gmap ):</label>
+                                    <input type="text" id="mlink" name="mlink" required>
+                                    <span id="mlinkspan" style="font-size: 12px;"></span>
 
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="living">Living Room:</label>
-                                        <input type="file" id="living" name="living" accept="image/*" required>
-                                        <span id="livingspan" style="font-size: 12px;"></span>
+                                    <!-- Country -->
+                                    <label for="nation">Country:</label>
+                                    <select class="form-control border mb-4 mt-2" id="nation" name="nation" required>
+                                        <option value="">Select nation</option>
+                                        <option value="Ireland">Ireland</option>
+                                        <option value="Canada">Canada</option>
+                                    </select>
+                                    <span id="nationspan" style="font-size: 12px;"></span>
 
-                                    </div>
-                                </div>
-                    
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="bedroom">Bedroom:</label>
-                                        <input type="file" id="bedroom" name="bedroom" accept="image/*" required>
-                                        <span id="bedroomspan" style="font-size: 12px;"></span>
+                                    <!-- State -->
+                                    <label for="state">State/province:</label>
+                                    <select class="form-control border mb-4 mt-2" id="region" name="region" required>
+                                        <!-- This dropdown will be populated dynamically based on the selected country -->
+                                    </select>
+                                    <span id="statespan" style="font-size: 12px;"></span>
 
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="bathroom">Wash Room:</label>
-                                        <input type="file" id="bathroom" name="bathroom" accept="image/*" required>
-                                        <span id="bathroomspan" style="font-size: 12px;"></span>
+                                    <!-- Contact Number -->
 
-                                    </div>
-                                </div>
-                    
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="kitchen">Kitchen:</label>
-                                        <input type="file" id="kitchen" name="kitchen" accept="image/*" required>
-                                        <span id="kitchenspan" style="font-size: 12px;"></span>
 
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="dining">Dining Room:</label>
-                                        <input type="file" id="dining" name="dining" accept="image/*" required>
-                                        <span id="diningspan" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="other1">other 1:</label>
-                                        <input type="file" id="other1" name="other1" accept="image/*" required>
-                                        <span id="other1span" style="font-size: 12px;"></span>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="other2">other 2:</label>
-                                        <input type="file" id="other2" name="other2" accept="image/*" required>
-                                        <span id="other2span" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-                                <!-- Container to display selected images -->
-                                <div id="selected-images-container" style="margin-top: 10px;"></div>
-                    
-                                <!-- Rent Per Month -->
-                                
-                    
-                                <!-- Minimum Duration of Rent -->
-                                
-
-                                <!-- BHK (Number of Bedrooms) -->
-                                
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="duration">Minimum Duration of Rent:</label>
-                                        <select id="duration" name="duration" required>
-                                            <option value="1">1 month</option>
-                                            <option value="2">2 months</option>
-                                            <option value="3">3 months</option>
-                                            <option value="4">4 months</option>
-                                            <option value="5">5 months</option>
-                                            <option value="6">6 months</option>
-                                        </select>
-                                        <span id="durationspan" style="font-size: 12px;"></span>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="bhk">Number of Bedrooms (BHK):</label>
-                                        <select id="bhk" name="bhk" required>
-                                            <option value="1">1 BHK</option>
-                                            <option value="2">2 BHK</option>
-                                            <option value="3">3 BHK</option>
-                                            <option value="4">4 BHK</option>
-                                        </select>
-                                        <span id="bhkspan" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="contact">Contact Number(include country code):</label>
-                                        <input type="tel" id="contact" name="contact" pattern="[0-9]{10}" required>
-                                        <span id="contactspan" style="font-size: 12px;"></span>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="rent">Rent per Month:</label>
-                                        <input type="text" id="rent" name="rent" required>
-                                        <span id="rentspan" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <h5 class="mb-3">Additional Features:</h5>
-                                    <div class="col-md-6">
-                                        
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="Parea" name="Parea">
-                                            <label class="form-check-label" for="Parea">Parking Area</label>
-                                            <span id="Pareaspan" style="font-size: 12px;"></span>
+                                    <!-- Photographs of Property (Multiple File Upload) -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="frontview">Front view of Property:</label>
+                                            <input type="file" id="frontview" name="frontview" accept="image/*"
+                                                required>
+                                            <span id="frontviewspan" style="font-size: 12px;"></span>
 
                                         </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="cctv" name="cctv">
-                                            <label class="form-check-label" for="cctv">CCTV</label>
-                                            <span id="cctvspan" style="font-size: 12px;"></span>
-
-                                        </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="heater" name="heater">
-                                            <label class="form-check-label" for="heater">Heater</label>
-                                            <span id="heaterspan" style="font-size: 12px;"></span>
+                                        <div class="col-md-6">
+                                            <label for="living">Living Room:</label>
+                                            <input type="file" id="living" name="living" accept="image/*" required>
+                                            <span id="livingspan" style="font-size: 12px;"></span>
 
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="ac" name="ac">
-                                            <label class="form-check-label" for="ac">Air Conditioning</label>
-                                            <span id="acspan" style="font-size: 12px;"></span>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="bedroom">Bedroom:</label>
+                                            <input type="file" id="bedroom" name="bedroom" accept="image/*" required>
+                                            <span id="bedroomspan" style="font-size: 12px;"></span>
 
                                         </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="pback" name="pback">
-                                            <label class="form-check-label" for="pback">Power Backup</label>
-                                            <span id="pbackspan" style="font-size: 12px;"></span>
-
-                                        </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="wifi" name="wifi">
-                                            <label class="form-check-label" for="furniture">Wifi</label>
-                                            <span id="wifispan" style="font-size: 12px;"></span>
+                                        <div class="col-md-6">
+                                            <label for="bathroom">Wash Room:</label>
+                                            <input type="file" id="bathroom" name="bathroom" accept="image/*" required>
+                                            <span id="bathroomspan" style="font-size: 12px;"></span>
 
                                         </div>
                                     </div>
-                                </div>
-                                
-                                <!-- Submit Button -->
-                                <button type="submit" id="submitBtn">Submit</button>
 
-                            </form>
-                            <script>
-                                $(document).ready(function () {
-                                    // Define an array of fields with their corresponding validation functions
-                                    const fields = [
-                                        { id: "#pname", validate: validatePropertyname },
-                                        { id: "#address", validate: validateAddress },
-                                        { id: "#mlink", validate: validateMapLink },
-                                        { id: "#nation", validate: validateCountry },
-                                        { id: "#region", validate: validateState },
-                                        { id: "#frontview", validate: validateFile },
-                                        { id: "#living", validate: validateFile },
-                                        { id: "#bedroom", validate: validateFile },
-                                        { id: "#bathroom", validate: validateFile },
-                                        { id: "#kitchen", validate: validateFile },
-                                        { id: "#dining", validate: validateFile },
-                                        { id: "#other1", validate: validateFile },
-                                        { id: "#other2", validate: validateFile },
-                                        { id: "#duration", validate: validateDuration },
-                                        { id: "#bhk", validate: validateBHK },
-                                        { id: "#contact", validate: validateContact },
-                                        { id: "#rent", validate: validateRent },
-                                    ];
-                                
-                                    // Helper function to create an error message span
-                                    function createErrorSpan(fieldId) {
-                                        const errorSpanId = `${fieldId}span`;
-                                        const $errorSpan = $(`<span id="${errorSpanId}" class="error-message"></span>`);
-                                        $(fieldId).after($errorSpan);
-                                        return $errorSpan;
-                                    }
-                                
-                                    // Helper function to display error messages
-                                    function displayErrorMessage(fieldId, message) {
-                                        const $errorSpan = $(`${fieldId}span`);
-                                        $errorSpan.html(message).css("color", "#FF0000");
-                                    }
-                                
-                                    // Helper function to enable or disable the submit button based on form validity
-                                    function enableSubmitButton() {
-                                        const isValid = fields.every(field => {
-                                            const $field = $(field.id);
-                                            const $errorSpan = $(`${field.id}span`);
-                                
-                                            if ($field.val().trim() === "" || $errorSpan.html() !== "") {
-                                                return false;
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="kitchen">Kitchen:</label>
+                                            <input type="file" id="kitchen" name="kitchen" accept="image/*" required>
+                                            <span id="kitchenspan" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="dining">Dining Room:</label>
+                                            <input type="file" id="dining" name="dining" accept="image/*" required>
+                                            <span id="diningspan" style="font-size: 12px;"></span>
+
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="other1">other 1:</label>
+                                            <input type="file" id="other1" name="other1" accept="image/*" required>
+                                            <span id="other1span" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="other2">other 2:</label>
+                                            <input type="file" id="other2" name="other2" accept="image/*" required>
+                                            <span id="other2span" style="font-size: 12px;"></span>
+
+                                        </div>
+                                    </div>
+                                    <!-- Container to display selected images -->
+                                    <div id="selected-images-container" style="margin-top: 10px;"></div>
+
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="duration">Minimum Duration of Rent:</label>
+                                            <select id="duration" name="duration" required>
+                                                <option value="1">1 month</option>
+                                                <option value="2">2 months</option>
+                                                <option value="3">3 months</option>
+                                                <option value="4">4 months</option>
+                                                <option value="5">5 months</option>
+                                                <option value="6">6 months</option>
+                                            </select>
+                                            <span id="durationspan" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="bhk">Number of Bedrooms (BHK):</label>
+                                            <select id="bhk" name="bhk" required>
+                                                <option value="1">1 BHK</option>
+                                                <option value="2">2 BHK</option>
+                                                <option value="3">3 BHK</option>
+                                                <option value="4">4 BHK</option>
+                                            </select>
+                                            <span id="bhkspan" style="font-size: 12px;"></span>
+
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="contact">Contact Number(include country code):</label>
+                                            <input type="tel" id="contact" name="contact" pattern="[0-9]{10}" required>
+                                            <span id="contactspan" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="rent">Rent per Month:</label>
+                                            <input type="text" id="rent" name="rent" required>
+                                            <span id="rentspan" style="font-size: 12px;"></span>
+
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <h5 class="mb-3">Additional Features:</h5>
+                                        <div class="col-md-6">
+
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="Parea" name="Parea">
+                                                <label class="form-check-label" for="Parea">Parking Area</label>
+                                                <span id="Pareaspan" style="font-size: 12px;"></span>
+
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="cctv" name="cctv">
+                                                <label class="form-check-label" for="cctv">CCTV</label>
+                                                <span id="cctvspan" style="font-size: 12px;"></span>
+
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="heater"
+                                                    name="heater">
+                                                <label class="form-check-label" for="heater">Heater</label>
+                                                <span id="heaterspan" style="font-size: 12px;"></span>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="ac" name="ac">
+                                                <label class="form-check-label" for="ac">Air Conditioning</label>
+                                                <span id="acspan" style="font-size: 12px;"></span>
+
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="pback" name="pback">
+                                                <label class="form-check-label" for="pback">Power Backup</label>
+                                                <span id="pbackspan" style="font-size: 12px;"></span>
+
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="wifi" name="wifi">
+                                                <label class="form-check-label" for="furniture">Wifi</label>
+                                                <span id="wifispan" style="font-size: 12px;"></span>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <button type="submit" id="submitBtn">Submit</button>
+
+                                    <script>
+                                        $(document).ready(function () {
+                                            const fields = [
+                                                { id: "#pname", validate: validatePropertyname },
+                                                { id: "#address", validate: validateAddress },
+                                                { id: "#mlink", validate: validateMapLink },
+                                                { id: "#nation", validate: validateCountry },
+                                                { id: "#region", validate: validateState },
+                                                { id: "#frontview", validate: validateFile },
+                                                { id: "#living", validate: validateFile },
+                                                { id: "#bedroom", validate: validateFile },
+                                                { id: "#bathroom", validate: validateFile },
+                                                { id: "#kitchen", validate: validateFile },
+                                                { id: "#dining", validate: validateFile },
+                                                { id: "#other1", validate: validateFile },
+                                                { id: "#other2", validate: validateFile },
+                                                { id: "#duration", validate: validateDuration },
+                                                { id: "#bhk", validate: validateBHK },
+                                                { id: "#rent", validate: validateRent },
+                                            ];
+
+                                            const validationStatus = {};
+
+                                            fields.forEach(field => {
+                                                $(field.id).blur(function () {
+                                                    field.validate();
+                                                    validationStatus[field.id] = $(`${field.id}span`).html() === "";
+                                                });
+                                            });
+
+                                            function displayErrorMessage(fieldId, message) {
+                                                const $errorSpan = $(`${fieldId}span`);
+                                                $errorSpan.html(message).css("color", "#FF0000");
                                             }
-                                            return true;
-                                        });
-                                
-                                        $("#submitBtn").prop("disabled", !isValid);
-                                    }
-                                
-                                    // Helper function to validate a field on blur
-                                    function validateFieldOnBlur(fieldId, validationFunction) {
-                                        $(fieldId).blur(function () {
-                                            validationFunction();
-                                            enableSubmitButton();
-                                        });
-                                    }
-                                
-                                    // Initialize error message spans and field validation on blur
-                                    fields.forEach(field => {
-                                        createErrorSpan(field.id);
-                                        validateFieldOnBlur(field.id, field.validate);
-                                    });
-                                
-                                    // Call enableSubmitButton on keyup in any input field
-                                    $('input').keyup(function () {
-                                        enableSubmitButton();
-                                    });
-                                
-                                    // Call enableSubmitButton on change in any select field
-                                    $('select').change(function () {
-                                        enableSubmitButton();
-                                    });
-                                
-                                    // Initial check for form validity
-                                    enableSubmitButton();
-                                
-                                    // Form submission
-                                   // Form submission
-                                        $("form").submit(function (event) {
-                                            console.log("Form submitted!");
-                                            // Validate the form before submission
-                                            if (!validateForm()) {
-                                                event.preventDefault(); // Prevent form submission if validation fails
+
+                                            function checkFormValidity() {
+                                                const isValid = Object.values(validationStatus).every(status => status);
+                                                $("#submitBtn").prop("disabled", !isValid);
+                                            }
+
+                                            // Form submission
+                                            $("#propertyForm").submit(function (event) {
+                                                if (!$("#submitBtn").prop("disabled")) {
+                                                    // Form is valid, allow submission
+                                                    return true;
+                                                } else {
+                                                    // Form is not valid, prevent submission
+                                                    event.preventDefault();
+                                                    return false;
+                                                }
+                                            });
+
+                                            // Validation functions for each field
+                                            function validatePropertyname() {
+                                                const pname = $("#pname").val();
+
+                                                if (pname.trim() === "") {
+                                                    displayErrorMessage("#pname", "Enter the Property Name");
+                                                } else if (pname.length > 20) {
+                                                    displayErrorMessage("#pname", "Property Name cannot exceed 20 characters");
+                                                } else if (!/^[a-zA-Z0-9\s]+$/.test(pname)) {
+                                                    displayErrorMessage("#pname", "Property Name can only contain letters, numbers, and spaces");
+                                                } else {
+                                                    $("#pnamespan").html("");
+                                                }
+                                            }
+
+
+
+                                            function validateAddress() {
+                                                const address = $("#address").val();
+
+                                                if (address.trim() === "") {
+                                                    displayErrorMessage("#address", "Enter the Property Address");
+                                                } else if (address.length < 10) {
+                                                    displayErrorMessage("#address", "Address should be at least 10 characters long");
+                                                } else if (address.length > 255) {
+                                                    displayErrorMessage("#address", "Address cannot exceed 255 characters");
+                                                } else {
+                                                    $("#addressspan").html("");
+                                                }
+                                            }
+
+
+                                            function validateMapLink() {
+                                                const mapLink = $("#mlink").val();
+
+                                                if (mapLink.trim() === "") {
+                                                    displayErrorMessage("#mlink", "Enter the Property location link");
+                                                } else if (!mapLink.startsWith("https://maps.app.goo")) {
+                                                    displayErrorMessage("#mlink", "Enter a valid Google Maps location link");
+                                                } else {
+                                                    $("#mlinkspan").html("");
+                                                }
+                                            }
+
+
+
+                                            function validateCountry() {
+                                                const country = $("#nation").val();
+                                                if (country.trim() === "") {
+                                                    displayErrorMessage("#nation", "Select the Country");
+                                                } else {
+                                                    $("#nationspan").html("");
+                                                }
+                                            }
+
+                                            function validateState() {
+                                                const state = $("#region").val();
+                                                if (state.trim() === "") {
+                                                    displayErrorMessage("#region", "Select the State/Province");
+                                                } else {
+                                                    $("#statespan").html("");
+                                                }
+                                            }
+
+                                            function validateFile() {
+                                                const fileInput = $(this)[0];
+                                                const fieldName = $(this).attr("name");
+
+                                                if (!fileInput.files || fileInput.files.length === 0) {
+                                                    displayErrorMessage(`#${fieldName}`, `Upload a ${fieldName} image`);
+                                                } else {
+                                                    const allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
+                                                    const file = fileInput.files[0];
+
+                                                    if (!allowedFormats.includes(file.type)) {
+                                                        displayErrorMessage(`#${fieldName}`, `Invalid image format. Supported formats: JPEG, JPG, PNG`);
+                                                    } else {
+                                                        $(`#${fieldName}span`).html("");
+                                                    }
+                                                }
+                                            }
+
+                                            function validateDuration() {
+                                                const duration = $("#duration").val();
+
+                                                if (duration.trim() === "") {
+                                                    displayErrorMessage("#duration", "Enter the amount");
+                                                } else if (!/^\d+$/.test(duration)) {
+                                                    displayErrorMessage("#duration", "Enter a valid numeric amount without alphabets or special characters");
+                                                } else {
+                                                    $("#durationspan").html("");
+                                                }
+                                            }
+
+
+
+                                            function validateBHK() {
+                                                const bhk = $("#bhk").val();
+                                                if (bhk.trim() === "") {
+                                                    displayErrorMessage("#bhk", "Select the Number of Bedrooms (BHK)");
+                                                } else {
+                                                    $("#bhkspan").html("");
+                                                }
+                                            }
+
+
+
+                                            function validateRent() {
+                                                const rent = $("#rent").val();
+                                                if (rent.trim() === "") {
+                                                    displayErrorMessage("#rent", "Enter the Rent per Month");
+                                                } else {
+                                                    $("#rentspan").html("");
+                                                }
+                                            }
+                                            function validateForm() {
+                                                // Add additional logic if necessary
+                                                // Return true if the form is valid, otherwise false
+                                                return fields.every(field => {
+                                                    const $field = $(field.id);
+                                                    const $errorSpan = $(`${field.id}span`);
+
+                                                    if ($field.val().trim() === "" || $errorSpan.html() !== "") {
+                                                        return false;
+                                                    }
+                                                    return true;
+                                                });
                                             }
                                         });
+                                    </script>
+                                </form>
 
-                                
-                                    // Validation functions for each field
-                                    function validatePropertyname() {
-                                        const pname = $("#pname").val();
-                                    
-                                        if (pname.trim() === "") {
-                                            displayErrorMessage("#pname", "Enter the Property Name");
-                                        } else if (pname.length > 20) {
-                                            displayErrorMessage("#pname", "Property Name cannot exceed 20 characters");
-                                        } else if (!/^[a-zA-Z0-9\s]+$/.test(pname)) {
-                                            displayErrorMessage("#pname", "Property Name can only contain letters, numbers, and spaces");
-                                        } else {
-                                            $("#pnamespan").html("");
-                                        }
-                                    }
-                                    
-                                    
-                                
-                                    function validateAddress() {
-                                        const address = $("#address").val();
-                                    
-                                        if (address.trim() === "") {
-                                            displayErrorMessage("#address", "Enter the Property Address");
-                                        } else if (address.length < 10) {
-                                            displayErrorMessage("#address", "Address should be at least 10 characters long");
-                                        } else if (address.length > 255) {
-                                            displayErrorMessage("#address", "Address cannot exceed 255 characters");
-                                        } else {
-                                            $("#addressspan").html("");
-                                        }
-                                    }
-                                    
-                                
-                                    function validateMapLink() {
-                                        const mapLink = $("#mlink").val();
-                                    
-                                        if (mapLink.trim() === "") {
-                                            displayErrorMessage("#mlink", "Enter the Property location link");
-                                        } else if (!mapLink.startsWith("https://maps.google.com")) {
-                                            displayErrorMessage("#mlink", "Enter a valid Google Maps location link");
-                                        } else {
-                                            $("#mlinkspan").html("");
-                                        }
-                                    }
-                                    
-                                    
-                                
-                                    function validateCountry() {
-                                        const country = $("#nation").val();
-                                        if (country.trim() === "") {
-                                            displayErrorMessage("#nation", "Select the Country");
-                                        } else {
-                                            $("#nationspan").html("");
-                                        }
-                                    }
-                                
-                                    function validateState() {
-                                        const state = $("#region").val();
-                                        if (state.trim() === "") {
-                                            displayErrorMessage("#region", "Select the State/Province");
-                                        } else {
-                                            $("#statespan").html("");
-                                        }
-                                    }
-                                
-                                    function validateFile() {
-                                        const fileInput = $(this)[0];
-                                        const fieldName = $(this).attr("name");
-                                
-                                        if (!fileInput.files || fileInput.files.length === 0) {
-                                            displayErrorMessage(`#${fieldName}`, `Upload a ${fieldName} image`);
-                                        } else {
-                                            const allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                                            const file = fileInput.files[0];
-                                
-                                            if (!allowedFormats.includes(file.type)) {
-                                                displayErrorMessage(`#${fieldName}`, `Invalid image format. Supported formats: JPEG, JPG, PNG`);
-                                            } else {
-                                                $(`#${fieldName}span`).html("");
-                                            }
-                                        }
-                                    }
-                                
-                                    function validateDuration() {
-                                        const duration = $("#duration").val();
-                                        
-                                        if (duration.trim() === "") {
-                                            displayErrorMessage("#duration", "Enter the amount");
-                                        } else if (!/^\d+$/.test(duration)) {
-                                            displayErrorMessage("#duration", "Enter a valid numeric amount without alphabets or special characters");
-                                        } else {
-                                            $("#durationspan").html("");
-                                        }
-                                    }
-                                    
-                                    
-                                
-                                    function validateBHK() {
-                                        const bhk = $("#bhk").val();
-                                        if (bhk.trim() === "") {
-                                            displayErrorMessage("#bhk", "Select the Number of Bedrooms (BHK)");
-                                        } else {
-                                            $("#bhkspan").html("");
-                                        }
-                                    }
-                                    function validateContact() {
-                                        const contact = $("#contact").val();
-                                        const pattern = /^\+\d{1,4}\d{1,14}$/; // Country code format: +1234-567890123
-                                    
-                                        if (contact.trim() === "") {
-                                            displayErrorMessage("#contact", "Enter the Contact Number");
-                                        } else if (!pattern.test(contact)) {
-                                            displayErrorMessage("#contact", "Enter a valid Contact Number with the country code");
-                                        } else {
-                                            $("#contactspan").html("");
-                                        }
-                                    }
-                                    
-                                
-                                    function validateRent() {
-                                        const rent = $("#rent").val();
-                                        if (rent.trim() === "") {
-                                            displayErrorMessage("#rent", "Enter the Rent per Month");
-                                        } else {
-                                            $("#rentspan").html("");
-                                        }
-                                    }
-                                // Example validation function for Parking Area checkbox
-                               
+                            </div>
 
-                                    // Additional validation functions can be added as needed
-                                
-                                    // You can reuse some of the validation functions from your course form script if they are applicable
-                                });
-                                
-                            </script>
                         </div>
-                    
-                    </div>
 
-                    <div class="tab-pane fade" id="v-pills-pending" role="tabpanel"
-                        aria-labelledby="v-pills-pending-tab">
+                        <div class="tab-pane fade" id="v-pills-pending" role="tabpanel"
+                            aria-labelledby="v-pills-pending-tab">
 
 
-                    </div>
+                        </div>
 
-                    <!-- Rejected Applications -->
-                    <div class="tab-pane fade" id="v-pills-rejected" role="tabpanel"
-                        aria-labelledby="v-pills-rejected-tab">
+                        <!-- Rejected Applications -->
+                        <div class="tab-pane fade" id="v-pills-rejected" role="tabpanel"
+                            aria-labelledby="v-pills-rejected-tab">
 
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
 
-    <!-- PROFILE UPDATE MODAL -->
-    <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalTitle"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <!-- PROFILE UPDATE MODAL -->
+        <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalTitle"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-center" id="profileModalTitle">Profile</h5>
+                        
+                    </div>
+                    <div class="modal-body">
+                        <!-- Edit Profile Photo Section -->
+                        <form id="profileForm" method="POST" action="{% url 'acc_home' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="text-center mb-3">
+                                <img src="{{ profile_photo_url }}" alt="Profile Photo"
+                                    class="img-thumbnail rounded-circle" style="max-width: 150px;" id="profileImage">
+
+                                <br>
+                                <button type="button" class="btn btn-link mt-2" id="editProfilePhotoButton">Edit Profile
+                                    Photo</button><br>
+                                <input type="file" class="form-control-file d-none" id="profile_photo"
+                                    name="profile_photo">
+                            </div>
+
+                            <!-- Display user details -->
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" class="form-control" id="first_name" value="{{ user.first_name }}"
+                                    name="first_name" pattern="[a-zA-Z]{3,}" placeholder="Eg: John" required>
+                                <div class="invalid-feedback">
+                                    First name must contain only alphabetic characters and have a minimum length of 3
+                                    characters.
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" value="{{ user.last_name }}"
+                                    name="last_name" pattern="[a-zA-Z]{3,}" placeholder="Eg: Doe" required>
+                                <div class="invalid-feedback">
+                                    Last name must contain only alphabetic characters and have a minimum length of 3
+                                    characters.
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="dob">Date of Birth</label>
+                                {% if user.landlord.dob %}
+                                <input type="text" class="form-control" id="dob" value="{{ user.landlord.dob }}"
+                                    name="dob" readonly>
+                                {% else %}
+                                <input type="date" class="form-control" id="dob"
+                                    value="{{ user.landlord.dob|date:'Y-m-d' }}" name="dob" required>
+                                <span id="dateOfBirthError" class="text-danger"></span>
+                                <div class="invalid-feedback">
+                                    Date of birth is required.
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="contact_no">Contact Number</label>
+                                <input type="tel" class="form-control" id="contact_no"
+                                    value="{{ user.landlord.contact_no }}" name="contact_no" pattern="[1-9][0-9]{9}"
+                                    required>
+                                <div class="invalid-feedback">
+                                    Contact number must start with a digit from 1 to 9 and contain a total of 10 digits.
+                                </div>
+                            </div>
+
+                            <!-- Add hidden input fields to store user ID and migrant ID -->
+                            <input type="hidden" name="user_id" value="{{ user.id }}">
+                            <input type="hidden" name="landlord_id" value="{{ user.landlord.id }}">
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <div class="modal fade" id="propertyModal" tabindex="-1" role="dialog" aria-labelledby="propertyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="profileModalTitle">Profile</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title text-center" id="propertyModalLabel">Property Details</h5>
+                    
                 </div>
-                <div class="modal-body">
-                    <!-- Edit Profile Photo Section -->
-                    <form id="profileForm" method="POST" action="{% url 'home' %}" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="text-center mb-3">
-                            <img src="{{ profile_photo_url }}" alt="Profile Photo" class="img-thumbnail rounded-circle"
-                                style="max-width: 150px;" id="profileImage">
-
-                            <br>
-                            <button type="button" class="btn btn-link mt-2" id="editProfilePhotoButton">Edit Profile
-                                Photo</button><br>
-                            <input type="file" class="form-control-file d-none" id="profile_photo" name="profile_photo">
+                <div class="modal-body" id="propertyDetails">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="" class="img-fluid frontview-image" alt="Front View">
                         </div>
-
-                        <!-- Display user details -->
-                        <div class="form-group">
-                            <label for="first_name">First Name</label>
-                            <input type="text" class="form-control" id="first_name" value="{{ user.first_name }}"
-                                name="first_name" pattern="[a-zA-Z]{3,}" placeholder="Eg: John" required>
-                            <div class="invalid-feedback">
-                                First name must contain only alphabetic characters and have a minimum length of 3
-                                characters.
-                            </div>
+                        <div class="col-md-6">
+                            <h5 class="property-name"></h5>
+                            <p><strong>Address:</strong> <span class="address"></span></p>
+                            <p><strong>Country:</strong> <span class="country"></span></p>
+                            <p><strong>State/Province:</strong> <span class="state-province"></span></p>
+                            <p><strong>Contact Number:</strong> <span class="contact-number"></span></p>
+                            <p><strong>Rent Per Month:</strong> <span class="rent-per-month"></span></p>
+                            <p><strong>Minimum Duration of Rent:</strong> <span class="min-duration-of-rent"></span></p>
+                            <p><strong>Number of Bedrooms:</strong> <span class="num-bedrooms"></span></p>
+                            <p><strong>Parking Area:</strong> <span class="parking-area"></span></p>
+                            <p><strong>CCTV:</strong> <span class="cctv"></span></p>
+                            <p><strong>Heater:</strong> <span class="heater"></span></p>
+                            <p><strong>Air Conditioning:</strong> <span class="air_conditioning"></span></p>
+                            <p><strong>Power Backup:</strong> <span class="power_backup"></span></p>
+                            <p><strong>Wifi:</strong> <span class="wifi"></span></p>
                         </div>
-                        <div class="form-group">
-                            <label for="last_name">Last Name</label>
-                            <input type="text" class="form-control" id="last_name" value="{{ user.last_name }}"
-                                name="last_name" pattern="[a-zA-Z]{3,}" placeholder="Eg: Doe" required>
-                            <div class="invalid-feedback">
-                                Last name must contain only alphabetic characters and have a minimum length of 3
-                                characters.
-                            </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="" class="img-fluid living-room-image" alt="Living Room">
+                            <p class="text-center"><strong>Living Room</strong></p>
                         </div>
-                        <div class="form-group">
-                            <label for="dob">Date of Birth</label>
-                            {% if user.migrant.dob %}
-                            <input type="text" class="form-control" id="dob" value="{{ user.migrant.dob }}" name="dob"
-                                readonly>
-                            {% else %}
-                            <input type="date" class="form-control" id="dob" value="{{ user.migrant.dob|date:'Y-m-d' }}"
-                                name="dob" required>
-                            <span id="dateOfBirthError" class="text-danger"></span>
-                            <div class="invalid-feedback">
-                                Date of birth is required.
-                            </div>
-                            {% endif %}
+                        <div class="col-md-4">
+                            <img src="" class="img-fluid bedroom-image" alt="Bedroom">
+                            <p class="text-center"><strong>Bedroom</strong></p>
                         </div>
-                        <div class="form-group">
-                            <label for="contact_no">Contact Number</label>
-                            <input type="tel" class="form-control" id="contact_no" value="{{ user.migrant.contact_no }}"
-                                name="contact_no" pattern="[1-9][0-9]{9}" required>
-                            <div class="invalid-feedback">
-                                Contact number must start with a digit from 1 to 9 and contain a total of 10 digits.
-                            </div>
+                        <div class="col-md-4">
+                            <img src="" class="img-fluid bathroom-image" alt="Bathroom">
+                            <p class="text-center"><strong>Bathroom</strong></p>
                         </div>
-
-                        <!-- Add hidden input fields to store user ID and migrant ID -->
-                        <input type="hidden" name="user_id" value="{{ user.id }}">
-                        <input type="hidden" name="migrant_id" value="{{ user.migrant.id }}">
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        <div class="col-md-4">
+                            <img src="" class="img-fluid kitchen_image" alt="kitchen">
+                            <p class="text-center"><strong>kitchen</strong></p>
                         </div>
-                    </form>
+                        <div class="col-md-4">
+                            <img src="" class="img-fluid dining_room_image" alt="Dining Room">
+                            <p class="text-center"><strong>Dining Room</strong></p>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="" class="img-fluid other1_image" alt="Additional facilities">
+                            <p class="text-center"><strong>Additional facilities</strong></p>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="" class="img-fluid other2_image" alt="Additional facilities">
+                            <p class="text-center"><strong>Additional facilities</strong></p>
+                        </div>
+                        <!-- Add similar blocks for other images like kitchen, dining room, etc. -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
-</body>
+    
+    
+
+
+    <!-- Add this script at the end of your HTML file or in a separate script file -->
+    <script>
+        $(document).ready(function () {
+            // Handle the click event on the "View" button
+            $(".view-btn").click(function () {
+                // Get the property ID from the data-property-id attribute
+                var propertyId = $(this).data("property-id");
+    
+                // Make an AJAX request to retrieve the property details
+                $.ajax({
+                    url: '/get_property_details/',
+                    type: 'GET',
+                    data: {'property_id': propertyId},
+                    success: function (data) {
+                        // Update the modal content with the retrieved details
+                        $(".property-name").text(data.property_name);
+                        $(".address").text(data.address);
+                        $(".country").text(data.country);
+                        $(".state-province").text(data.state_province);
+                        $(".contact-number").text(data.contact_number);
+                        $(".rent-per-month").text('$' + data.rent_per_month);
+                        $(".min-duration-of-rent").text(data.minimum_duration_of_rent);
+                        $(".num-bedrooms").text(data.number_of_bedrooms);
+                        $(".parking-area").text(data.parking_area ? 'Yes' : 'No');
+                        $(".cctv").text(data.cctv ? 'Yes' : 'No');
+                        $(".heater").text(data.heater ? 'Yes' : 'No');
+                        $(".air_conditioning").text(data.air_conditioning ? 'Yes' : 'No');
+                        $(".power_backup").text(data.power_backup ? 'Yes' : 'No');
+                        $(".wifi").text(data.wifi ? 'Yes' : 'No');
+
+                        // Update photo sources and add the property-image class
+                        $("#propertyDetails .col-md-6 img.frontview-image").attr("src", data.frontview_image).addClass("property-image");
+                        $("#propertyDetails .col-md-4 img.living-room-image").attr("src", data.living_room_image).addClass("property-image");
+                        $("#propertyDetails .col-md-4 img.bedroom-image").attr("src", data.bedroom_image).addClass("property-image");
+                        $("#propertyDetails .col-md-4 img.bathroom-image").attr("src", data.bathroom_image).addClass("property-image");
+                        $("#propertyDetails .col-md-4 img.kitchen_image").attr("src", data.kitchen_image).addClass("property-image");
+                        $("#propertyDetails .col-md-4 img.dining_room_image").attr("src", data.dining_room_image).addClass("property-image");
+                        $("#propertyDetails .col-md-4 img.other1_image").attr("src", data.other1_image).addClass("property-image");
+                        $("#propertyDetails .col-md-4 img.other2_image").attr("src", data.other2_image).addClass("property-image");
+    
+                        // Display the modal
+                        $('#propertyModal').modal('show');
+                    },
+                    error: function () {
+                        // Handle error
+                        console.log("Error retrieving property details");
+                    }
+                });
+    
+                // Remove the modal backdrop on modal close
+                $('#propertyModal').on('hidden.bs.modal', function () {
+                    $('.modal-backdrop').remove();
+                });
+            });
+        });
+    </script>
+    
+
 
     <script>
 
 
-        
+
         document.addEventListener('DOMContentLoaded', function () {
             var myTabs = new bootstrap.Tab(document.getElementById('v-pills-all-tab'));
             myTabs.show();
         });
-        
-        
+
+
         function openProfileModal() {
             $('#profileModal').modal('show');
         }
@@ -903,81 +969,80 @@
         <!--Country Dropdown-->
         const nationDropdown = document.getElementById('nation');
         const regionDropdown = document.getElementById('region');
-        // Define region options for each country
         const countryRegions = {
-        'Ireland': [
-            'Connacht',
-            'County Carlow',
-            'County Cavan',
-            'County Clare',
-            'County Cork',
-            'County Donegal',
-            'County Dublin',
-            'County Galway',
-            'County Kerry',
-            'County Kildare',
-            'County Kilkenny',
-            'County Laois',
-            'County Limerick',
-            'County Longford',
-            'County Louth',
-            'County Mayo',
-            'County Meath',
-            'County Monaghan',
-            'County Offaly',
-            'County Roscommon',
-            'County Sligo',
-            'County Tipperary',
-            'County Waterford',
-            'County Westmeath',
-            'County Wexford',
-            'County Wicklow',
-            'Leinster',
-            'Munster',
-            'Ulster',
-            // Add more options for Ireland as needed
-        ],
+            'Ireland': [
+                'Connacht',
+                'County Carlow',
+                'County Cavan',
+                'County Clare',
+                'County Cork',
+                'County Donegal',
+                'County Dublin',
+                'County Galway',
+                'County Kerry',
+                'County Kildare',
+                'County Kilkenny',
+                'County Laois',
+                'County Limerick',
+                'County Longford',
+                'County Louth',
+                'County Mayo',
+                'County Meath',
+                'County Monaghan',
+                'County Offaly',
+                'County Roscommon',
+                'County Sligo',
+                'County Tipperary',
+                'County Waterford',
+                'County Westmeath',
+                'County Wexford',
+                'County Wicklow',
+                'Leinster',
+                'Munster',
+                'Ulster',
+                // Add more options for Ireland as needed
+            ],
 
-        'Canada': [
-            'Alberta',
-            'British Columbia',
-            'Manitoba',
-            'New Brunswick',
-            'Newfoundland and Labrador',
-            'Northwest Territories',
-            'Nova Scotia',
-            'Nunavut',
-            'Ontario',
-            'Prince Edward Island',
-            'Quebec',
-            'Saskatchewan',
-            'Yukon'
-        ],
-        // Add more countries and their regions here
+            'Canada': [
+                'Alberta',
+                'British Columbia',
+                'Manitoba',
+                'New Brunswick',
+                'Newfoundland and Labrador',
+                'Northwest Territories',
+                'Nova Scotia',
+                'Nunavut',
+                'Ontario',
+                'Prince Edward Island',
+                'Quebec',
+                'Saskatchewan',
+                'Yukon'
+            ],
+            // Add more countries and their regions here
         };
 
         // Function to populate the region dropdown based on the selected country
         function populateRegionDropdown() {
 
 
-        // Get the selected country
-        const selectedCountry = nationDropdown.value;
+            // Get the selected country
+            const selectedCountry = nationDropdown.value;
 
-        // Clear existing options
-        regionDropdown.innerHTML = '<option value="">Select State or Province</option>';
+            // Clear existing options
+            regionDropdown.innerHTML = '<option value="">Select State or Province</option>';
 
-        // Populate with options for the selected country
-        if (selectedCountry in countryRegions) {
-            countryRegions[selectedCountry].forEach(region => {
-                const option = document.createElement('option');
-                option.value = region;
-                option.textContent = region;
-                regionDropdown.appendChild(option);
-            });
-        }
+            // Populate with options for the selected country
+            if (selectedCountry in countryRegions) {
+                countryRegions[selectedCountry].forEach(region => {
+                    const option = document.createElement('option');
+                    option.value = region;
+                    option.textContent = region;
+                    regionDropdown.appendChild(option);
+                });
+            }
 
-        // Show or hide the region dropdown based on the selection
-        // regionDropdown.style.display = selectedCountry ? 'block' : 'none';
+            // Show or hide the region dropdown based on the selection
+            // regionDropdown.style.display = selectedCountry ? 'block' : 'none';
         }
 
         // Attach an event listener to the nation dropdown
@@ -987,7 +1052,7 @@
         populateRegionDropdown();
 
     </script>
-    
+
     <!-- Add Bootstrap JS scripts at the end of the body if needed -->
     <!-- Add Bootstrap JS scripts at the end of the body if needed -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>

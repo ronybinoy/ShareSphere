@@ -34,6 +34,20 @@ class Migrant(models.Model):
         blank=True
     )
 
+class Landlord(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,  # Use the custom user model as the target
+        on_delete=models.CASCADE,
+    )
+    dob = models.DateField(("Date of Birth"), null=True, blank=True)
+    contact_no = models.CharField(("Contact Number"), max_length=15, null=True, blank=True)
+    profile_photo = models.ImageField(
+        ("Profile Photo"),
+        upload_to='profile_photos/',
+        default='profile_photos/default_profile.png',  
+        null=True,
+        blank=True
+    )
 
 class Course(models.Model):
     user = models.ForeignKey(
@@ -179,7 +193,6 @@ class Property(models.Model):
     property_location_link = models.URLField()
     country = models.CharField(max_length=255)
     state_province = models.CharField(max_length=255)
-    
     frontview_image = models.ImageField(upload_to='property_images/')
     living_room_image = models.ImageField(upload_to='property_images/')
     bedroom_image = models.ImageField(upload_to='property_images/')
@@ -188,13 +201,10 @@ class Property(models.Model):
     dining_room_image = models.ImageField(upload_to='property_images/')
     other1_image = models.ImageField(upload_to='property_images/')
     other2_image = models.ImageField(upload_to='property_images/')
-    
     contact_number = models.CharField(max_length=15)  # Assuming the maximum length for a phone number
-    
     rent_per_month = models.DecimalField(max_digits=10, decimal_places=2)
     minimum_duration_of_rent = models.IntegerField(choices=[(1, '1 month'), (2, '2 months'), (3, '3 months'), (4, '4 months'), (5, '5 months'), (6, '6 months')])
     number_of_bedrooms = models.IntegerField(choices=[(1, '1 BHK'), (2, '2 BHK'), (3, '3 BHK'), (4, '4 BHK')])
-    
     parking_area = models.BooleanField(default=False)
     cctv = models.BooleanField(default=False)
     heater = models.BooleanField(default=False)

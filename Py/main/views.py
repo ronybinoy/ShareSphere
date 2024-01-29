@@ -15,9 +15,11 @@ from .models import (
     Course_Application,
     Migrant,
     Payment,
+    Property,
+    Landlord
 )
 from django.contrib.auth import authenticate, login as auth_login, logout
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.views.decorators.http import require_GET
 from django.core.exceptions import ValidationError
 from django.core.files import File
@@ -1273,7 +1275,60 @@ def check_unique_course_code(request):
 
 #Accomodation
 
+from django.shortcuts import render
+from .models import Property
+
 def acc_home(request):
+    if request.user.is_authenticated:
+        try:
+            landlord = Landlord.objects.get(user=request.user)
+            properties = Property.objects.filter(landlord=request.user)
+            landlord_profile_photo = landlord.profile_photo
+            return render(request, "accomodation/acc_home.html", {'properties': properties, 'landlord_profile_photo': landlord_profile_photo})
+        except Landlord.DoesNotExist:
+            # Handle the case where Landlord does not exist for the current user
+            raise Http404("Landlord does not exist for this user.")
+    else:
+        return render(request, "accomodation/acc_home.html", {'properties': []})
+
+
+def get_property_details(request):
+    if request.method == 'GET':
+        property_id = request.GET.get('property_id')
+
+        try:
+            property_obj = get_object_or_404(Property, id=property_id)
+            property_data = {
+                'property_name': property_obj.property_name,
+                'address': property_obj.address,
+                'country': property_obj.country,
+                'state_province': property_obj.state_province,
+                'contact_number': property_obj.contact_number,
+                'rent_per_month': str(property_obj.rent_per_month),  # Convert DecimalField to string
+                'minimum_duration_of_rent': property_obj.get_minimum_duration_of_rent_display(),
+                'number_of_bedrooms': property_obj.get_number_of_bedrooms_display(),
+                'parking_area': property_obj.parking_area,
+                'cctv': property_obj.cctv,
+                'heater': property_obj.heater,
+                'air_conditioning': property_obj.air_conditioning,
+                'power_backup': property_obj.power_backup,
+                'wifi': property_obj.wifi,
+                'frontview_image': property_obj.frontview_image.url,
+                'living_room_image': property_obj.living_room_image.url,
+                'bedroom_image': property_obj.bedroom_image.url,
+                'bathroom_image': property_obj.bathroom_image.url,
+                'kitchen_image': property_obj.kitchen_image.url,
+                'dining_room_image': property_obj.dining_room_image.url,
+                'other1_image': property_obj.other1_image.url,
+                'other2_image': property_obj.bathroom_image.url,
+            }
+            print(property_data)
+            return JsonResponse(property_data)
+        except Property.DoesNotExist:
+            return JsonResponse({'error': 'Property not found'}, status=404)
+
+
+def property_submit(request):
     if request.method == 'POST':
 
         landlord = request.user  # Assuming you have a logged-in user
@@ -1301,6 +1356,8 @@ def acc_home(request):
         power_backup = 'pback' in request.POST
         wifi = 'wifi' in request.POST
 
+
+        print(landlord, property_name,address,property_location_link,country)
         try:
             Property.objects.create(
                 landlord=landlord,
@@ -1329,15 +1386,10 @@ def acc_home(request):
                 wifi=wifi
             )
             # messages.success(request, 'Property submitted successfully!')
-            return redirect('acc_home')  # Change 'success_page' to the actual URL or view name
+            return redirect('acc_home') 
         except Exception as e:
             messages.error(request, f'Error: {str(e)}')
             return HttpResponse(status=500)
-
-    return render(request, "accomodation/acc_home.html")
-
-
-
 
 def acc_signup(request):
     if request.method == "POST":
