@@ -187,6 +187,14 @@ class Payment(models.Model):
     
 class Property(models.Model):
 
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('rejected', 'Rejected'),
+        ('pending', 'Pending'),
+        # Add other status choices as needed
+    ]
+    
     landlord = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     property_name = models.CharField(max_length=255)
     address = models.TextField()
@@ -201,7 +209,7 @@ class Property(models.Model):
     dining_room_image = models.ImageField(upload_to='property_images/')
     other1_image = models.ImageField(upload_to='property_images/')
     other2_image = models.ImageField(upload_to='property_images/')
-    contact_number = models.CharField(max_length=15)  # Assuming the maximum length for a phone number
+    contact_number = models.CharField(max_length=15)  
     rent_per_month = models.DecimalField(max_digits=10, decimal_places=2)
     minimum_duration_of_rent = models.IntegerField(choices=[(1, '1 month'), (2, '2 months'), (3, '3 months'), (4, '4 months'), (5, '5 months'), (6, '6 months')])
     number_of_bedrooms = models.IntegerField(choices=[(1, '1 BHK'), (2, '2 BHK'), (3, '3 BHK'), (4, '4 BHK')])
@@ -212,7 +220,9 @@ class Property(models.Model):
     power_backup = models.BooleanField(default=False)
     wifi = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    rejection_remark = models.TextField(blank=True, null=True)
+
     
     def __str__(self):
         return self.property_name

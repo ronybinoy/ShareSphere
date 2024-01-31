@@ -311,6 +311,11 @@
               </a>
             </li>
             <li>
+              <a class="show-ads-listing-btn" href="javascript:void(0);">
+                <span class="icon document" aria-hidden="true"></span>Ads Requests
+              </a>
+            </li>
+            <li>
               <a href="#" class="show-users-btn" id="addChatroomBtn">
                 <span class="icon edit" aria-hidden="true"></span>
                 Add Chatroom
@@ -564,8 +569,16 @@
             </div>
           </div>
         </div>
+
+
         <div id="course-listing-content">
         </div>
+
+        
+        <div id="properties-listing-content">
+      </div>
+
+
       </main>
       <div class="modal fade" id="addRoomModal" tabindex="-1" role="dialog" aria-labelledby="addRoomModalLabel"
         aria-hidden="true">
@@ -647,6 +660,36 @@
       </div>
     </div>
   </div>
+
+
+<!-- Modal for rejecting Ads -->
+<div class="modal fade" id="rejectPropertyModal" tabindex="-1" role="dialog" aria-labelledby="rejectPropertyModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <form method="post" id="rejectPropertyForm">
+              {% csrf_token %}
+              <input type="hidden" name="propertyId" id="propertyId" value="">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="rejectPropertyModalLabel">Enter Remarks for Rejection</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="rejectRemarks">Remarks:</label>
+                      <textarea class="form-control" id="rejectRemarks" name="rejectRemarks" rows="4" placeholder="Enter remarks for rejection"></textarea>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <input type="submit" class="btn btn-danger" value="Reject" id="rejectPropertyButton">
+              </div>
+          </form>
+      </div>
+  </div>
+</div>
+
+
+
   <div class="modal fade" id="chatroomsModal" tabindex="-1" role="dialog" aria-labelledby="chatroomsModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
@@ -1018,6 +1061,34 @@
       });
     }
 
+
+    function updatePropertyStatus(propertyId, status) {
+      // Make an AJAX request to update the property status
+      $.ajax({
+          url: `/update_property_status/${propertyId}/${status}/`, // Replace with the actual URL
+          type: 'GET', // or 'POST' depending on your backend setup
+          dataType: 'json', // Specify JSON dataType
+          success: function (data) {
+              // Check if the status was updated successfully
+              if (data.success) {
+                  // Remove the property card from the listing if it's no longer pending
+                  if (status !== 'pending') {
+                      // Find the property card by property ID and remove it
+                      $(`#property-card-${propertyId}`).remove();
+                  }
+              } else {
+                  console.error('Error updating property status:', data.message);
+              }
+          },
+          error: function (error) {
+              console.error('Error:', error);
+          }
+      });
+  }
+  
+
+
+
     // Function to load and display course details
     function renderCourseDataToHTML(courses) {
       const container = $('#course-listing-content');
@@ -1180,6 +1251,225 @@
 
 
 
+
+
+    function renderPropertyDataToHTML(properties) {
+      const container = $('#properties-listing-content');
+  
+      // Clear any existing content inside the container
+      container.empty();
+  
+      if (properties.length > 0) {
+          // Create a new row div for every 3 cards
+          let rowDiv;
+          properties.forEach((property, index) => {
+              if (index % 3 === 0) {
+                  // Start a new row for every 3 cards
+                  rowDiv = $('<div>').addClass('row custom-margin-row');
+              }
+  
+              // Create a property card template
+              const propertyCard = $('<div>')
+                  .addClass('col-lg-4 col-md-6 col-sm-12 mb-4')
+                  .attr('id', `property-card-${property.id}`); // Add unique ID to the property card
+  
+              const cardDiv = $('<div>').addClass('card property-card rounded-xl');
+  
+              const cardBodyDiv = $('<div>').addClass('card-body');
+  
+              const button = $('<button>')
+                  .addClass('btn btn-warning mb-3')
+                  .prop('disabled', true)
+                  .text('Pending');
+  
+                  const cardImage = $('<img>')
+                  .addClass('card-img-top')
+                  .attr('src', property.frontview_image_url) 
+                  .attr('alt', 'Image Alt Text');
+              
+              
+              cardBodyDiv.append(cardImage);
+  
+              const propertyName = $('<h5>')
+                  .addClass('card-title')
+                  .text(property.property_name);
+  
+              const propertyLocation = $('<p>')
+                  .addClass('card-text mb-2')
+                  .html(`<strong>Location:</strong> ${property.address}, ${property.state_province}, ${property.country}`);
+  
+              const contactNumber = $('<p>')
+                  .addClass('card-text mb-2')
+                  .html(`<strong>Contact:</strong> ${property.contact_number}`);
+  
+              const rent = $('<p>')
+                  .addClass('card-text mb-2')
+                  .html(`<strong>Rent:</strong> $${property.rent_per_month}USD`);
+  
+                  const approvalButton = $('<button>')
+                  .addClass('btn btn-success')
+                  .text('Approve')
+                  .on('click', function () {
+                      updatePropertyStatus(property.id, 'active');
+                  });
+
+                
+
+                  const rejectionButton = $('<button>')
+                    .addClass('btn btn-danger ms-2')
+                    .text('Reject')
+                    .on('click', function () {
+                        displayRejectPropertyModal(property.id);
+                    });
+  
+              
+              cardBodyDiv.append(
+                  button,
+                  propertyName,
+                  $('<hr>'),
+                  propertyLocation,
+                  contactNumber,
+                  rent,
+                  $('<div>').append(approvalButton, rejectionButton)
+              );
+  
+              cardDiv.append(cardBodyDiv);
+              propertyCard.append(cardDiv);
+  
+              // Append the property card to the current row
+              rowDiv.append(propertyCard);
+  
+              if ((index + 1) % 3 === 0 || index === properties.length - 1) {
+                  // If we've added 3 cards or reached the end of the list, append the row to the container
+                  container.append(rowDiv);
+              }
+          });
+      } else {
+          // Display a message if there are no pending properties
+          const message = $('<p>').addClass('text-dark').text('There are no pending properties.');
+          container.append(message);
+      }
+  }
+
+  function displayRejectPropertyModal(propertyId) {
+    // Set the property ID in the modal form
+    $('#propertyId').val(propertyId);
+
+    // Show the rejection remarks modal
+    $('#rejectPropertyModal').modal('show');
+}
+  
+  function loadPropertyDetails() {
+      $.ajax({
+          url: '/pending_properties/', // Replace with the actual URL
+          type: 'GET',
+          dataType: 'json', // Specify JSON dataType
+          success: function (data) {
+              try {
+                  // Assuming the server sends a JSON array of property objects
+                  if (Array.isArray(data.properties)) {
+                      renderPropertyDataToHTML(data.properties);
+                      $('#properties-listing-content').show();
+                      $('#course-listing-content').hide();
+                  } else {
+                      console.error('Invalid JSON response:', data);
+                  }
+              } catch (error) {
+                  console.error('Error parsing JSON:', error);
+              }
+          },
+          error: function (error) {
+              console.error('Error:', error);
+          }
+      });
+  }
+  
+  $(document).ready(function () {
+      $('#users-content').show();
+      $('#course-listing-content').hide();
+      $('#properties-listing-content').hide(); // Initially hide the properties content
+  
+      // Add click event listeners to the buttons in the sidebar
+      $('.show-users-btn').click(function () {
+          $('#users-content').show();
+          $('#course-listing-content').hide();
+          $('#properties-listing-content').hide(); // Hide properties content when showing users
+      });
+  
+      $('.show-course-listing-btn').click(function () {
+          loadCourseDetails(); // Fetch and display pending courses
+          $('#users-content').hide();
+          $('#course-listing-content').show();
+          $('#properties-listing-content').hide(); // Hide properties content when showing courses
+      });
+  
+      $('.show-ads-listing-btn').click(function () {
+          loadPropertyDetails(); // Fetch and display pending properties (ads)
+          $('#users-content').hide();
+          $('#course-listing-content').hide();
+          $('#properties-listing-content').show(); // Show properties content when showing ads
+      });
+  });
+  
+
+
+  $('#rejectPropertyForm').submit(function (event) {
+    event.preventDefault();
+
+    // Submit the rejection form via AJAX
+    $.ajax({
+        url: '/reject_property/',
+        type: 'POST',
+        data: $(this).serialize(),
+        success: function (data) {
+            if (data.status === 'success') {
+                // Close the modal on successful submission
+                $('#rejectPropertyModal').modal('hide');
+
+                // Optionally, update the UI to reflect the rejected status
+            } else {
+                console.error('Error rejecting property:', data);
+                // Handle the error scenario if needed
+            }
+        },
+        error: function (error) {
+            console.error('Error:', error);
+        }
+    });
+});
+
+
+
+
+function updatePropertyStatus(propertyId, status) {
+  // Get the CSRF token from the cookie
+  const csrftoken = $("[name=csrfmiddlewaretoken]").val();
+
+  // Make an AJAX request to update the property status
+  $.ajax({
+      url: `/update-property-status/${propertyId}/${status}/`,  // Adjust the URL path as needed
+      type: 'POST',  // Change the method to POST
+      dataType: 'json',  // Specify JSON dataType
+      data: {
+          csrfmiddlewaretoken: csrftoken,  // Include the CSRF token in the request data
+      },
+      success: function (data) {
+          // Check if the status was updated successfully
+          if (data.success) {
+              // Remove the property card from the listing if it's no longer pending
+              if (status !== 'pending') {
+                  // Find the property card by property ID and remove it
+                  $(`#property-card-${propertyId}`).remove();
+              }
+          } else {
+              console.error('Error updating property status:', data.message);
+          }
+      },
+      error: function (error) {
+          console.error('Error:', error);
+      }
+  });
+}
 
 
 

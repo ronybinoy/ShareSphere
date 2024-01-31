@@ -76,6 +76,11 @@ urlpatterns = [
     path("property_submit/", views.property_submit, name="property_submit"),
     path("property_submit", views.property_submit),
     path('get_property_details/', views.get_property_details, name='get_property_details'),
+    path('update_property_status/', views.update_property_status, name='update_property_status'),
+    path('pending_properties/', views.pending_properties, name='pending_properties'),
+    path('reject_property/', views.reject_property, name='reject_property'),
+    path('update-property-status/', views.update_property_status, name='update_property_status'),
+    path('update-property-status/<int:property_id>/<str:status>/', views.update_property_status, name='update_property_status'),
 
 
     

@@ -1322,11 +1322,25 @@ def get_property_details(request):
                 'other1_image': property_obj.other1_image.url,
                 'other2_image': property_obj.bathroom_image.url,
             }
-            print(property_data)
+            
             return JsonResponse(property_data)
         except Property.DoesNotExist:
             return JsonResponse({'error': 'Property not found'}, status=404)
 
+
+def update_property_status(request):
+    if request.method == 'POST':
+        property_id = request.POST.get('property_id')
+        new_status = request.POST.get('status')
+
+        # Fetch the property and update the status
+        property = Property.objects.get(id=property_id)
+        property.status = new_status
+        property.save()
+
+        return JsonResponse({'success': True})
+    else:
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def property_submit(request):
     if request.method == 'POST':
@@ -1357,7 +1371,7 @@ def property_submit(request):
         wifi = 'wifi' in request.POST
 
 
-        print(landlord, property_name,address,property_location_link,country)
+        
         try:
             Property.objects.create(
                 landlord=landlord,
@@ -1383,7 +1397,8 @@ def property_submit(request):
                 heater=heater,
                 air_conditioning=air_conditioning,
                 power_backup=power_backup,
-                wifi=wifi
+                wifi=wifi,
+                status="pending"
             )
             # messages.success(request, 'Property submitted successfully!')
             return redirect('acc_home') 
@@ -1403,7 +1418,7 @@ def acc_signup(request):
         nation = request.POST.get("nation")
         password = request.POST.get("pass")
         cpassword = request.POST.get("cpass")
-        print(ccode,phone)
+        
 
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, "Email or Username Already Exists")
@@ -1427,3 +1442,75 @@ def acc_signup(request):
             return redirect("login")
     else:
         return render(request,"accomodation/acc_signup.html")
+
+
+
+@csrf_exempt
+def pending_properties(request):
+    if request.method == 'GET':
+        # Retrieve pending properties with related landlord user data
+        properties = Property.objects.filter(status='pending').select_related('landlord')
+
+        # Serialize the properties data including landlord user data
+        serialized_properties = [
+            {
+                'id': property.id,
+                'property_name': property.property_name,
+                'address': property.address,
+                'state_province': property.state_province,
+                'country': property.country,
+                'contact_number': property.contact_number,
+                'rent_per_month': property.rent_per_month,
+                'frontview_image_url': property.frontview_image.url,
+                'landlord': {
+                    'first_name': property.landlord.first_name,
+                    # Add other landlord user fields if needed
+                },
+            }
+            for property in properties
+        ]
+        
+
+        # Return the JSON response with properties data
+        return JsonResponse({'properties': serialized_properties})
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+    
+    
+    
+def reject_property(request):
+    if request.method == 'POST':
+        property_id = request.POST.get('propertyId')
+        rejection_remarks = request.POST.get('rejectRemarks')
+
+        # Update the property status and rejection remarks
+        property = Property.objects.get(id=property_id)
+        property.status = 'rejected'
+        property.rejection_remark = rejection_remarks
+        property.save()
+
+        return JsonResponse({'status': 'success'})
+
+    return JsonResponse({'status': 'error'})
+
+
+from django.views.decorators.http import require_POST
+
+@login_required
+@require_POST
+def update_property_status(request, property_id, status):
+    # Get the property instance
+    property_instance = get_object_or_404(Property, id=property_id)
+
+    # Check if the property is still pending before updating the status
+    if property_instance.status == "pending":
+        # Update the status
+        property_instance.status = status
+        property_instance.save()
+
+        # You can also perform other actions here if needed
+
+        return JsonResponse({"success": True, "message": "Status updated successfully"})
+
+    return JsonResponse({"success": False, "message": "Property is no longer pending"})

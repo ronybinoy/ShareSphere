@@ -94,14 +94,15 @@
         .checkbox {
             margin-right: 10px;
         }
-        
-            .property-image {
-                height: 200px; /* set your desired height */
-                width: 100%; /* 100% width to maintain responsiveness */
-                object-fit: cover; /* maintain aspect ratio and cover the container */
-            }
-        
-        
+
+        .property-image {
+            height: 200px;
+            /* set your desired height */
+            width: 100%;
+            /* 100% width to maintain responsiveness */
+            object-fit: cover;
+            /* maintain aspect ratio and cover the container */
+        }
     </style>
 </head>
 
@@ -122,7 +123,7 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="#">Dashboard</a>
                         </li>
-                        
+
                         <li class="nav-item">
                             <a class="nav-link" href="#">Contact Us</a>
                         </li>
@@ -147,8 +148,8 @@
 
                     <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
                         <li>
-                            <img src="{{ landlord_profile_photo.url }}" alt="Profile Photo" class="img-thumbnail rounded-circle"
-                            style="max-width: 40px; max-height: 40px;">
+                            <img src="{{ landlord_profile_photo.url }}" alt="Profile Photo"
+                                class="img-thumbnail rounded-circle" style="max-width: 40px; max-height: 40px;">
                         </li>
                         <li class="nav-item dropdown ">
                             <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
@@ -203,13 +204,13 @@
                     <div class="nav flex-column nav-pills mt-4" id="v-pills-tab" role="tablist"
                         aria-orientation="vertical">
                         <a class="nav-link active" id="v-pills-all-tab" data-toggle="pill" href="#v-pills-all"
-                            role="tab" aria-controls="v-pills-all" aria-selected="false">Posting</a>
+                            role="tab" aria-controls="v-pills-all" aria-selected="false">Active Ads</a>
                         <a class="nav-link" id="v-pills-approved-tab" data-toggle="pill" href="#v-pills-approved"
-                            role="tab" aria-controls="v-pills-approved" aria-selected="true"> Add listing</a>
-                        <!-- <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending"
-                            role="tab" aria-controls="v-pills-pending" aria-selected="false">Pending Applications</a>
+                            role="tab" aria-controls="v-pills-approved" aria-selected="true"> Post Ads</a>
+                        <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending"
+                            role="tab" aria-controls="v-pills-pending" aria-selected="false"> Inactive Ads</a>
                         <a class="nav-link" id="v-pills-rejected-tab" data-toggle="pill" href="#v-pills-rejected"
-                            role="tab" aria-controls="v-pills-rejected" aria-selected="false">Rejected Applications</a> -->
+                            role="tab" aria-controls="v-pills-rejected" aria-selected="false">Rejected Ads</a>
                     </div>
                 </div>
                 <div class="col-md-10">
@@ -220,32 +221,99 @@
                             aria-labelledby="v-pills-all-tab">
                             <div class="row mt-2">
                                 {% for property in properties %}
+                                {% if property.status == 'active' %}
                                 <div class="col-md-4">
-                                    <div class="card mb-3" >
+                                    <div class="card mb-3">
                                         <div class="row no-gutters">
                                             <div class="col-md-12">
-                                                <img src="{{ property.frontview_image.url }}" class="card-img" alt="Property Image">
+                                                <img src="{{ property.frontview_image.url }}" class="card-img"
+                                                    alt="Property Image">
                                                 <div class="ms-3 mt-2">
                                                     <h5 class="card-title">{{ property.property_name }}</h5>
                                                     <p class="card-text"><small>{{ property.address }}</small></p>
                                                     <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
                                                 </div>
                                                 <div class="card-body d-flex">
-                                                    <input class="btn btn-success view-btn me-2" type="button" id="view-property" value="View" data-toggle="modal" data-target="#propertyModal" data-property-id="{{ property.id }}">
-                                                    <input class="btn btn-danger me-2" type="button" value="Mark as sold">
-                                                    <input class="btn btn-secondary" type="button" value="Edit">
+                                                    <input class="btn btn-success view-btn me-2" type="button"
+                                                        id="view-property" value="View" data-toggle="modal"
+                                                        data-target="#propertyModal"
+                                                        data-property-id="{{ property.id }}">
+                                                    <input class="btn btn-danger me-2 mark-inactive-btn" type="button"
+                                                        value="Mark as Inactive" data-property-id="{{ property.id }}"
+                                                        data-status="{{ property.status }}">
+                                                    <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target="#editPropertyModal">
+
                                                 </div>
+
                                             </div>
-                                            
-                                            
-                                                
-                                            
                                         </div>
                                     </div>
                                 </div>
+                                {% endif %}
                                 {% endfor %}
+
                             </div>
                         </div>
+                        <script>
+                            $(document).ready(function () {
+                                $.ajaxSetup({
+                                    headers: {
+                                        'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
+                                    }
+                                });
+
+                                $(".mark-inactive-btn").click(function () {
+                                    // Get the property ID and status from data attributes
+                                    var propertyId = $(this).data("property-id");
+                                    var currentStatus = $(this).data("status");
+
+                                    // Make an AJAX request to update the property status
+                                    $.ajax({
+                                        url: '/update_property_status/',
+                                        type: 'POST',
+                                        data: { 'property_id': propertyId, 'status': 'inactive' },  // Change 'inactive' based on your status values
+                                        success: function (data) {
+                                            location.reload();
+                                            console.log("Property status updated to inactive successfully");
+                                        },
+                                        error: function () {
+                                            // Handle error
+                                            console.log("Error updating property status");
+                                        }
+                                    });
+                                });
+
+                                $(".mark-active-btn").click(function () {
+                                    var propertyId = $(this).data("property-id");
+
+                                    // AJAX request to update property status to active
+                                    $.ajax({
+                                        url: '/update_property_status/',
+                                        type: 'POST',
+                                        data: {
+                                            'property_id': propertyId,
+                                            'status': 'active'
+                                        },
+                                        success: function (data) {
+                                            if (data.success) {
+                                                console.log("Property status updated to active successfully");
+                                                // Reload the page after updating status
+                                                location.reload();
+                                            } else {
+                                                console.log("Failed to update property status");
+                                            }
+                                        },
+                                        error: function () {
+                                            console.log("Error updating property status");
+                                        }
+                                    });
+                                });
+                            });
+
+
+
+                        </script>
+
 
 
 
@@ -464,26 +532,38 @@
                                                 { id: "#bhk", validate: validateBHK },
                                                 { id: "#rent", validate: validateRent },
                                             ];
-
+                                    
                                             const validationStatus = {};
-
+                                    
                                             fields.forEach(field => {
-                                                $(field.id).blur(function () {
-                                                    field.validate();
-                                                    validationStatus[field.id] = $(`${field.id}span`).html() === "";
-                                                });
+                                                if (field.id.includes("file")) {
+                                                    $(field.id).change(function () {
+                                                        field.validate();
+                                                        validationStatus[field.id] = $(`${field.id}span`).html() === "";
+                                                        checkFormValidity();
+                                                    });
+                                                } else {
+                                                    $(field.id).blur(function () {
+                                                        validateField(field);
+                                                        validationStatus[field.id] = $(`${field.id}span`).html() === "";
+                                                        checkFormValidity();
+                                                    });
+                                                }
                                             });
-
+                                    
+                                            function validateField(field) {
+                                                field.validate();
+                                            }
+                                    
                                             function displayErrorMessage(fieldId, message) {
                                                 const $errorSpan = $(`${fieldId}span`);
                                                 $errorSpan.html(message).css("color", "#FF0000");
                                             }
-
+                                    
                                             function checkFormValidity() {
                                                 const isValid = Object.values(validationStatus).every(status => status);
                                                 $("#submitBtn").prop("disabled", !isValid);
                                             }
-
                                             // Form submission
                                             $("#propertyForm").submit(function (event) {
                                                 if (!$("#submitBtn").prop("disabled")) {
@@ -634,15 +714,79 @@
 
                         <div class="tab-pane fade" id="v-pills-pending" role="tabpanel"
                             aria-labelledby="v-pills-pending-tab">
-
-
+                            <div class="row mt-2">
+                                {% for property in properties %}
+                                {% if property.status == 'inactive' %}
+                                <div class="col-md-4">
+                                    <div class="card mb-3">
+                                        <div class="row no-gutters">
+                                            <div class="col-md-12">
+                                                <img src="{{ property.frontview_image.url }}" class="card-img"
+                                                    alt="Property Image">
+                                                <div class="ms-3 mt-2">
+                                                    <h5 class="card-title">{{ property.property_name }}</h5>
+                                                    <p class="card-text"><small>{{ property.address }}</small></p>
+                                                    <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
+                                                </div>
+                                                <div class="card-body d-flex">
+                                                    <input class="btn btn-success view-btn me-2" type="button"
+                                                        id="view-property" value="View" data-toggle="modal"
+                                                        data-target="#propertyModal"
+                                                        data-property-id="{{ property.id }}">
+                                                    <input class="btn btn-primary me-2 mark-active-btn" type="button"
+                                                        value="Mark as Active" data-property-id="{{ property.id }}"
+                                                        data-status="{{ property.status }}">
+                                                        <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target="#editPropertyModal">
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
-
                         <!-- Rejected Applications -->
-                        <div class="tab-pane fade" id="v-pills-rejected" role="tabpanel"
-                            aria-labelledby="v-pills-rejected-tab">
+                        <div class="tab-pane fade" id="v-pills-rejected" role="tabpanel" aria-labelledby="v-pills-rejected-tab">
+                            <div class="row mt-2">
+                                {% for property in properties %}
+                                    {% if property.status == 'rejected' %}
+                                        <div class="col-md-4">
+                                            <div class="card mb-3">
+                                                <div class="row no-gutters">
+                                                    <div class="col-md-12">
+                                                        <img src="{{ property.frontview_image.url }}" class="card-img" alt="Property Image">
+                                                        <div class="ms-3 mt-2">
+                                                            <h5 class="card-title">{{ property.property_name }}</h5>
+                                                            <p class="card-text"><small>{{ property.address }}</small></p>
+                                                            <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
+                                                            {% if property.rejection_remark %}
+                                                                <p class="card-text text-danger"><strong>Rejection Remark:</strong> {{ property.rejection_remark }}</p>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="card-body d-flex">
+                                                            <input class="btn btn-success view-btn me-2" type="button"
+                                                                id="view-property" value="View" data-toggle="modal"
+                                                                data-target="#propertyModal" data-property-id="{{ property.id }}">
+                                                            <!-- Add other buttons as needed -->
+                        
+                                                            <!-- Example button to mark property as active -->
+                                                            <input class="btn btn-primary me-2 mark-active-btn" type="button"
+                                                                value="Mark as Active" data-property-id="{{ property.id }}"
+                                                                data-status="{{ property.status }}">
+                                                            <!-- Add other buttons as needed -->
+                                                            <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target="#editPropertyModal">
 
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>
@@ -656,11 +800,12 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title text-center" id="profileModalTitle">Profile</h5>
-                        
+
                     </div>
                     <div class="modal-body">
                         <!-- Edit Profile Photo Section -->
-                        <form id="profileForm" method="POST" action="{% url 'acc_home' %}" enctype="multipart/form-data">
+                        <form id="profileForm" method="POST" action="{% url 'acc_home' %}"
+                            enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="text-center mb-3">
                                 <img src="{{ profile_photo_url }}" alt="Profile Photo"
@@ -731,12 +876,13 @@
         </div>
     </body>
 
-    <div class="modal fade" id="propertyModal" tabindex="-1" role="dialog" aria-labelledby="propertyModalLabel" aria-hidden="true">
+    <div class="modal fade" id="propertyModal" tabindex="-1" role="dialog" aria-labelledby="propertyModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-center" id="propertyModalLabel">Property Details</h5>
-                    
+
                 </div>
                 <div class="modal-body" id="propertyDetails">
                     <div class="row">
@@ -799,8 +945,377 @@
             </div>
         </div>
     </div>
-    
-    
+
+    <div class="modal fade" id="editPropertyModal" tabindex="-1" role="dialog" aria-labelledby="editPropertyModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPropertyModalLabel">Edit Property</h5>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{% url 'property_submit' %}" enctype="multipart/form-data"
+                        id="propertyForm1">
+                        {% csrf_token %}
+                        <label for="pname">Property Name:</label>
+                        <input type="text" id="pname1" name="pname" required>
+                            <span id="pnamespan1" style="font-size: 12px;"></span>
+
+                                <!-- Address -->
+                            <label for="address">Address:</label>
+                            <textarea id="address1" name="address" rows="4" required></textarea>
+                            <span id="addressspan1" style="font-size: 12px;"></span>
+
+                            <label for="mlink">Property location link ( Gmap ):</label>
+                            <input type="text" id="mlink1" name="mlink" required>
+                                <span id="mlinkspan1" style="font-size: 12px;"></span>
+
+                                <!-- Country -->
+                                <label for="nation">Country:</label>
+                                <select class="form-control border mb-4 mt-2" id="nation1" name="nation" required>
+                                    <option value="">Select nation</option>
+                                    <option value="Ireland">Ireland</option>
+                                    <option value="Canada">Canada</option>
+                                </select>
+                                <span id="nationspan1" style="font-size: 12px;"></span>
+
+                                <!-- State -->
+                                <label for="state">State/province:</label>
+                                <select class="form-control border mb-4 mt-2" id="region1" name="region" required>
+                                    <!-- This dropdown will be populated dynamically based on the selected country -->
+                                </select>
+                                <span id="statespan1" style="font-size: 12px;"></span>
+
+                                <!-- Contact Number -->
+
+
+                                <!-- Photographs of Property (Multiple File Upload) -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="frontview">Front view of Property:</label>
+                                        <input type="file" id="frontview1" name="frontview" accept="image/*"
+                                            required>
+                                            <span id="frontviewspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="living">Living Room:</label>
+                                        <input type="file" id="living1" name="living" accept="image/*" required>
+                                            <span id="livingspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="bedroom">Bedroom:</label>
+                                        <input type="file" id="bedroom1" name="bedroom" accept="image/*" required>
+                                            <span id="bedroomspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="bathroom">Wash Room:</label>
+                                        <input type="file" id="bathroom1" name="bathroom" accept="image/*" required>
+                                            <span id="bathroomspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="kitchen">Kitchen:</label>
+                                        <input type="file" id="kitchen1" name="kitchen" accept="image/*" required>
+                                            <span id="kitchenspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="dining">Dining Room:</label>
+                                        <input type="file" id="dining1" name="dining" accept="image/*" required>
+                                            <span id="diningspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="other1">other 1:</label>
+                                        <input type="file" id="other11" name="other1" accept="image/*" required>
+                                            <span id="other1span1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="other2">other 2:</label>
+                                        <input type="file" id="other21" name="other2" accept="image/*" required>
+                                            <span id="other2span1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                </div>
+                                
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="duration">Minimum Duration of Rent:</label>
+                                        <select id="duration1" name="duration" required>
+                                            <option value="1">1 month</option>
+                                            <option value="2">2 months</option>
+                                            <option value="3">3 months</option>
+                                            <option value="4">4 months</option>
+                                            <option value="5">5 months</option>
+                                            <option value="6">6 months</option>
+                                        </select>
+                                        <span id="durationspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="bhk">Number of Bedrooms (BHK):</label>
+                                        <select id="bhk1" name="bhk" required>
+                                            <option value="1">1 BHK</option>
+                                            <option value="2">2 BHK</option>
+                                            <option value="3">3 BHK</option>
+                                            <option value="4">4 BHK</option>
+                                        </select>
+                                        <span id="bhkspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="contact">Contact Number(include country code):</label>
+                                        <input type="tel" id="contact1" name="contact" pattern="[0-9]{10}" required>
+                                            <span id="contactspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="rent">Rent per Month:</label>
+                                        <input type="text" id="rent1" name="rent" required>
+                                            <span id="rentspan1" style="font-size: 12px;"></span>
+
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <h5 class="mb-3">Additional Features:</h5>
+                                    <div class="col-md-6">
+
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="Parea1" name="Parea">
+                                                <label class="form-check-label" for="Parea">Parking Area</label>
+                                                <span id="Pareaspan1" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="cctv1" name="cctv">
+                                                <label class="form-check-label" for="cctv">CCTV</label>
+                                                <span id="cctvspan1" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="heater1"
+                                                name="heater">
+                                                <label class="form-check-label" for="heater">Heater</label>
+                                                <span id="heaterspan1" style="font-size: 12px;"></span>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="ac1" name="ac">
+                                                <label class="form-check-label" for="ac">Air Conditioning</label>
+                                                <span id="acspan1" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="pback1" name="pback">
+                                                <label class="form-check-label" for="pback">Power Backup</label>
+                                                <span id="pbackspan1" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" id="wifi1" name="wifi">
+                                                <label class="form-check-label" for="furniture">Wifi</label>
+                                                <span id="wifispan1" style="font-size: 12px;"></span>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" id="submitBtn1">Submit</button>
+                    </form>
+                    <script>
+                        $(document).ready(function () {
+                            const fields = [
+                                { id: "#pname1", validate: validatePropertyname },
+                                { id: "#address1", validate: validateAddress },
+                                { id: "#mlink1", validate: validateMapLink },
+                                { id: "#nation1", validate: validateCountry },
+                                { id: "#region1", validate: validateState },
+                                { id: "#frontview1", validate: validateFile },
+                                { id: "#living1", validate: validateFile },
+                                { id: "#bedroom1", validate: validateFile },
+                                { id: "#bathroom1", validate: validateFile },
+                                { id: "#kitchen1", validate: validateFile },
+                                { id: "#dining1", validate: validateFile },
+                                { id: "#other11", validate: validateFile },
+                                { id: "#other21", validate: validateFile },
+                                { id: "#duration1", validate: validateDuration },
+                                { id: "#bhk1", validate: validateBHK },
+                                { id: "#rent1", validate: validateRent },
+                            ];
+                    
+                            const validationStatus = {};
+                    
+                            fields.forEach(field => {
+                                if (field.id.includes("file")) {
+                                    $(field.id).change(function () {
+                                        validateField(field);
+                                        validationStatus[field.id] = $(`${field.id}span1`).html() === "";
+                                        checkFormValidity();
+                                    });
+                                } else {
+                                    $(field.id).blur(function () {
+                                        validateField(field);
+                                        validationStatus[field.id] = $(`${field.id}span1`).html() === "";
+                                        checkFormValidity();
+                                    });
+                                }
+                            });
+                    
+                            function validateField(field) {
+                                field.validate();
+                            }
+                    
+                            function displayErrorMessage(fieldId, message) {
+                                const $errorSpan = $(`${fieldId}span1`);
+                                $errorSpan.html(message).css("color", "#FF0000");
+                            }
+                    
+                            function checkFormValidity() {
+                                const isValid = Object.values(validationStatus).every(status => status);
+                                $("#submitBtn1").prop("disabled", !isValid);
+                            }
+                    
+                            // Form submission
+                            $("#propertyForm1").submit(function (event) {
+                                if (!$("#submitBtn1").prop("disabled")) {
+                                    // Form is valid, allow submission
+                                    return true;
+                                } else {
+                                    // Form is not valid, prevent submission
+                                    event.preventDefault();
+                                    return false;
+                                }
+                            });
+                    
+                            // Validation functions for each field
+                            function validatePropertyname() {
+                                const pname = $("#pname1").val();
+                    
+                                if (pname.trim() === "") {
+                                    displayErrorMessage("#pname1", "Enter the Property Name");
+                                } else if (pname.length > 20) {
+                                    displayErrorMessage("#pname1", "Property Name cannot exceed 20 characters");
+                                } else if (!/^[a-zA-Z0-9\s]+$/.test(pname)) {
+                                    displayErrorMessage("#pname1", "Property Name can only contain letters, numbers, and spaces");
+                                } else {
+                                    $("#pnamespan1").html("");
+                                }
+                            }
+                    
+                            function validateAddress() {
+                                const address = $("#address1").val();
+                    
+                                if (address.trim() === "") {
+                                    displayErrorMessage("#address1", "Enter the Property Address");
+                                } else if (address.length < 10) {
+                                    displayErrorMessage("#address1", "Address should be at least 10 characters long");
+                                } else if (address.length > 255) {
+                                    displayErrorMessage("#address1", "Address cannot exceed 255 characters");
+                                } else {
+                                    $("#addressspan1").html("");
+                                }
+                            }
+                    
+                            function validateMapLink() {
+                                const mapLink = $("#mlink1").val();
+                    
+                                if (mapLink.trim() === "") {
+                                    displayErrorMessage("#mlink1", "Enter the Property location link");
+                                } else if (!mapLink.startsWith("https://maps.app.goo")) {
+                                    displayErrorMessage("#mlink1", "Enter a valid Google Maps location link");
+                                } else {
+                                    $("#mlinkspan1").html("");
+                                }
+                            }
+                    
+                            function validateCountry() {
+                                const country = $("#nation1").val();
+                                if (country.trim() === "") {
+                                    displayErrorMessage("#nation1", "Select the Country");
+                                } else {
+                                    $("#nationspan1").html("");
+                                }
+                            }
+                    
+                            function validateState() {
+                                const state = $("#region1").val();
+                                if (state.trim() === "") {
+                                    displayErrorMessage("#region1", "Select the State/Province");
+                                } else {
+                                    $("#statespan1").html("");
+                                }
+                            }
+                    
+                            function validateFile() {
+                                const fileInput = $(this)[0];
+                                const fieldName = $(this).attr("name");
+                    
+                                if (!fileInput.files || fileInput.files.length === 0) {
+                                    displayErrorMessage(`#${fieldName}`, `Upload a ${fieldName} image`);
+                                } else {
+                                    const allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
+                                    const file = fileInput.files[0];
+                    
+                                    if (!allowedFormats.includes(file.type)) {
+                                        displayErrorMessage(`#${fieldName}`, `Invalid image format. Supported formats: JPEG, JPG, PNG`);
+                                    } else {
+                                        $(`#${fieldName}span1`).html("");
+                                    }
+                                }
+                            }
+                    
+                            function validateDuration() {
+                                const duration = $("#duration1").val();
+                    
+                                if (duration.trim() === "") {
+                                    displayErrorMessage("#duration1", "Enter the amount");
+                                } else if (!/^\d+$/.test(duration)) {
+                                    displayErrorMessage("#duration1", "Enter a valid numeric amount without alphabets or special characters");
+                                } else {
+                                    $("#durationspan1").html("");
+                                }
+                            }
+                    
+                            function validateBHK() {
+                                const bhk = $("#bhk1").val();
+                                if (bhk.trim() === "") {
+                                    displayErrorMessage("#bhk1", "Select the Number of Bedrooms (BHK)");
+                                } else {
+                                    $("#bhkspan1").html("");
+                                }
+                            }
+                    
+                            function validateRent() {
+                                const rent = $("#rent1").val();
+                                if (rent.trim() === "") {
+                                    displayErrorMessage("#rent1", "Enter the Rent per Month");
+                                } else {
+                                    $("#rentspan1").html("");
+                                }
+                            }
+                        });
+                    </script>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- Add this script at the end of your HTML file or in a separate script file -->
@@ -810,12 +1325,12 @@
             $(".view-btn").click(function () {
                 // Get the property ID from the data-property-id attribute
                 var propertyId = $(this).data("property-id");
-    
+
                 // Make an AJAX request to retrieve the property details
                 $.ajax({
                     url: '/get_property_details/',
                     type: 'GET',
-                    data: {'property_id': propertyId},
+                    data: { 'property_id': propertyId },
                     success: function (data) {
                         // Update the modal content with the retrieved details
                         $(".property-name").text(data.property_name);
@@ -842,7 +1357,7 @@
                         $("#propertyDetails .col-md-4 img.dining_room_image").attr("src", data.dining_room_image).addClass("property-image");
                         $("#propertyDetails .col-md-4 img.other1_image").attr("src", data.other1_image).addClass("property-image");
                         $("#propertyDetails .col-md-4 img.other2_image").attr("src", data.other2_image).addClass("property-image");
-    
+
                         // Display the modal
                         $('#propertyModal').modal('show');
                     },
@@ -851,18 +1366,20 @@
                         console.log("Error retrieving property details");
                     }
                 });
-    
+
                 // Remove the modal backdrop on modal close
                 $('#propertyModal').on('hidden.bs.modal', function () {
                     $('.modal-backdrop').remove();
                 });
             });
         });
-    </script>
-    
 
 
-    <script>
+
+
+        //modal for edit info
+
+        
 
 
 
@@ -888,7 +1405,6 @@
                 }
             });
 
-            // Rest of your JavaScript code
         });
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -907,7 +1423,7 @@
             firstNameInput.addEventListener('change', validateFirstName);
             lastNameInput.addEventListener('change', validateLastName);
             contactNoInput.addEventListener('change', validateContactNo);
-            dobInput.addEventListener('change', validateDateOfBirth); // Add this line
+            dobInput.addEventListener('change', validateDateOfBirth);
 
             function validateFirstName() {
                 const regex = /^[a-zA-Z]{3,}$/;
@@ -966,7 +1482,7 @@
 
 
 
-        <!--Country Dropdown-->
+        
         const nationDropdown = document.getElementById('nation');
         const regionDropdown = document.getElementById('region');
         const countryRegions = {
@@ -1000,7 +1516,6 @@
                 'Leinster',
                 'Munster',
                 'Ulster',
-                // Add more options for Ireland as needed
             ],
 
             'Canada': [
