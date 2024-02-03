@@ -1062,29 +1062,62 @@
     }
 
 
-    function updatePropertyStatus(propertyId, status) {
-      // Make an AJAX request to update the property status
-      $.ajax({
-          url: `/update_property_status/${propertyId}/${status}/`, // Replace with the actual URL
-          type: 'GET', // or 'POST' depending on your backend setup
-          dataType: 'json', // Specify JSON dataType
-          success: function (data) {
-              // Check if the status was updated successfully
-              if (data.success) {
-                  // Remove the property card from the listing if it's no longer pending
-                  if (status !== 'pending') {
-                      // Find the property card by property ID and remove it
-                      $(`#property-card-${propertyId}`).remove();
-                  }
-              } else {
-                  console.error('Error updating property status:', data.message);
-              }
-          },
-          error: function (error) {
-              console.error('Error:', error);
+    $(document).ready(function () {
+      $.ajaxSetup({
+          headers: {
+              'X-CSRFToken': $('input[name=csrfmiddlewaretoken]').val()
           }
       });
-  }
+
+      $(".mark-inactive-btn").click(function () {
+          // Get the property ID and status from data attributes
+          var propertyId = $(this).data("property-id");
+          var currentStatus = $(this).data("status");
+
+          // Make an AJAX request to update the property status
+          $.ajax({
+              url: '/update_property_status/',
+              type: 'POST',
+              data: { 'property_id': propertyId, 'status': 'inactive' },  // Change 'inactive' based on your status values
+              success: function (data) {
+                  location.reload();
+                  console.log("Property status updated to inactive successfully");
+              },
+              error: function () {
+                  // Handle error
+                  console.log("Error updating property status");
+              }
+          });
+      });
+
+      $(".mark-active-btn").click(function () {
+          var propertyId = $(this).data("property-id");
+
+          // AJAX request to update property status to active
+          $.ajax({
+              url: '/update_property_status/',
+              type: 'POST',
+              data: {
+                  'property_id': propertyId,
+                  'status': 'active'
+              },
+              success: function (data) {
+                  if (data.success) {
+                      console.log("Property status updated to active successfully");
+                      // Reload the page after updating status
+                      location.reload();
+                  } else {
+                      console.log("Failed to update property status");
+                  }
+              },
+              error: function () {
+                  console.log("Error updating property status");
+              }
+          });
+      });
+  });
+
+
   
 
 
@@ -1425,15 +1458,45 @@
             if (data.status === 'success') {
                 // Close the modal on successful submission
                 $('#rejectPropertyModal').modal('hide');
-
-                // Optionally, update the UI to reflect the rejected status
             } else {
                 console.error('Error rejecting property:', data);
                 // Handle the error scenario if needed
             }
         },
         error: function (error) {
-            console.error('Error:', error);
+            console.error('Error:', error);$('#rejectPropertyForm').submit(function (event) {
+              event.preventDefault();
+          
+              // Save a reference to the form for later use
+              const $form = $(this);
+          
+              // Submit the rejection form via AJAX
+              $.ajax({
+                  url: '/reject_property/',
+                  type: 'POST',
+                  data: $form.serialize(),
+                  success: function (data) {
+                      if (data.status === 'success') {
+                          // Find the property card by extracting the property ID from the form
+                          const propertyId = $form.find('[name=property_id]').val();
+                          const $propertyCard = $(`#property-card-${propertyId}`);
+          
+                          // Remove the property card on successful submission
+                          $propertyCard.remove();
+          
+                          // Close the modal on successful submission
+                          $('#rejectPropertyModal').modal('hide');
+                      } else {
+                          console.error('Error rejecting property:', data);
+                          // Handle the error scenario if needed
+                      }
+                  },
+                  error: function (error) {
+                      console.error('Error:', error);
+                  }
+              });
+          });
+          
         }
     });
 });
@@ -1447,29 +1510,35 @@ function updatePropertyStatus(propertyId, status) {
 
   // Make an AJAX request to update the property status
   $.ajax({
-      url: `/update-property-status/${propertyId}/${status}/`,  // Adjust the URL path as needed
-      type: 'POST',  // Change the method to POST
-      dataType: 'json',  // Specify JSON dataType
-      data: {
-          csrfmiddlewaretoken: csrftoken,  // Include the CSRF token in the request data
-      },
-      success: function (data) {
-          // Check if the status was updated successfully
-          if (data.success) {
-              // Remove the property card from the listing if it's no longer pending
-              if (status !== 'pending') {
-                  // Find the property card by property ID and remove it
-                  $(`#property-card-${propertyId}`).remove();
-              }
-          } else {
-              console.error('Error updating property status:', data.message);
-          }
-      },
-      error: function (error) {
-          console.error('Error:', error);
+    url: '/update_property_status/',  // Adjust the URL path as needed
+    type: 'POST',
+    headers: {
+      'X-CSRFToken': csrftoken,
+    },
+    data: {
+      'property_id': propertyId,
+      'status': status,
+    },
+    dataType: 'json',
+    success: function (data) {
+      // Check if the status was updated successfully
+      if (data.success) {
+        // Remove the property card from the listing if it's no longer pending
+        if (status !== 'pending') {
+          // Find the property card by property ID and remove it
+          $(`#property-card-${propertyId}`).remove();
+        }
+      } else {
+        console.error('Error updating property status:', data.message);
       }
+    },
+    error: function (error) {
+      console.error('Error:', error);
+    }
   });
 }
+
+
 
 
 

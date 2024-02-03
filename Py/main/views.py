@@ -1328,19 +1328,7 @@ def get_property_details(request):
             return JsonResponse({'error': 'Property not found'}, status=404)
 
 
-def update_property_status(request):
-    if request.method == 'POST':
-        property_id = request.POST.get('property_id')
-        new_status = request.POST.get('status')
 
-        # Fetch the property and update the status
-        property = Property.objects.get(id=property_id)
-        property.status = new_status
-        property.save()
-
-        return JsonResponse({'success': True})
-    else:
-        return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def property_submit(request):
     if request.method == 'POST':
@@ -1495,22 +1483,27 @@ def reject_property(request):
     return JsonResponse({'status': 'error'})
 
 
-from django.views.decorators.http import require_POST
+def update_property_status(request):
+    if request.method == 'POST':
+        property_id = request.POST.get('property_id')
+        new_status = request.POST.get('status')
 
-@login_required
-@require_POST
-def update_property_status(request, property_id, status):
-    # Get the property instance
-    property_instance = get_object_or_404(Property, id=property_id)
+        # Fetch the property and update the status
+        property_instance = get_object_or_404(Property, id=property_id)
 
-    # Check if the property is still pending before updating the status
-    if property_instance.status == "pending":
-        # Update the status
-        property_instance.status = status
+        # Debugging statement to print the current status
+        print(f"Current status of property {property_instance.property_name}: {property_instance.status}")
+
+        # Check if the property is still pending before updating the status
+        # if property_instance.status == "pending":
+            # Update the status
+        property_instance.status = new_status
         property_instance.save()
 
         # You can also perform other actions here if needed
 
-        return JsonResponse({"success": True, "message": "Status updated successfully"})
+        return JsonResponse({'success': True, 'message': 'Status updated successfully'})
+        # else:
+        #     return JsonResponse({'success': False, 'message': 'Property is no longer pending'})
 
-    return JsonResponse({"success": False, "message": "Property is no longer pending"})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
