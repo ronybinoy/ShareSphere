@@ -79,7 +79,7 @@ urlpatterns = [
     path('pending_properties/', views.pending_properties, name='pending_properties'),
     path('reject_property/', views.reject_property, name='reject_property'),
     path('update_property_status/', views.update_property_status, name='update_property_status'),
-
+    path('acc_userview/', views.acc_userview, name="accomodation" ),
 
     
 

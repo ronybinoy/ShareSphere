@@ -1507,3 +1507,7 @@ def update_property_status(request):
         #     return JsonResponse({'success': False, 'message': 'Property is no longer pending'})
 
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+def acc_userview(request):
+    return render(request,"accomodation/acc_userview.html")

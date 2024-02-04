@@ -419,8 +419,7 @@
 
                                         </div>
                                     </div>
-                                    <!-- Container to display selected images -->
-                                    <div id="selected-images-container" style="margin-top: 10px;"></div>
+                                
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
@@ -512,6 +511,10 @@
                                     <button type="submit" id="submitBtn">Submit</button>
 
                                     <script>
+                                        function displayErrorMessage(fieldId, message) {
+                                            $(`${fieldId}span`).html(message);
+                                        }
+                                        
                                         $(document).ready(function () {
                                             const fields = [
                                                 { id: "#pname", validate: validatePropertyname },
@@ -531,38 +534,31 @@
                                                 { id: "#bhk", validate: validateBHK },
                                                 { id: "#rent", validate: validateRent },
                                             ];
-                                    
                                             const validationStatus = {};
-                                    
+
                                             fields.forEach(field => {
-                                                if (field.id.includes("file")) {
-                                                    $(field.id).change(function () {
-                                                        field.validate();
-                                                        validationStatus[field.id] = $(`${field.id}span`).html() === "";
-                                                        checkFormValidity();
-                                                    });
-                                                } else {
-                                                    $(field.id).blur(function () {
-                                                        validateField(field);
-                                                        validationStatus[field.id] = $(`${field.id}span`).html() === "";
-                                                        checkFormValidity();
-                                                    });
-                                                }
+                                                $(field.id).keyup(function () {
+                                                    field.validate();
+                                                    validationStatus[fieldId] = $(`${fieldId}span`).html() === "";  
+                                                    checkFormValidity();
+                                                });
+
+                                                validateFieldOnBlur(field.id, field.validate);
                                             });
-                                    
-                                            function validateField(field) {
-                                                field.validate();
-                                            }
-                                    
-                                            function displayErrorMessage(fieldId, message) {
-                                                const $errorSpan = $(`${fieldId}span`);
-                                                $errorSpan.html(message).css("color", "#FF0000");
-                                            }
-                                    
+
                                             function checkFormValidity() {
                                                 const isValid = Object.values(validationStatus).every(status => status);
+
                                                 $("#submitBtn").prop("disabled", !isValid);
                                             }
+
+                                            function validateFieldOnBlur(fieldId, validationFunction) {
+                                                $(fieldId).blur(function () {
+                                                    validationFunction();
+                                                    validationStatus[fieldId] = $(`${fieldId}span`).html() === "";  
+                                                });
+                                            }
+
                                             // Form submission
                                             $("#propertyForm").submit(function (event) {
                                                 if (!$("#submitBtn").prop("disabled")) {
@@ -575,7 +571,8 @@
                                                 }
                                             });
 
-                                            // Validation functions for each field
+                                            checkFormValidity();
+                                        
                                             function validatePropertyname() {
                                                 const pname = $("#pname").val();
 
@@ -589,8 +586,6 @@
                                                     $("#pnamespan").html("");
                                                 }
                                             }
-
-
 
                                             function validateAddress() {
                                                 const address = $("#address").val();
@@ -691,8 +686,6 @@
                                                 }
                                             }
                                             function validateForm() {
-                                                // Add additional logic if necessary
-                                                // Return true if the form is valid, otherwise false
                                                 return fields.every(field => {
                                                     const $field = $(field.id);
                                                     const $errorSpan = $(`${field.id}span`);
@@ -706,9 +699,7 @@
                                         });
                                     </script>
                                 </form>
-
                             </div>
-
                         </div>
 
                         <div class="tab-pane fade" id="v-pills-pending" role="tabpanel"
@@ -743,10 +734,14 @@
                                 </div>
                                 {% endif %}
                                 {% endfor %}
+                                
                             </div>
                         </div>
                         <!-- Rejected Applications -->
                         <div class="tab-pane fade" id="v-pills-rejected" role="tabpanel" aria-labelledby="v-pills-rejected-tab">
+                            {% if properties|length == 0 or not properties|any(attribute='status' value='rejected') %}
+                            <p>No rejected properties to display.</p>
+                            {% else %}
                             <div class="row mt-2">
                                 {% for property in properties %}
                                     {% if property.status == 'rejected' %}
@@ -768,9 +763,7 @@
                                                                 id="view-property" value="View" data-toggle="modal"
                                                                 data-target="#propertyModal" data-property-id="{{ property.id }}">
                                                             <!-- Add other buttons as needed -->
-
                                                             <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target="#editPropertyModal">
-
                                                         </div>
                                                     </div>
                                                 </div>
@@ -778,6 +771,7 @@
                                         </div>
                                     {% endif %}
                                 {% endfor %}
+                                {% endif %}
                             </div>
                         </div>
                         
@@ -786,7 +780,6 @@
             </div>
         </div>
 
-
         <!-- PROFILE UPDATE MODAL -->
         <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalTitle"
             aria-hidden="true">
@@ -794,7 +787,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title text-center" id="profileModalTitle">Profile</h5>
-
                     </div>
                     <div class="modal-body">
                         <!-- Edit Profile Photo Section -->
@@ -804,15 +796,12 @@
                             <div class="text-center mb-3">
                                 <img src="{{ profile_photo_url }}" alt="Profile Photo"
                                     class="img-thumbnail rounded-circle" style="max-width: 150px;" id="profileImage">
-
                                 <br>
                                 <button type="button" class="btn btn-link mt-2" id="editProfilePhotoButton">Edit Profile
                                     Photo</button><br>
                                 <input type="file" class="form-control-file d-none" id="profile_photo"
                                     name="profile_photo">
                             </div>
-
-                            <!-- Display user details -->
                             <div class="form-group">
                                 <label for="first_name">First Name</label>
                                 <input type="text" class="form-control" id="first_name" value="{{ user.first_name }}"
@@ -855,8 +844,6 @@
                                     Contact number must start with a digit from 1 to 9 and contain a total of 10 digits.
                                 </div>
                             </div>
-
-                            <!-- Add hidden input fields to store user ID and migrant ID -->
                             <input type="hidden" name="user_id" value="{{ user.id }}">
                             <input type="hidden" name="landlord_id" value="{{ user.landlord.id }}">
 
@@ -877,7 +864,6 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title text-center" id="propertyModalLabel">Property Details</h5>
-
                 </div>
                 <div class="modal-body" id="propertyDetails">
                     <div class="row">
@@ -931,7 +917,6 @@
                             <img src="" class="img-fluid other2_image" alt="Additional facilities">
                             <p class="text-center"><strong>Additional facilities</strong></p>
                         </div>
-                        <!-- Add similar blocks for other images like kitchen, dining room, etc. -->
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -954,17 +939,12 @@
                         <label for="pname">Property Name:</label>
                         <input type="text" id="pname1" name="pname" required>
                             <span id="pnamespan1" style="font-size: 12px;"></span>
-
-                                <!-- Address -->
-                            <label for="address">Address:</label>
+=                            <label for="address">Address:</label>
                             <textarea id="address1" name="address" rows="4" required></textarea>
                             <span id="addressspan1" style="font-size: 12px;"></span>
-
                             <label for="mlink">Property location link ( Gmap ):</label>
                             <input type="text" id="mlink1" name="mlink" required>
                                 <span id="mlinkspan1" style="font-size: 12px;"></span>
-
-                                <!-- Country -->
                                 <label for="nation">Country:</label>
                                 <select class="form-control border mb-4 mt-2" id="nation1" name="nation" required>
                                     <option value="">Select nation</option>
@@ -972,18 +952,11 @@
                                     <option value="Canada">Canada</option>
                                 </select>
                                 <span id="nationspan1" style="font-size: 12px;"></span>
-
-                                <!-- State -->
                                 <label for="state">State/province:</label>
                                 <select class="form-control border mb-4 mt-2" id="region1" name="region" required>
                                     <!-- This dropdown will be populated dynamically based on the selected country -->
                                 </select>
                                 <span id="statespan1" style="font-size: 12px;"></span>
-
-                                <!-- Contact Number -->
-
-
-                                <!-- Photographs of Property (Multiple File Upload) -->
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label for="frontview">Front view of Property:</label>
