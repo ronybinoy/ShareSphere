@@ -201,6 +201,7 @@ class Property(models.Model):
     property_location_link = models.URLField()
     country = models.CharField(max_length=255)
     state_province = models.CharField(max_length=255)
+    city = models.CharField(null=True, max_length=255)
     frontview_image = models.ImageField(upload_to='property_images/')
     living_room_image = models.ImageField(upload_to='property_images/')
     bedroom_image = models.ImageField(upload_to='property_images/')
@@ -213,6 +214,8 @@ class Property(models.Model):
     rent_per_month = models.DecimalField(max_digits=10, decimal_places=2)
     minimum_duration_of_rent = models.IntegerField(choices=[(1, '1 month'), (2, '2 months'), (3, '3 months'), (4, '4 months'), (5, '5 months'), (6, '6 months')])
     number_of_bedrooms = models.IntegerField(choices=[(1, '1 BHK'), (2, '2 BHK'), (3, '3 BHK'), (4, '4 BHK')])
+    number_of_bathroom = models.IntegerField(default=0, choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4')])
+    total_squarefeet = models.DecimalField(default=0, max_digits=10, decimal_places=2)
     parking_area = models.BooleanField(default=False)
     cctv = models.BooleanField(default=False)
     heater = models.BooleanField(default=False)
@@ -222,7 +225,7 @@ class Property(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     rejection_remark = models.TextField(blank=True, null=True)
-
+    is_featured = models.BooleanField(default=False)
     
     def __str__(self):
         return self.property_name

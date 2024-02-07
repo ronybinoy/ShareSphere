@@ -1283,13 +1283,17 @@ def acc_home(request):
         try:
             landlord = Landlord.objects.get(user=request.user)
             properties = Property.objects.filter(landlord=request.user)
+            rejected_properties = properties.filter(status='rejected')
+            inactive_properties = properties.filter(status='inactive')  # Added this line
             landlord_profile_photo = landlord.profile_photo
-            return render(request, "accomodation/acc_home.html", {'properties': properties, 'landlord_profile_photo': landlord_profile_photo})
+            return render(request, "accomodation/acc_home.html", {'properties': properties, 'rejected_properties': rejected_properties, 'inactive_properties': inactive_properties, 'landlord_profile_photo': landlord_profile_photo})
         except Landlord.DoesNotExist:
             # Handle the case where Landlord does not exist for the current user
             raise Http404("Landlord does not exist for this user.")
     else:
-        return render(request, "accomodation/acc_home.html", {'properties': []})
+        return render(request, "accomodation/acc_home.html", {'properties': [], 'rejected_properties': [], 'inactive_properties': []})
+
+
 
 
 def get_property_details(request):
@@ -1303,10 +1307,12 @@ def get_property_details(request):
                 'address': property_obj.address,
                 'country': property_obj.country,
                 'state_province': property_obj.state_province,
+                'city':property_obj.city,
                 'contact_number': property_obj.contact_number,
                 'rent_per_month': str(property_obj.rent_per_month),  # Convert DecimalField to string
                 'minimum_duration_of_rent': property_obj.get_minimum_duration_of_rent_display(),
                 'number_of_bedrooms': property_obj.get_number_of_bedrooms_display(),
+                'number_of_bathroom': property_obj.get_number_of_bathroom_display(),
                 'parking_area': property_obj.parking_area,
                 'cctv': property_obj.cctv,
                 'heater': property_obj.heater,
@@ -1339,6 +1345,7 @@ def property_submit(request):
         property_location_link = request.POST.get('mlink')
         country = request.POST.get('nation')
         state_province = request.POST.get('region')
+        city = request.POST.get('city')
         frontview_image = request.FILES.get('frontview')
         living_room_image = request.FILES.get('living')
         bedroom_image = request.FILES.get('bedroom')
@@ -1349,8 +1356,10 @@ def property_submit(request):
         other2_image = request.FILES.get('other2')
         contact_number = request.POST.get('contact')
         rent_per_month = request.POST.get('rent')
+        sqft = request.POST.get('sqft')
         minimum_duration_of_rent = request.POST.get('duration')
         number_of_bedrooms = request.POST.get('bhk')
+        number_of_bathroom = request.POST.get('bth')
         parking_area = 'Parea' in request.POST
         cctv = 'cctv' in request.POST
         heater = 'heater' in request.POST
@@ -1368,6 +1377,7 @@ def property_submit(request):
                 property_location_link=property_location_link,
                 country=country,
                 state_province=state_province,
+                city=city,
                 frontview_image=frontview_image,
                 living_room_image=living_room_image,
                 bedroom_image=bedroom_image,
@@ -1380,6 +1390,8 @@ def property_submit(request):
                 rent_per_month=rent_per_month,
                 minimum_duration_of_rent=minimum_duration_of_rent,
                 number_of_bedrooms=number_of_bedrooms,
+                number_of_bathroom=number_of_bathroom,
+                total_squarefeet=sqft,
                 parking_area=parking_area,
                 cctv=cctv,
                 heater=heater,
@@ -1510,4 +1522,42 @@ def update_property_status(request):
 
 
 def acc_userview(request):
-    return render(request,"accomodation/acc_userview.html")
+    # Fetch only featured properties from the database
+    featured_properties = Property.objects.filter(is_featured=True)
+
+    context = {
+        'featured_properties': featured_properties,
+    }
+
+    return render(request, "accomodation/acc_userview.html", context)
+
+
+def property_detail(request, pk):
+    property_instance = get_object_or_404(Property, pk=pk)
+    return render(request, 'accomodation/property_detail.html', {'property': property_instance})
+
+
+def acc_propertyview(request):
+    if request.method == "POST":
+        property_id = request.POST.get("property_id")
+        # Retrieve the property object associated with the passed ID
+        property_obj = get_object_or_404(Property, id=property_id)
+        print(property_obj)
+        return render(request, "accomodation/acc_propertyview.html", {'property': property_obj})
+    else:
+        # Handle the case when the request method is not POST
+        return HttpResponse("Invalid request method")
+
+
+def search_properties(request):
+    search_query = request.GET.get('search_query', '').strip()
+    if search_query:
+        # Perform the search query on the Property model
+        properties = Property.objects.filter(city__icontains=search_query)
+        # Serialize the properties data
+        properties_data = [{'name': property.property_name, 'city': property.city} for property in properties]
+        # Return the search results as JSON
+        return JsonResponse({'properties': properties_data})
+    else:
+        # If no search query provided, return an empty JSON response
+        return JsonResponse({'properties': []})

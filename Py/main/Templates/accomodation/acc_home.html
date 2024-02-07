@@ -234,14 +234,13 @@
                                                     <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
                                                 </div>
                                                 <div class="card-body d-flex">
-                                                    <input class="btn btn-success view-btn me-2" type="button"
+                                                    <input class="btn btn-primary view-btn me-2" type="button"
                                                         id="view-property" value="View" data-toggle="modal"
                                                         data-target="#propertyModal"
                                                         data-property-id="{{ property.id }}">
-                                                    <input class="btn btn-danger me-2 mark-inactive-btn" type="button"
+                                                    <input class="btn btn-secondary me-2 mark-inactive-btn" type="button"
                                                         value="Mark as Inactive" data-property-id="{{ property.id }}"
                                                         data-status="{{ property.status }}">
-                                                    <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target="#editPropertyModal">
 
                                                 </div>
 
@@ -321,6 +320,7 @@
                             aria-labelledby="v-pills-approved-tab">
                             <div class="container" style="height: 80vh; overflow-y: auto;">
                                 <h2 class="text-center">Property Rental Form</h2>
+                                <hr>
                                 <form method="post" action="{% url 'property_submit' %}" enctype="multipart/form-data"
                                     id="propertyForm">
                                     {% csrf_token %}
@@ -349,12 +349,21 @@
                                     </select>
                                     <span id="nationspan" style="font-size: 12px;"></span>
 
+
                                     <!-- State -->
                                     <label for="state">State/province:</label>
                                     <select class="form-control border mb-4 mt-2" id="region" name="region" required>
                                         <!-- This dropdown will be populated dynamically based on the selected country -->
                                     </select>
                                     <span id="statespan" style="font-size: 12px;"></span>
+
+
+                                    <label for="city">City:</label>
+                                    <select class="form-control border mb-4 mt-2" id="city" name="city" required>
+                                        <!-- This dropdown will be populated dynamically based on the selected state/province -->
+                                    </select>
+                                    <span id="cityspan" style="font-size: 12px;"></span>
+
 
                                     <!-- Contact Number -->
 
@@ -436,12 +445,12 @@
 
                                         </div>
                                         <div class="col-md-6">
-                                            <label for="bhk">Number of Bedrooms (BHK):</label>
+                                            <label for="bhk">Number of Bedrooms :</label>
                                             <select id="bhk" name="bhk" required>
-                                                <option value="1">1 BHK</option>
-                                                <option value="2">2 BHK</option>
-                                                <option value="3">3 BHK</option>
-                                                <option value="4">4 BHK</option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
                                             </select>
                                             <span id="bhkspan" style="font-size: 12px;"></span>
 
@@ -449,8 +458,28 @@
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-md-6">
+                                            <label for="rent">Total Sqft:</label>
+                                            <input type="number" id="sqft" name="sqft" required min="100" max="5000">
+                                            <span id="sqftspan" style="font-size: 12px;"></span>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="bth">Number of Bathrooms:</label>
+                                            <select id="bth" name="bth" required>
+                                                <option value="1">1 </option>
+                                                <option value="2">2 </option>
+                                                <option value="3">3 </option>
+                                                <option value="4">4 </option>
+                                                <option value="5">5 </option>
+                                            </select>
+                                            <span id="bthspan" style="font-size: 12px;"></span>
+
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
                                             <label for="contact">Contact Number(include country code):</label>
-                                            <input type="tel" id="contact" name="contact" pattern="[0-9]{10}" required>
+                                            <input type="tel" id="contact" name="contact"  required>
                                             <span id="contactspan" style="font-size: 12px;"></span>
 
                                         </div>
@@ -532,7 +561,10 @@
                                                 { id: "#other2", validate: validateFile },
                                                 { id: "#duration", validate: validateDuration },
                                                 { id: "#bhk", validate: validateBHK },
+                                                { id: "#bth", validate: validateBTH },
                                                 { id: "#rent", validate: validateRent },
+                                                { id: "#sqft", validate: validateSqft },
+                                                { id: "#contact", validate: validatePhno},
                                             ];
                                             const validationStatus = {};
 
@@ -656,35 +688,80 @@
                                                 const duration = $("#duration").val();
 
                                                 if (duration.trim() === "") {
-                                                    displayErrorMessage("#duration", "Enter the amount");
-                                                } else if (!/^\d+$/.test(duration)) {
-                                                    displayErrorMessage("#duration", "Enter a valid numeric amount without alphabets or special characters");
+                                                    displayErrorMessage("#duration", "Choose minimum duration");
                                                 } else {
                                                     $("#durationspan").html("");
                                                 }
                                             }
 
-
+                                            function validateSqft() {
+                                                const sqft = $("#sqft").val();
+                                                if (sqft.trim() === "") {
+                                                    displayErrorMessage("#sqft", "Enter square feet");
+                                                } else if (!Number.isInteger(Number(sqft))) {
+                                                    displayErrorMessage("#sqft", "Square feet must be an integer");
+                                                } else {
+                                                    const sqftValue = parseInt(sqft);
+                                                    if (sqftValue < 100 || sqftValue > 10000) {
+                                                        displayErrorMessage("#sqft", "Square feet must be between 100 and 10000");
+                                                    } else {
+                                                        $("#sqftspan").html("");
+                                                    }
+                                                }
+                                            }
+                                            
 
                                             function validateBHK() {
                                                 const bhk = $("#bhk").val();
                                                 if (bhk.trim() === "") {
-                                                    displayErrorMessage("#bhk", "Select the Number of Bedrooms (BHK)");
+                                                    displayErrorMessage("#bhk", "Select the Number of Bedrooms ");
                                                 } else {
                                                     $("#bhkspan").html("");
                                                 }
                                             }
 
+                                            function validateBTH() {
+                                                const bth = $("#bth").val();
+                                                if (bth.trim() === "") {
+                                                    displayErrorMessage("#bth", "Select the Number of Bathrooms ");
+                                                } else {
+                                                    $("#bthspan").html("");
+                                                }
+                                            }
+
+                                            function validatePhno() {
+                                                const ph = $("#contact").val();
+                                                const filterIreland = /^\+353\d{9}$/;
+                                                const filterCanada = /^\+1\d{10}$/;   
+                                            
+                                                if (ph === "") {
+                                                    $("#contactspan").html("Enter the Contact Number").css("color", "#41586B");
+                                                } else if (!filterIreland.test(ph) && !filterCanada.test(ph)) {
+                                                    $("#contactspan").html("Enter a valid Contact Number for Ireland or Canada").css("color", "#41586B");
+                                                } else {
+                                                    $("#contactspan").html("");
+                                                }
+                                            }
+                                            
 
 
                                             function validateRent() {
                                                 const rent = $("#rent").val();
                                                 if (rent.trim() === "") {
                                                     displayErrorMessage("#rent", "Enter the Rent per Month");
+                                                } else if (!Number.isInteger(Number(rent))) {
+                                                    displayErrorMessage("#rent", "Rent must be an integer");
                                                 } else {
-                                                    $("#rentspan").html("");
+                                                    const rentValue = parseInt(rent);
+                                                    if (rentValue < 50 || rentValue > 20000) {
+                                                        displayErrorMessage("#rent", "Rent must be between 50 and 20000");
+                                                    } else {
+                                                        $("#rentspan").html("");
+                                                    }
                                                 }
                                             }
+                                            
+
                                             function validateForm() {
                                                 return fields.every(field => {
                                                     const $field = $(field.id);
@@ -705,8 +782,8 @@
                         <div class="tab-pane fade" id="v-pills-pending" role="tabpanel"
                             aria-labelledby="v-pills-pending-tab">
                             <div class="row mt-2">
-                                {% for property in properties %}
-                                {% if property.status == 'inactive' %}
+                                {% if inactive_properties %}
+                                {% for property in inactive_properties %}
                                 <div class="col-md-4">
                                     <div class="card mb-3">
                                         <div class="row no-gutters">
@@ -732,19 +809,19 @@
                                         </div>
                                     </div>
                                 </div>
-                                {% endif %}
                                 {% endfor %}
+                                {% else %}
+                                <p>No Inactive properties to display.</p>
+                            {% endif %}
                                 
                             </div>
                         </div>
                         <!-- Rejected Applications -->
                         <div class="tab-pane fade" id="v-pills-rejected" role="tabpanel" aria-labelledby="v-pills-rejected-tab">
-                            {% if properties|length == 0 or not properties|any(attribute='status' value='rejected') %}
-                            <p>No rejected properties to display.</p>
-                            {% else %}
+                            
                             <div class="row mt-2">
-                                {% for property in properties %}
-                                    {% if property.status == 'rejected' %}
+                                {% if rejected_properties %}
+                                    {% for property in rejected_properties %}
                                         <div class="col-md-4">
                                             <div class="card mb-3">
                                                 <div class="row no-gutters">
@@ -769,9 +846,12 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    {% endif %}
-                                {% endfor %}
+                                        
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No rejected properties to display.</p>
                                 {% endif %}
+                                
                             </div>
                         </div>
                         
@@ -926,364 +1006,7 @@
         </div>
     </div>
 
-    <div class="modal fade" id="editPropertyModal" tabindex="-1" role="dialog" aria-labelledby="editPropertyModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editPropertyModalLabel">Edit Property</h5>
-                </div>
-                <div class="modal-body">
-                    <form method="post" action="{% url 'property_submit' %}" enctype="multipart/form-data"
-                        id="propertyForm1">
-                        {% csrf_token %}
-                        <label for="pname">Property Name:</label>
-                        <input type="text" id="pname1" name="pname" required>
-                            <span id="pnamespan1" style="font-size: 12px;"></span>
-=                            <label for="address">Address:</label>
-                            <textarea id="address1" name="address" rows="4" required></textarea>
-                            <span id="addressspan1" style="font-size: 12px;"></span>
-                            <label for="mlink">Property location link ( Gmap ):</label>
-                            <input type="text" id="mlink1" name="mlink" required>
-                                <span id="mlinkspan1" style="font-size: 12px;"></span>
-                                <label for="nation">Country:</label>
-                                <select class="form-control border mb-4 mt-2" id="nation1" name="nation" required>
-                                    <option value="">Select nation</option>
-                                    <option value="Ireland">Ireland</option>
-                                    <option value="Canada">Canada</option>
-                                </select>
-                                <span id="nationspan1" style="font-size: 12px;"></span>
-                                <label for="state">State/province:</label>
-                                <select class="form-control border mb-4 mt-2" id="region1" name="region" required>
-                                    <!-- This dropdown will be populated dynamically based on the selected country -->
-                                </select>
-                                <span id="statespan1" style="font-size: 12px;"></span>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="frontview">Front view of Property:</label>
-                                        <input type="file" id="frontview1" name="frontview" accept="image/*"
-                                            required>
-                                            <span id="frontviewspan1" style="font-size: 12px;"></span>
 
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="living">Living Room:</label>
-                                        <input type="file" id="living1" name="living" accept="image/*" required>
-                                            <span id="livingspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="bedroom">Bedroom:</label>
-                                        <input type="file" id="bedroom1" name="bedroom" accept="image/*" required>
-                                            <span id="bedroomspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="bathroom">Wash Room:</label>
-                                        <input type="file" id="bathroom1" name="bathroom" accept="image/*" required>
-                                            <span id="bathroomspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="kitchen">Kitchen:</label>
-                                        <input type="file" id="kitchen1" name="kitchen" accept="image/*" required>
-                                            <span id="kitchenspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="dining">Dining Room:</label>
-                                        <input type="file" id="dining1" name="dining" accept="image/*" required>
-                                            <span id="diningspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="other1">other 1:</label>
-                                        <input type="file" id="other11" name="other1" accept="image/*" required>
-                                            <span id="other1span1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="other2">other 2:</label>
-                                        <input type="file" id="other21" name="other2" accept="image/*" required>
-                                            <span id="other2span1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-                                
-
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="duration">Minimum Duration of Rent:</label>
-                                        <select id="duration1" name="duration" required>
-                                            <option value="1">1 month</option>
-                                            <option value="2">2 months</option>
-                                            <option value="3">3 months</option>
-                                            <option value="4">4 months</option>
-                                            <option value="5">5 months</option>
-                                            <option value="6">6 months</option>
-                                        </select>
-                                        <span id="durationspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="bhk">Number of Bedrooms (BHK):</label>
-                                        <select id="bhk1" name="bhk" required>
-                                            <option value="1">1 BHK</option>
-                                            <option value="2">2 BHK</option>
-                                            <option value="3">3 BHK</option>
-                                            <option value="4">4 BHK</option>
-                                        </select>
-                                        <span id="bhkspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label for="contact">Contact Number(include country code):</label>
-                                        <input type="tel" id="contact1" name="contact" pattern="[0-9]{10}" required>
-                                            <span id="contactspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="rent">Rent per Month:</label>
-                                        <input type="text" id="rent1" name="rent" required>
-                                            <span id="rentspan1" style="font-size: 12px;"></span>
-
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <h5 class="mb-3">Additional Features:</h5>
-                                    <div class="col-md-6">
-
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="Parea1" name="Parea">
-                                                <label class="form-check-label" for="Parea">Parking Area</label>
-                                                <span id="Pareaspan1" style="font-size: 12px;"></span>
-
-                                        </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="cctv1" name="cctv">
-                                                <label class="form-check-label" for="cctv">CCTV</label>
-                                                <span id="cctvspan1" style="font-size: 12px;"></span>
-
-                                        </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="heater1"
-                                                name="heater">
-                                                <label class="form-check-label" for="heater">Heater</label>
-                                                <span id="heaterspan1" style="font-size: 12px;"></span>
-
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="ac1" name="ac">
-                                                <label class="form-check-label" for="ac">Air Conditioning</label>
-                                                <span id="acspan1" style="font-size: 12px;"></span>
-
-                                        </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="pback1" name="pback">
-                                                <label class="form-check-label" for="pback">Power Backup</label>
-                                                <span id="pbackspan1" style="font-size: 12px;"></span>
-
-                                        </div>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="wifi1" name="wifi">
-                                                <label class="form-check-label" for="furniture">Wifi</label>
-                                                <span id="wifispan1" style="font-size: 12px;"></span>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button type="submit" id="submitBtn1">Submit</button>
-                    </form>
-                    <script>
-                        $(document).ready(function () {
-                            const fields = [
-                                { id: "#pname1", validate: validatePropertyname },
-                                { id: "#address1", validate: validateAddress },
-                                { id: "#mlink1", validate: validateMapLink },
-                                { id: "#nation1", validate: validateCountry },
-                                { id: "#region1", validate: validateState },
-                                { id: "#frontview1", validate: validateFile },
-                                { id: "#living1", validate: validateFile },
-                                { id: "#bedroom1", validate: validateFile },
-                                { id: "#bathroom1", validate: validateFile },
-                                { id: "#kitchen1", validate: validateFile },
-                                { id: "#dining1", validate: validateFile },
-                                { id: "#other11", validate: validateFile },
-                                { id: "#other21", validate: validateFile },
-                                { id: "#duration1", validate: validateDuration },
-                                { id: "#bhk1", validate: validateBHK },
-                                { id: "#rent1", validate: validateRent },
-                            ];
-                    
-                            const validationStatus = {};
-                    
-                            fields.forEach(field => {
-                                if (field.id.includes("file")) {
-                                    $(field.id).change(function () {
-                                        validateField(field);
-                                        validationStatus[field.id] = $(`${field.id}span1`).html() === "";
-                                        checkFormValidity();
-                                    });
-                                } else {
-                                    $(field.id).blur(function () {
-                                        validateField(field);
-                                        validationStatus[field.id] = $(`${field.id}span1`).html() === "";
-                                        checkFormValidity();
-                                    });
-                                }
-                            });
-                    
-                            function validateField(field) {
-                                field.validate();
-                            }
-                    
-                            function displayErrorMessage(fieldId, message) {
-                                const $errorSpan = $(`${fieldId}span1`);
-                                $errorSpan.html(message).css("color", "#FF0000");
-                            }
-                    
-                            function checkFormValidity() {
-                                const isValid = Object.values(validationStatus).every(status => status);
-                                $("#submitBtn1").prop("disabled", !isValid);
-                            }
-                    
-                            // Form submission
-                            $("#propertyForm1").submit(function (event) {
-                                if (!$("#submitBtn1").prop("disabled")) {
-                                    // Form is valid, allow submission
-                                    return true;
-                                } else {
-                                    // Form is not valid, prevent submission
-                                    event.preventDefault();
-                                    return false;
-                                }
-                            });
-                    
-                            // Validation functions for each field
-                            function validatePropertyname() {
-                                const pname = $("#pname1").val();
-                    
-                                if (pname.trim() === "") {
-                                    displayErrorMessage("#pname1", "Enter the Property Name");
-                                } else if (pname.length > 20) {
-                                    displayErrorMessage("#pname1", "Property Name cannot exceed 20 characters");
-                                } else if (!/^[a-zA-Z0-9\s]+$/.test(pname)) {
-                                    displayErrorMessage("#pname1", "Property Name can only contain letters, numbers, and spaces");
-                                } else {
-                                    $("#pnamespan1").html("");
-                                }
-                            }
-                    
-                            function validateAddress() {
-                                const address = $("#address1").val();
-                    
-                                if (address.trim() === "") {
-                                    displayErrorMessage("#address1", "Enter the Property Address");
-                                } else if (address.length < 10) {
-                                    displayErrorMessage("#address1", "Address should be at least 10 characters long");
-                                } else if (address.length > 255) {
-                                    displayErrorMessage("#address1", "Address cannot exceed 255 characters");
-                                } else {
-                                    $("#addressspan1").html("");
-                                }
-                            }
-                    
-                            function validateMapLink() {
-                                const mapLink = $("#mlink1").val();
-                    
-                                if (mapLink.trim() === "") {
-                                    displayErrorMessage("#mlink1", "Enter the Property location link");
-                                } else if (!mapLink.startsWith("https://maps.app.goo")) {
-                                    displayErrorMessage("#mlink1", "Enter a valid Google Maps location link");
-                                } else {
-                                    $("#mlinkspan1").html("");
-                                }
-                            }
-                    
-                            function validateCountry() {
-                                const country = $("#nation1").val();
-                                if (country.trim() === "") {
-                                    displayErrorMessage("#nation1", "Select the Country");
-                                } else {
-                                    $("#nationspan1").html("");
-                                }
-                            }
-                    
-                            function validateState() {
-                                const state = $("#region1").val();
-                                if (state.trim() === "") {
-                                    displayErrorMessage("#region1", "Select the State/Province");
-                                } else {
-                                    $("#statespan1").html("");
-                                }
-                            }
-                    
-                            function validateFile() {
-                                const fileInput = $(this)[0];
-                                const fieldName = $(this).attr("name");
-                    
-                                if (!fileInput.files || fileInput.files.length === 0) {
-                                    displayErrorMessage(`#${fieldName}`, `Upload a ${fieldName} image`);
-                                } else {
-                                    const allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
-                                    const file = fileInput.files[0];
-                    
-                                    if (!allowedFormats.includes(file.type)) {
-                                        displayErrorMessage(`#${fieldName}`, `Invalid image format. Supported formats: JPEG, JPG, PNG`);
-                                    } else {
-                                        $(`#${fieldName}span1`).html("");
-                                    }
-                                }
-                            }
-                    
-                            function validateDuration() {
-                                const duration = $("#duration1").val();
-                    
-                                if (duration.trim() === "") {
-                                    displayErrorMessage("#duration1", "Enter the amount");
-                                } else if (!/^\d+$/.test(duration)) {
-                                    displayErrorMessage("#duration1", "Enter a valid numeric amount without alphabets or special characters");
-                                } else {
-                                    $("#durationspan1").html("");
-                                }
-                            }
-                    
-                            function validateBHK() {
-                                const bhk = $("#bhk1").val();
-                                if (bhk.trim() === "") {
-                                    displayErrorMessage("#bhk1", "Select the Number of Bedrooms (BHK)");
-                                } else {
-                                    $("#bhkspan1").html("");
-                                }
-                            }
-                    
-                            function validateRent() {
-                                const rent = $("#rent1").val();
-                                if (rent.trim() === "") {
-                                    displayErrorMessage("#rent1", "Enter the Rent per Month");
-                                } else {
-                                    $("#rentspan1").html("");
-                                }
-                            }
-                        });
-                    </script>
-                    
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <!-- Add this script at the end of your HTML file or in a separate script file -->
@@ -1450,89 +1173,273 @@
 
 
 
-        
-        const nationDropdown = document.getElementById('nation');
-        const regionDropdown = document.getElementById('region');
-        const countryRegions = {
-            'Ireland': [
-                'Connacht',
-                'County Carlow',
-                'County Cavan',
-                'County Clare',
-                'County Cork',
-                'County Donegal',
-                'County Dublin',
-                'County Galway',
-                'County Kerry',
-                'County Kildare',
-                'County Kilkenny',
-                'County Laois',
-                'County Limerick',
-                'County Longford',
-                'County Louth',
-                'County Mayo',
-                'County Meath',
-                'County Monaghan',
-                'County Offaly',
-                'County Roscommon',
-                'County Sligo',
-                'County Tipperary',
-                'County Waterford',
-                'County Westmeath',
-                'County Wexford',
-                'County Wicklow',
-                'Leinster',
-                'Munster',
-                'Ulster',
-            ],
-
-            'Canada': [
-                'Alberta',
-                'British Columbia',
-                'Manitoba',
-                'New Brunswick',
-                'Newfoundland and Labrador',
-                'Northwest Territories',
-                'Nova Scotia',
-                'Nunavut',
-                'Ontario',
-                'Prince Edward Island',
-                'Quebec',
-                'Saskatchewan',
-                'Yukon'
-            ],
-            // Add more countries and their regions here
-        };
-
-        // Function to populate the region dropdown based on the selected country
-        function populateRegionDropdown() {
 
 
-            // Get the selected country
-            const selectedCountry = nationDropdown.value;
+// Define dropdown elements
+// Define dropdown elements
+const nationDropdown = document.getElementById('nation');
+const regionDropdown = document.getElementById('region');
+const cityDropdown = document.getElementById('city');
 
-            // Clear existing options
-            regionDropdown.innerHTML = '<option value="">Select State or Province</option>';
+// Define country regions and their cities
+const countryRegions = {
+    'Ireland': [
+        'Connacht',
+        'County Carlow',
+        'County Cavan',
+        'County Clare',
+        'County Cork',
+        'County Donegal',
+        'County Dublin',
+        'County Galway',
+        'County Kerry',
+        'County Kildare',
+        'County Kilkenny',
+        'County Laois',
+        'County Limerick',
+        'County Longford',
+        'County Louth',
+        'County Mayo',
+        'County Meath',
+        'County Monaghan',
+        'County Offaly',
+        'County Roscommon',
+        'County Sligo',
+        'County Tipperary',
+        'County Waterford',
+        'County Westmeath',
+        'County Wexford',
+        'County Wicklow',
+        'Leinster',
+        'Munster',
+        'Ulster',
+    ],
+    'Canada': [
+        'Alberta',
+        'British Columbia',
+        'Manitoba',
+        'New Brunswick',
+        'Newfoundland and Labrador',
+        'Northwest Territories',
+        'Nova Scotia',
+        'Nunavut',
+        'Ontario',
+        'Prince Edward Island',
+        'Quebec',
+        'Saskatchewan',
+        'Yukon'
+    ],
+    // Add more countries and their regions here
+};
 
-            // Populate with options for the selected country
-            if (selectedCountry in countryRegions) {
-                countryRegions[selectedCountry].forEach(region => {
-                    const option = document.createElement('option');
-                    option.value = region;
-                    option.textContent = region;
-                    regionDropdown.appendChild(option);
-                });
-            }
+// Define cities for each state/province
+const stateCities = {
+    'Connacht': [
+        'Galway',
+        'Leitrim',
+        'Mayo',
+        'Roscommon',
+        'Sligo'
+    ],
+    'County Carlow': [
+        'Carlow'
+    ],
+    'County Cavan': [
+        'Cavan'
+    ],
+    'County Clare': [
+        'Clare'
+    ],
+    'County Cork': [
+        'Cork'
+    ],
+    'County Donegal': [
+        'Donegal'
+    ],
+    'County Dublin': [
+        'Dublin'
+    ],
+    'County Galway': [
+        'Galway'
+    ],
+    'County Kerry': [
+        'Kerry'
+    ],
+    'County Kildare': [
+        'Kildare'
+    ],
+    'County Kilkenny': [
+        'Kilkenny'
+    ],
+    'County Laois': [
+        'Laois'
+    ],
+    'County Limerick': [
+        'Limerick'
+    ],
+    'County Longford': [
+        'Longford'
+    ],
+    'County Louth': [
+        'Louth'
+    ],
+    'County Mayo': [
+        'Mayo'
+    ],
+    'County Meath': [
+        'Meath'
+    ],
+    'County Monaghan': [
+        'Monaghan'
+    ],
+    'County Offaly': [
+        'Offaly'
+    ],
+    'County Roscommon': [
+        'Roscommon'
+    ],
+    'County Sligo': [
+        'Sligo'
+    ],
+    'County Tipperary': [
+        'Tipperary'
+    ],
+    'County Waterford': [
+        'Waterford'
+    ],
+    'County Westmeath': [
+        'Westmeath'
+    ],
+    'County Wexford': [
+        'Wexford'
+    ],
+    'County Wicklow': [
+        'Wicklow'
+    ],
+    'Leinster': [
+        'Carlow',
+        'Dublin',
+        'Kildare',
+        'Kilkenny',
+        'Laois',
+        'Longford',
+        'Louth',
+        'Meath',
+        'Offaly',
+        'Westmeath',
+        'Wexford',
+        'Wicklow'
+    ],
+    'Munster': [
+        'Clare',
+        'Cork',
+        'Kerry',
+        'Limerick',
+        'Tipperary',
+        'Waterford'
+    ],
+    'Ulster': [
+        'Cavan',
+        'Donegal',
+        'Monaghan'
+    ],
+    'Alberta': [
+        'Calgary',
+        'Edmonton',
+        'Red Deer'
+    ],
+    'British Columbia': [
+        'Vancouver',
+        'Victoria',
+        'Kelowna'
+    ],
+    'Manitoba': [
+        'Winnipeg',
+        'Brandon'
+    ],
+    'New Brunswick': [
+        'Fredericton',
+        'Moncton',
+        'Saint John'
+    ],
+    'Newfoundland and Labrador': [
+        'St. John\'s',
+        'Mount Pearl',
+        'Corner Brook'
+    ],
+    'Northwest Territories': [
+        'Yellowknife',
+        'Inuvik'
+    ],
+    'Nova Scotia': [
+        'Halifax',
+        'Dartmouth',
+        'Sydney'
+    ],
+    'Nunavut': [
+        'Iqaluit',
+        'Rankin Inlet'
+    ],
+    'Ontario': [
+        'Toronto',
+        'Ottawa',
+        'Mississauga'
+    ],
+    'Prince Edward Island': [
+        'Charlottetown',
+        'Summerside'
+    ],
+    'Quebec': [
+        'Montreal',
+        'Quebec City',
+        'Laval'
+    ],
+    'Saskatchewan': [
+        'Saskatoon',
+        'Regina',
+        'Prince Albert'
+    ],
+    'Yukon': [
+        'Whitehorse'
+    ]
+};
 
-            // Show or hide the region dropdown based on the selection
-            // regionDropdown.style.display = selectedCountry ? 'block' : 'none';
-        }
+// Function to populate the region dropdown based on the selected country
+function populateRegionDropdown() {
+    const selectedCountry = nationDropdown.value;
+    regionDropdown.innerHTML = '<option value="">Select State or Province</option>';
+    if (selectedCountry in countryRegions) {
+        countryRegions[selectedCountry].forEach(region => {
+            const option = document.createElement('option');
+            option.value = region;
+            option.textContent = region;
+            regionDropdown.appendChild(option);
+        });
+    }
+}
 
-        // Attach an event listener to the nation dropdown
-        nationDropdown.addEventListener('change', populateRegionDropdown);
+// Function to populate the city dropdown based on the selected state/province
+function populateCityDropdown() {
+    const selectedRegion = regionDropdown.value;
+    cityDropdown.innerHTML = '<option value="">Select City</option>';
+    if (selectedRegion in stateCities) {
+        stateCities[selectedRegion].forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            cityDropdown.appendChild(option);
+        });
+    }
+}
 
-        // Initial population of the region dropdown based on the default selection
-        populateRegionDropdown();
+// Attach event listeners
+nationDropdown.addEventListener('change', populateRegionDropdown);
+regionDropdown.addEventListener('change', populateCityDropdown);
+
+// Initial population of dropdowns
+populateRegionDropdown();
+populateCityDropdown();
+
 
     </script>
 

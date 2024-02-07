@@ -8356,11 +8356,11 @@ h1, h2, h3, h4, h5,
   z-index: 99;
   font-weight: 400; }
   .slider-text .breadcrumbs span {
-    color: rgba(0, 0, 0, 0.8); }
+    color: white; }
     .slider-text .breadcrumbs span i {
-      color: rgba(0, 0, 0, 0.8); }
+      color: white; }
     .slider-text .breadcrumbs span a {
-      color: black; }
+      color: white; }
       .slider-text .breadcrumbs span a:hover, .slider-text .breadcrumbs span a:focus {
         color: #4b69bd; }
         .slider-text .breadcrumbs span a:hover i, .slider-text .breadcrumbs span a:focus i {

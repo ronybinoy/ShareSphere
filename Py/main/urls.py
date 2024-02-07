@@ -80,9 +80,11 @@ urlpatterns = [
     path('reject_property/', views.reject_property, name='reject_property'),
     path('update_property_status/', views.update_property_status, name='update_property_status'),
     path('acc_userview/', views.acc_userview, name="accomodation" ),
+    path('property_detail/<int:pk>/', views.property_detail, name='property_detail'),
+    path('acc_propertyview/', views.acc_propertyview, name="acc_propertyview" ),
+    path('search_properties/', views.search_properties, name='search_properties'),
 
     
-
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("", views.home, name="home"),  
     path("auth/", include("social_django.urls", namespace="social")),
