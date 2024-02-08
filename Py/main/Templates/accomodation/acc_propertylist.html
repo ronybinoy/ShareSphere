@@ -1,0 +1,491 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>ShareSphere Home - Free Bootstrap 4 Template by Colorlib</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link href="https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
+    <link rel="stylesheet" href="{% static "accomodation/css/open-iconic-bootstrap.min.css" %}">
+    <link rel="stylesheet" href="{% static "accomodation/css/animate.css" %}">
+    
+    <link rel="stylesheet" href="{% static "accomodation/css/owl.carousel.min.css" %}">
+    <link rel="stylesheet" href="{% static "accomodation/css/owl.theme.default.min.css" %}">
+    <link rel="stylesheet" href="{% static "accomodation/css/magnific-popup.css" %}">
+
+    <link rel="stylesheet" href="{% static "accomodation/css/aos.css" %}">
+
+    <link rel="stylesheet" href="{% static "accomodation/css/ionicons.min.css" %}">
+    
+    <link rel="stylesheet" href="{% static "accomodation/css/flaticon.css" %}">
+    <link rel="stylesheet" href="{% static "accomodation/css/icomoon.css" %}">
+    <link rel="stylesheet" href="{% static "accomodation/css/style.css" %}">
+
+    <style>
+         .overlay {
+            position: relative;
+        }
+        
+        .overlay::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity here */
+        } 
+        .col-md-9.ftco-animate.pb-4{
+            position: relative;
+            z-index: 1;
+        }
+        {% comment %} .breadcrumbs {
+            color: white !important;
+        }
+        .search-location{
+            height:10px;
+            position: relative;
+            z-index: 1;
+        } {% endcomment %}
+        .shadow {
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); /* Horizontal offset, Vertical offset, Blur radius, Spread radius, Color */
+        }
+
+        .rounded {
+            border-radius: 50px !important; /* Applies to all corners */
+            border-bottom-left-radius: 0 ; /* Only the bottom-left corner */
+            border-bottom-right-radius: 0; /* Only the bottom-right corner */
+        }
+
+        
+        
+    </style>
+</head>
+<body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
+
+<nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light site-navbar-target" id="ftco-navbar">
+    <div class="container">
+        <a class="navbar-brand" href="{% url "accomodation" %}">ShareSphere Home</a>
+        <button class="navbar-toggler js-fh5co-nav-toggle fh5co-nav-toggle" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="oi oi-menu"></span> Menu
+        </button>
+
+        <div class="collapse navbar-collapse" id="ftco-nav">
+        <ul class="navbar-nav nav ml-auto">
+            <li class="nav-item"><a href="{% url "accomodation" %}" class="nav-link"><span>Home</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#services-section" class="nav-link"><span>Services</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#properties-section" class="nav-link"><span>Listing</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#about-section" class="nav-link"><span>About</span></a></li>
+            {% comment %} <li class="nav-item"><a href="{% url "accomodation" %}#workflow-section" class="nav-link"><span>How it works</span></a></li> {% endcomment %}
+            <li class="nav-item"><a href="{% url "accomodation" %}#agent-section" class="nav-link"><span>Agent</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#blog-section" class="nav-link"><span>Blog</span></a></li>
+            {% comment %} <li class="nav-item"><a href="{% url "accomodation" %}#contact-section" class="nav-link"><span>Contact</span></a></li> {% endcomment %}
+
+            {% if user.is_authenticated%}
+
+                
+                </li>
+                <li class="nav-item dropdown ">
+                    <a class="nav-link text-white" style="font-size: 16px; font-weight: bold;" href="#"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <p>{{ user.first_name }} {{ user.last_name }}</p>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-outline-primary">Sign
+                            Up</button>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
+                            Migrant</a></li>
+                        {% comment %} <li><a class="dropdown-item" href="{% url 'inst_signup' %}">Register
+                                as Institute</a></li> {% endcomment %}
+                        <li><a class="dropdown-item" href="#">Register
+                                as Landlord</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{%url 'login' %}" role="button" aria-expanded="false">
+                        <button class="btn btn-outline-primary">Log
+                            In</button>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+        </div>
+    </div>
+    </nav>
+    
+    <section class="hero-wrap hero-wrap-2 overlay" style="background-image: url('{% static "accomodation/images/bg_3.jpg" %}');" data-stellar-background-ratio="0.5">
+        <div class="overlay"></div>
+    <div class="container">
+    <div class="row no-gutters slider-text align-items-end justify-content-start">
+        <div class="col-md-9 ftco-animate pb-4 mt-5">
+            <h1 class="mb-3 bread text-white">Property Listing</h1>
+            <p class="breadcrumbs" style="color: white !important;" ><span class="mr-2"><a href="{% url "accomodation" %}">Home <i class="ion-ios-arrow-forward"></i></a></span> <span>Listings <i class="ion-ios-arrow-forward"></i></span></p>
+        </div>
+        <div class="col-md-12 ftco-animate pb-4" style="z-index: 100;">
+            <div class="search-location">
+                <div id="search-form">
+                    {% csrf_token %}
+                    <div class="col-lg align-items-end ">
+                        <div class="form-group shadow">
+                            <div class="form-field">
+                                <input id="search-input" name="search_query" type="text" class="form-control rounded" placeholder="Search city...">
+                                <button type="submit" id="search-location-btn"><span class="ion-ios-search"></span></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+    </div>
+</section>
+
+    <section class="ftco-section ftco-properties" id="properties-section">
+    <div class="container-fluid ">
+                <div class="col-lg-12">
+                    <div class="row" id="property-listings" style="align-item:center;">
+                        {% for property in page_obj %}
+                            <div class="col-md-3 col-lg-3">
+                                <div class="card property-card ftco-animate mt-3">
+                                    <img src="{{ property.frontview_image.url }}" class="card-img-top" alt="{{ property.property_name }}">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><strong>{{ property.property_name }}</strong></h5>
+                                        <p class="card-text text-primary">${{ property.rent_per_month }}/mo</p>
+                                        <p class="card-text"><img width="25" height="25" src="https://img.icons8.com/ios-filled/50/marker.png" alt="marker"/> {{ property.city }}, {{ property.state_province }}, {{ property.country }}</p>
+                                        <div class="text-center">
+                                            <form action="{% url 'acc_propertyview' %}" method="post">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="property_id" value="{{ property.id }}">
+                                                <button type="submit" class="btn btn-primary">View Details</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="row mt-5">
+                        <div class="col text-center">
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination justify-content-center">
+                                    {% if page_obj.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page=1">&lt;&lt;</a></li>
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+                                    {% endif %}
+                                    {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% else %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% if page_obj.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&gt;&gt;</a></li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        // Function to fetch and display all properties
+        function displayAllProperties() {
+            $.ajax({
+                url: '/property/all/',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    $('#property-listings').empty();
+                    $.each(response.properties, function(index, property) {
+                        var propertyCard = `
+                        <style>
+                            .property-card {
+                                width: 300px;
+                                transition: 0.3s;
+                                border-radius: 10px;
+                                margin-left: 50px;
+                                margin-bottom: 20px;
+                                
+                                border: 1px solid #ddd; /* Add border here */
+                            }
+                            .card-img-top {
+                                width: 100%;
+                                border-top-left-radius: 5px;
+                                border-top-right-radius: 5px;
+                            }
+                            
+                            .card-body {
+                                padding: 1rem;
+                            }
+                            
+                            .card-title {
+                                font-size: 1.25rem;
+                                font-weight: bold;
+                                margin-bottom: 1rem;
+                            }
+                            
+                            .card-text {
+                                font-size: 1rem;
+                                color: #333;
+                            }
+                            
+                            .text-primary {
+                                color: #025fa6;
+                            }
+                            
+                            #viewbtn {
+                                border: none;
+                                outline: 0;
+                                padding: 8px;
+                                color: white;
+                                background-color:#4b69bd;
+                                text-align: center;
+                                cursor: pointer;
+                                width: 50%;
+                                font-size: 14px;
+                                border-radius: 5px;
+                            }
+                            
+                            
+                        </style>
+                        <div class="property-card">
+                            <img src="${property.frontview_image}" class="card-img-top" alt="${property.property_name}">
+                            <div class="card-body">
+                                <h5 class="card-title"><strong>${property.property_name}</strong></h5>
+                                <p class="card-text text-primary">$${property.rent_per_month}/mo</p>
+                                <p class="card-text"><img width="25" height="25" src="https://img.icons8.com/ios-filled/50/marker.png" alt="marker"/> ${property.city}, ${property.state_province}, ${property.country}</p>
+                                <div class="text-center">
+                                    <form action="{% url 'acc_propertyview' %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="property_id" value="${property.id}">
+                                        <button type="submit" id="viewbtn">View Details</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        `;
+                        $('#property-listings').append(propertyCard);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.log(xhr.responseText);
+                }
+            });
+        }
+    
+        $(document).ready(function() {
+            // Call displayAllProperties initially to show all properties on page load
+            displayAllProperties();
+    
+            $('#search-input').on('input', function() {
+                var searchTerm = $(this).val().trim();
+                if (searchTerm !== '') {
+                    $.ajax({
+                        url: '/property/search/',
+                        method: 'GET',
+                        data: {'search_query': searchTerm},
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.properties.length > 0) {
+                                $('#property-listings').empty();
+                                $.each(response.properties, function(index, property) {
+                                    var propertyCard = `
+                                    <style>
+                                        .property-card {
+                                            width: 300px;
+                                            transition: 0.3s;
+                                            border-radius: 10px;
+                                            margin-left: 50px;
+                                            margin-bottom: 20px;
+                                            
+                                            border: 1px solid #ddd; /* Add border here */
+                                        }
+                                        .card-img-top {
+                                            width: 100%;
+                                            border-top-left-radius: 5px;
+                                            border-top-right-radius: 5px;
+                                        }
+                                        
+                                        .card-body {
+                                            padding: 1rem;
+                                        }
+                                        
+                                        .card-title {
+                                            font-size: 1.25rem;
+                                            font-weight: bold;
+                                            margin-bottom: 1rem;
+                                        }
+                                        
+                                        .card-text {
+                                            font-size: 1rem;
+                                            color: #333;
+                                        }
+                                        
+                                        .text-primary {
+                                            color: #025fa6;
+                                        }
+                                        
+                                        #viewbtn {
+                                            border: none;
+                                            outline: 0;
+                                            padding: 8px;
+                                            color: white;
+                                            background-color:#4b69bd;
+                                            text-align: center;
+                                            cursor: pointer;
+                                            width: 50%;
+                                            font-size: 14px;
+                                            border-radius: 5px;
+                                        }
+                                        
+                                        
+                                    </style>
+                                    <div class="property-card">
+                                        <img src="${property.frontview_image}" class="card-img-top" alt="${property.property_name}">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><strong>${property.property_name}</strong></h5>
+                                            <p class="card-text text-primary">$${property.rent_per_month}/mo</p>
+                                            <p class="card-text"><img width="25" height="25" src="https://img.icons8.com/ios-filled/50/marker.png" alt="marker"/> ${property.city}, ${property.state_province}, ${property.country}</p>
+                                            <div class="text-center">
+                                                <form action="{% url 'acc_propertyview' %}" method="post">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="property_id" value="${property.id}">
+                                                    <button type="submit" id="viewbtn">View Details</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `;
+                                    $('#property-listings').append(propertyCard);
+                                });
+                            } else {
+                                $('#property-listings').html('<p style="margin-left:20px; text-align:center;">No properties matching your search found</p>');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(xhr.responseText);
+                        }
+                    });
+                } else {
+                    // Clear property listings and display all properties
+                    $('#property-listings').empty();
+                    displayAllProperties();
+                }
+            });
+        });
+    </script>
+    
+<footer class="ftco-footer ftco-section">
+    <div class="container-fluid px-md-5">
+    <div class="row mb-5">
+        <div class="col-md">
+        <div class="ftco-footer-widget mb-4">
+            <h2 class="ftco-heading-2">ShareSphere Home</h2>
+            <p>Far far away, behind the word mountains, far from the countries.</p>
+            <ul class="ftco-footer-social list-unstyled mt-5">
+            <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
+            <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
+            <li class="ftco-animate"><a href="#"><span class="icon-instagram"></span></a></li>
+            </ul>
+        </div>
+        </div>
+        <div class="col-md">
+        <div class="ftco-footer-widget mb-4 ml-md-4">
+            <h2 class="ftco-heading-2">Community</h2>
+            <ul class="list-unstyled">
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>Search Properties</a></li>
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>For Agents</a></li>
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>Reviews</a></li>
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>FAQs</a></li>
+            </ul>
+        </div>
+        </div>
+        <div class="col-md">
+        <div class="ftco-footer-widget mb-4 ml-md-4">
+            <h2 class="ftco-heading-2">About Us</h2>
+            <ul class="list-unstyled">
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>Our Story</a></li>
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>Meet the team</a></li>
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>Careers</a></li>
+            </ul>
+        </div>
+        </div>
+        <div class="col-md">
+            <div class="ftco-footer-widget mb-4">
+            <h2 class="ftco-heading-2">Company</h2>
+            <ul class="list-unstyled">
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>About Us</a></li>
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>Press</a></li>
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>Contact</a></li>
+            <li><a href="#"><span class="icon-long-arrow-right mr-2"></span>Careers</a></li>
+            </ul>
+        </div>
+        </div>
+        <div class="col-md">
+        <div class="ftco-footer-widget mb-4">
+            <h2 class="ftco-heading-2">Have a Questions?</h2>
+            <div class="block-23 mb-3">
+                <ul>
+                <li><span class="icon icon-map-marker"></span><span class="text">203 Fake St. Mountain View, San Francisco, California, USA</span></li>
+                <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929 210</span></a></li>
+                <li><a href="#"><span class="icon icon-envelope pr-4"></span><span class="text">info@yourdomain.com</span></a></li>
+                </ul>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+
+            <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | ShareSphere.com
+                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
+        </div>
+    </div>
+    </div>
+</footer>
+
+
+
+
+<div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
+
+
+<script src="{% static "accomodation/js/jquery.min.js" %}"></script>
+<script src="{% static "accomodation/js/jquery-migrate-3.0.1.min.js" %}"></script>
+<script src="{% static "accomodation/js/popper.min.js" %}"></script>
+<script src="{% static "accomodation/js/bootstrap.min.js" %}"></script>
+<script src="{% static "accomodation/js/jquery.easing.1.3.js" %}"></script>
+<script src="{% static "accomodation/js/jquery.waypoints.min.js" %}"></script>
+<script src="{% static "accomodation/js/jquery.stellar.min.js" %}"></script>
+<script src="{% static "accomodation/js/owl.carousel.min.js" %}"></script>
+<script src="{% static "accomodation/js/jquery.magnific-popup.min.js" %}"></script>
+<script src="{% static "accomodation/js/aos.js" %}"></script>
+<script src="{% static "accomodation/js/jquery.animateNumber.min.js" %}"></script>
+<script src="{% static "accomodation/js/scrollax.min.js" %}"></script>
+<script src="{% static "accomodation/js/google-map.js" %}"></script>
+
+<script src="{% static "accomodation/js/main.js" %}"></script>
+
+</body>
+</html>
+

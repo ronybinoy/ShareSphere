@@ -61,8 +61,8 @@ def is_staff(user):
     return user.is_authenticated and user.is_staff
 
 
-# def is_landlord(user):    
-#     return user.is_authenticated and user.is_landlord
+def is_landlord(user):    
+    return user.is_authenticated and user.is_landlord
 
 
 def login(request):
@@ -1278,20 +1278,24 @@ def check_unique_course_code(request):
 from django.shortcuts import render
 from .models import Property
 
+
+@login_required
+@user_passes_test(is_landlord)
 def acc_home(request):
     if request.user.is_authenticated:
         try:
-            landlord = Landlord.objects.get(user=request.user)
             properties = Property.objects.filter(landlord=request.user)
             rejected_properties = properties.filter(status='rejected')
-            inactive_properties = properties.filter(status='inactive')  # Added this line
-            landlord_profile_photo = landlord.profile_photo
-            return render(request, "accomodation/acc_home.html", {'properties': properties, 'rejected_properties': rejected_properties, 'inactive_properties': inactive_properties, 'landlord_profile_photo': landlord_profile_photo})
+            inactive_properties = properties.filter(status='inactive')
+            pending_properties = properties.filter(status='pending')
+            active_properties = properties.filter(status='active')  # Excluding rejected and inactive properties
+            return render(request, "accomodation/acc_home.html", {'properties': properties, 'rejected_properties': rejected_properties, 'inactive_properties': inactive_properties, 'active_properties': active_properties, 'pending_properties': pending_properties})
         except Landlord.DoesNotExist:
             # Handle the case where Landlord does not exist for the current user
             raise Http404("Landlord does not exist for this user.")
     else:
-        return render(request, "accomodation/acc_home.html", {'properties': [], 'rejected_properties': [], 'inactive_properties': []})
+        return render(request, "accomodation/acc_home.html", {'properties': [], 'rejected_properties': [], 'inactive_properties': [], 'active_properties': [], 'pending_properties': []})
+
 
 
 
@@ -1522,8 +1526,8 @@ def update_property_status(request):
 
 
 def acc_userview(request):
-    # Fetch only featured properties from the database
-    featured_properties = Property.objects.filter(is_featured=True)
+    # Fetch only featured properties with status 'active' from the database
+    featured_properties = Property.objects.filter(is_featured=True, status='active')
 
     context = {
         'featured_properties': featured_properties,
@@ -1532,32 +1536,53 @@ def acc_userview(request):
     return render(request, "accomodation/acc_userview.html", context)
 
 
-def property_detail(request, pk):
-    property_instance = get_object_or_404(Property, pk=pk)
-    return render(request, 'accomodation/property_detail.html', {'property': property_instance})
+# def property_detail(request, pk):
+#     property_instance = get_object_or_404(Property, pk=pk)
+#     return render(request, 'accomodation/property_detail.html', {'property': property_instance})
 
 
 def acc_propertyview(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")
         # Retrieve the property object associated with the passed ID
-        property_obj = get_object_or_404(Property, id=property_id)
-        print(property_obj)
+        property_obj = get_object_or_404(Property, id=property_id, status='active')
         return render(request, "accomodation/acc_propertyview.html", {'property': property_obj})
     else:
         # Handle the case when the request method is not POST
         return HttpResponse("Invalid request method")
 
 
-def search_properties(request):
-    search_query = request.GET.get('search_query', '').strip()
-    if search_query:
-        # Perform the search query on the Property model
+def property_search(request):
+    if request.method == 'GET' and 'search_query' in request.GET:
+        search_query = request.GET.get('search_query')
+        # Filter properties based on the search query
         properties = Property.objects.filter(city__icontains=search_query)
-        # Serialize the properties data
-        properties_data = [{'name': property.property_name, 'city': property.city} for property in properties]
-        # Return the search results as JSON
-        return JsonResponse({'properties': properties_data})
+        # Serialize the properties queryset to JSON
+        serialized_properties = [{
+            'id': property.id,
+            'property_name': property.property_name,
+            'frontview_image': property.frontview_image.url,
+            'rent_per_month': property.rent_per_month,
+            'city': property.city,
+            'state_province': property.state_province,
+            'country': property.country,
+        } for property in properties]
+        # Return the search results as JSON response
+        return JsonResponse({'properties': serialized_properties})
     else:
-        # If no search query provided, return an empty JSON response
-        return JsonResponse({'properties': []})
+        return JsonResponse({'error': 'Invalid request'})
+
+def acc_listproperty(request):
+    # Fetch all active properties
+    properties = Property.objects.filter(status='active')
+    search_query = request.GET.get('search_query')
+    
+    if search_query:
+        # If search query is provided, filter properties based on the city
+        properties = properties.filter(Q(city__icontains=search_query))
+    
+    paginator = Paginator(properties, 8)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, "accomodation/acc_propertylist.html", {'page_obj': page_obj})

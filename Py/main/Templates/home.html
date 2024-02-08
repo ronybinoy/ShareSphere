@@ -120,7 +120,7 @@
                             <a class="nav-link" href="{% url 'education' %}">Education</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accomodation' %}">Accomodation</a>
+                            <a class="nav-link" href="{% url 'accomodation' %}">Rentals</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">About Us</a>
@@ -140,7 +140,6 @@
                                 {{ request.session.username }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">Profile</a></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
                         </li>
@@ -248,11 +247,11 @@
                 <div class="col-md-4">
                     <div class="card shadow text-center p-4 rounded-xl">
                         <div class="card-body">
-                            <h5 class="card-title">Accommodation</h5>
+                            <h5 class="card-title">Rentals</h5>
                             <p class="card-text">Connect and communicate with others through our advanced chat platform.
                                 Discover new friends, share experiences, engage in lively conversations, and become part
                                 of a vibrant community where like-minded individuals connect and interact</p>
-                            <a href=""><button class="btn btn-primary mt-3">Learn More</button></a>
+                            <a href="{% url "accomodation" %}"><button class="btn btn-primary mt-3">Learn More</button></a>
                         </div>
                     </div>
                 </div>

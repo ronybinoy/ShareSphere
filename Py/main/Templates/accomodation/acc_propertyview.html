@@ -65,21 +65,57 @@
 	        <span class="oi oi-menu"></span> Menu
 	      </button>
 
-	      <div class="collapse navbar-collapse" id="ftco-nav">
+	    <div class="collapse navbar-collapse" id="ftco-nav">
 	        <ul class="navbar-nav nav ml-auto">
-	          <li class="nav-item"><a href="" class="nav-link"><span>Home</span></a></li>
-	          <li class="nav-item"><a href="" class="nav-link"><span>Services</span></a></li>
-	          <li class="nav-item"><a href="" class="nav-link"><span>Listing</span></a></li>
-	          <li class="nav-item"><a href="" class="nav-link"><span>About</span></a></li>
-	          <li class="nav-item"><a href="" class="nav-link"><span>How it works</span></a></li>
-	          <li class="nav-item"><a href="" class="nav-link"><span>Agent</span></a></li>
-	          <li class="nav-item"><a href="" class="nav-link"><span>Blog</span></a></li>
-	          <li class="nav-item"><a href="" class="nav-link"><span>Contact</span></a></li>
-	        </ul>
+	          <li class="nav-item"><a href="{% url "accomodation" %}" class="nav-link"><span>Home</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#services-section" class="nav-link"><span>Services</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#properties-section" class="nav-link"><span>Listing</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#about-section" class="nav-link"><span>About</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#workflow-section" class="nav-link"><span>How it works</span></a></li>
+            <li class="nav-item"><a href="{% url "accomodation" %}#agent-section" class="nav-link"><span>Agent</span></a></li>
+            {% comment %} <li class="nav-item"><a href="{% url "accomodation" %}#blog-section" class="nav-link"><span>Blog</span></a></li> {% endcomment %}
+            {% comment %} <li class="nav-item"><a href="{% url "accomodation" %}#contact-section" class="nav-link"><span>Contact</span></a></li>   {% endcomment %}
+	      
+            {% if user.is_authenticated%}
+
+                
+                </li>
+                <li class="nav-item dropdown ">
+                    <a class="nav-link text-white" style="font-size: 20px; font-weight: bold;" href="#"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <p>{{ user.first_name }} {{ user.last_name }}</p>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-outline-primary">Sign
+                            Up</button>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
+                            Migrant</a></li>
+                        <li><a class="dropdown-item" href="{% url 'inst_signup' %}">Register
+                                as Institute</a></li>
+                        <li><a class="dropdown-item" href="#">Register
+                                as Landlord</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{%url 'login' %}" role="button" aria-expanded="false">
+                        <button class="btn btn-outline-primary">Log
+                            In</button>
+                    </a>
+                </li>
+            {% endif %}
+          </ul>
 	      </div>
 	    </div>
 	  </nav>
-	  
+
       <section class="hero-wrap hero-wrap-2 overlay" style="background-image: url('{% static "accomodation/images/bg_3.jpg" %}');" data-stellar-background-ratio="0.5">
         <div class="overlay"></div>
         <div class="container">
@@ -332,7 +368,7 @@
   
 
   <!-- loader -->
-  {% comment %} <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div> {% endcomment %}
+  <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
 
 
   <script src="{% static "accomodation/js/jquery.min.js" %}"></script>

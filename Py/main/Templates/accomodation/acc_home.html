@@ -103,6 +103,9 @@
             object-fit: cover;
             /* maintain aspect ratio and cover the container */
         }
+        /* Form styles */
+
+        
     </style>
 </head>
 
@@ -112,7 +115,7 @@
     <header>
         <nav class="navbar navbar-expand-lg p-2" style="background-color: rgb(226, 226, 226)">
             <div class="container-fluid">
-                <h4 class="text-success">ShareSphere</h4>
+                <h4 class="text-black"><strong>ShareSphere Home</strong></h4>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -147,21 +150,14 @@
                     {% elif user.is_authenticated%}
 
                     <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
-                        <li>
-                            <img src="{{ landlord_profile_photo.url }}" alt="Profile Photo"
-                                class="img-thumbnail rounded-circle" style="max-width: 40px; max-height: 40px;">
-                        </li>
+                        
                         <li class="nav-item dropdown ">
                             <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <p>{{ user.first_name }} {{ user.last_name }}</p>
                             </a>
                             <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="#" onclick="openProfileModal()">
-                                        Profile
-                                    </a>
-                                </li>
+                        
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
                         </li>
@@ -207,10 +203,12 @@
                             role="tab" aria-controls="v-pills-all" aria-selected="false">Active Ads</a>
                         <a class="nav-link" id="v-pills-approved-tab" data-toggle="pill" href="#v-pills-approved"
                             role="tab" aria-controls="v-pills-approved" aria-selected="true"> Post Ads</a>
-                        <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending"
-                            role="tab" aria-controls="v-pills-pending" aria-selected="false"> Inactive Ads</a>
+                        <a class="nav-link" id="v-pills-inactive-tab" data-toggle="pill" href="#v-pills-inactive"
+                            role="tab" aria-controls="v-pills-inactive" aria-selected="false"> Inactive Ads</a>
                         <a class="nav-link" id="v-pills-rejected-tab" data-toggle="pill" href="#v-pills-rejected"
                             role="tab" aria-controls="v-pills-rejected" aria-selected="false">Rejected Ads</a>
+                        <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending"
+                            role="tab" aria-controls="v-pills-pending" aria-selected="false">Pending Ads</a>
                     </div>
                 </div>
                 <div class="col-md-10">
@@ -220,8 +218,8 @@
                         <div class="tab-pane fade show active" id="v-pills-all" role="tabpanel"
                             aria-labelledby="v-pills-all-tab">
                             <div class="row mt-2">
-                                {% for property in properties %}
-                                {% if property.status == 'active' %}
+                                {% if active_properties %}
+                                {% for property in active_properties %}
                                 <div class="col-md-4">
                                     <div class="card mb-3">
                                         <div class="row no-gutters">
@@ -248,11 +246,14 @@
                                         </div>
                                     </div>
                                 </div>
-                                {% endif %}
                                 {% endfor %}
-
+                                {% else %}
+                                <p>No active properties to display. Visit post ads section to post your ads</p>
+                                {% endif %}
                             </div>
                         </div>
+
+                        
                         <script>
                             $(document).ready(function () {
                                 $.ajaxSetup({
@@ -319,7 +320,7 @@
                         <div class="tab-pane fade" id="v-pills-approved" role="tabpanel"
                             aria-labelledby="v-pills-approved-tab">
                             <div class="container" style="height: 80vh; overflow-y: auto;">
-                                <h2 class="text-center">Property Rental Form</h2>
+                                <h2 class="text-center"><strong>Property Rental Form</strong></h2>
                                 <hr>
                                 <form method="post" action="{% url 'property_submit' %}" enctype="multipart/form-data"
                                     id="propertyForm">
@@ -333,7 +334,7 @@
 
                                     <!-- Address -->
                                     <label for="address">Address:</label>
-                                    <textarea id="address" name="address" rows="4" required></textarea>
+                                    <textarea id="address" name="address" rows="4" placeholder="Enter your house number " required></textarea>
                                     <span id="addressspan" style="font-size: 12px;"></span>
 
                                     <label for="mlink">Property location link ( Gmap ):</label>
@@ -578,6 +579,18 @@
                                                 validateFieldOnBlur(field.id, field.validate);
                                             });
 
+                                            $(document).ready(function() {
+                                                $('#frontview').change(validateFile);
+                                                $('#living').change(validateFile);
+                                                $('#bedroom').change(validateFile);
+                                                $('#bathroom').change(validateFile);
+                                                $('#kitchen').change(validateFile);
+                                                $('#dining').change(validateFile);
+                                                $('#other1').change(validateFile);
+                                                $('#other2').change(validateFile);
+                                            });
+                                            
+
                                             function checkFormValidity() {
                                                 const isValid = Object.values(validationStatus).every(status => status);
 
@@ -779,8 +792,8 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade" id="v-pills-pending" role="tabpanel"
-                            aria-labelledby="v-pills-pending-tab">
+                        <div class="tab-pane fade" id="v-pills-inactive" role="tabpanel"
+                            aria-labelledby="v-pills-inactive-tab">
                             <div class="row mt-2">
                                 {% if inactive_properties %}
                                 {% for property in inactive_properties %}
@@ -801,7 +814,7 @@
                                                         data-target="#propertyModal"
                                                         data-property-id="{{ property.id }}">
                                                     <input class="btn btn-primary me-2 mark-active-btn" type="button"
-                                                        value="Mark as Active" data-property-id="{{ property.id }}"
+                                                        value="Re-activate ad" data-property-id="{{ property.id }}"
                                                         data-status="{{ property.status }}">
                                                         <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target="#editPropertyModal">
                                                     </div>
@@ -854,89 +867,45 @@
                                 
                             </div>
                         </div>
+
+
+                        <div class="tab-pane fade" id="v-pills-pending" role="tabpanel" aria-labelledby="v-pills-pending-tab">
+                            <div class="row mt-2">
+                                {% if pending_properties %}
+                                    {% for property in pending_properties %}
+                                        <div class="col-md-4">
+                                            <div class="card mb-3">
+                                                <div class="row no-gutters">
+                                                    <div class="col-md-12">
+                                                        <img src="{{ property.frontview_image.url }}" class="card-img" alt="Property Image">
+                                                        <div class="ms-3 mt-2">
+                                                            <h5 class="card-title">{{ property.property_name }}</h5>
+                                                            <p class="card-text"><small>{{ property.address }}</small></p>
+                                                            <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
+                                                        </div>
+                                                        <div class="card-body d-flex">
+                                                            <input class="btn btn-success view-btn" type="button"
+                                                                id="view-property" value="View" data-toggle="modal"
+                                                                data-target="#propertyModal" style="width:50%; margin-left:25%;" data-property-id="{{ property.id }}">
+                                                            <!-- Add other buttons as needed -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No pending properties to display.</p>
+                                {% endif %}
+                                
+                            </div>
+                        </div>
                         
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- PROFILE UPDATE MODAL -->
-        <div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalTitle"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title text-center" id="profileModalTitle">Profile</h5>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Edit Profile Photo Section -->
-                        <form id="profileForm" method="POST" action="{% url 'acc_home' %}"
-                            enctype="multipart/form-data">
-                            {% csrf_token %}
-                            <div class="text-center mb-3">
-                                <img src="{{ profile_photo_url }}" alt="Profile Photo"
-                                    class="img-thumbnail rounded-circle" style="max-width: 150px;" id="profileImage">
-                                <br>
-                                <button type="button" class="btn btn-link mt-2" id="editProfilePhotoButton">Edit Profile
-                                    Photo</button><br>
-                                <input type="file" class="form-control-file d-none" id="profile_photo"
-                                    name="profile_photo">
-                            </div>
-                            <div class="form-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" class="form-control" id="first_name" value="{{ user.first_name }}"
-                                    name="first_name" pattern="[a-zA-Z]{3,}" placeholder="Eg: John" required>
-                                <div class="invalid-feedback">
-                                    First name must contain only alphabetic characters and have a minimum length of 3
-                                    characters.
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Last Name</label>
-                                <input type="text" class="form-control" id="last_name" value="{{ user.last_name }}"
-                                    name="last_name" pattern="[a-zA-Z]{3,}" placeholder="Eg: Doe" required>
-                                <div class="invalid-feedback">
-                                    Last name must contain only alphabetic characters and have a minimum length of 3
-                                    characters.
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="dob">Date of Birth</label>
-                                {% if user.landlord.dob %}
-                                <input type="text" class="form-control" id="dob" value="{{ user.landlord.dob }}"
-                                    name="dob" readonly>
-                                {% else %}
-                                <input type="date" class="form-control" id="dob"
-                                    value="{{ user.landlord.dob|date:'Y-m-d' }}" name="dob" required>
-                                <span id="dateOfBirthError" class="text-danger"></span>
-                                <div class="invalid-feedback">
-                                    Date of birth is required.
-                                    
-                                </div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group">
-                                <label for="contact_no">Contact Number</label>
-                                <input type="tel" class="form-control" id="contact_no"
-                                    value="{{ user.landlord.contact_no }}" name="contact_no" pattern="[1-9][0-9]{9}"
-                                    required>
-                                <div class="invalid-feedback">
-                                    Contact number must start with a digit from 1 to 9 and contain a total of 10 digits.
-                                </div>
-                            </div>
-                            <input type="hidden" name="user_id" value="{{ user.id }}">
-                            <input type="hidden" name="landlord_id" value="{{ user.landlord.id }}">
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Save changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
 
     <div class="modal fade" id="propertyModal" tabindex="-1" role="dialog" aria-labelledby="propertyModalLabel"
         aria-hidden="true">

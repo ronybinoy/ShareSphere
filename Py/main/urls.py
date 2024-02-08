@@ -67,10 +67,6 @@ urlpatterns = [
     
     
     
-    
-    
-    
-    #Accomodation 
     path("acc_signup/", views.acc_signup, name="acc_signup"),
     path("acc_home/", views.acc_home, name="acc_home"),
     path("property_submit/", views.property_submit, name="property_submit"),
@@ -80,9 +76,9 @@ urlpatterns = [
     path('reject_property/', views.reject_property, name='reject_property'),
     path('update_property_status/', views.update_property_status, name='update_property_status'),
     path('acc_userview/', views.acc_userview, name="accomodation" ),
-    path('property_detail/<int:pk>/', views.property_detail, name='property_detail'),
     path('acc_propertyview/', views.acc_propertyview, name="acc_propertyview" ),
-    path('search_properties/', views.search_properties, name='search_properties'),
+    path('acc_listproperty/', views.acc_listproperty, name='acc_listproperty'),
+    path('property/search/', views.property_search, name='property_search'),
 
     
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
