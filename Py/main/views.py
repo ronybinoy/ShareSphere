@@ -1555,8 +1555,8 @@ def acc_propertyview(request):
 def property_search(request):
     if request.method == 'GET' and 'search_query' in request.GET:
         search_query = request.GET.get('search_query')
-        # Filter properties based on the search query
-        properties = Property.objects.filter(city__icontains=search_query)
+        # Filter properties based on the search query and status
+        properties = Property.objects.filter(city__icontains=search_query, status='active')
         # Serialize the properties queryset to JSON
         serialized_properties = [{
             'id': property.id,
@@ -1571,7 +1571,8 @@ def property_search(request):
         return JsonResponse({'properties': serialized_properties})
     else:
         return JsonResponse({'error': 'Invalid request'})
-
+    
+    
 def acc_listproperty(request):
     # Fetch all active properties
     properties = Property.objects.filter(status='active')
@@ -1586,3 +1587,11 @@ def acc_listproperty(request):
     page_obj = paginator.get_page(page_number)
     
     return render(request, "accomodation/acc_propertylist.html", {'page_obj': page_obj})
+
+
+def edit_property_modal(request, property_id):
+    # Fetch the property object based on its ID
+    property_obj = get_object_or_404(Property, id=property_id)
+    
+    # Pass the property object to the template
+    return render(request, 'accomodation/acc_propertylist.html', {'property_obj': property_obj})
