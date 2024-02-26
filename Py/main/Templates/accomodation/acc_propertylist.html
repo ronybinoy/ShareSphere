@@ -216,6 +216,7 @@
                 success: function(response) {
                     $('#property-listings').empty();
                     $.each(response.properties, function(index, property) {
+                        console.log(property.frontview_image)
                         var propertyCard = `
                         <style>
                             .property-card {
@@ -308,6 +309,7 @@
                             if (response.properties.length > 0) {
                                 $('#property-listings').empty();
                                 $.each(response.properties, function(index, property) {
+                                    console.log(property.frontview_image)
                                     var propertyCard = `
                                     <style>
                                         .property-card {
@@ -317,7 +319,7 @@
                                             margin-left: 50px;
                                             margin-bottom: 20px;
                                             
-                                            border: 1px solid #ddd; /* Add border here */
+                                            border: 1px solid #ddd;
                                         }
                                         .card-img-top {
                                             width: 100%;
