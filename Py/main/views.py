@@ -1595,3 +1595,7 @@ def edit_property_modal(request, property_id):
     
     # Pass the property object to the template
     return render(request, 'accomodation/acc_propertylist.html', {'property_obj': property_obj})
+
+
+def acc_booking(request):
+    return render(request, "accomodation/acc_booking.html")

@@ -1,0 +1,233 @@
+<script>
+    function displayErrorMessage(fieldId, message) {
+        $(`${fieldId}span`).html(message);
+    }
+
+    $(document).ready(function () {
+        const fields = [
+            { id: "#name", validate: validateName },
+            { id: "#email", validate: validateEmail },
+            { id: "#contact", validate: validateContact },
+            { id: "#address", validate: validateAddress },
+            { id: "#state", validate: validateState },
+            { id: "#country", validate: validateCountry },
+            { id: "#checkin", validate: validateCheckin },
+            { id: "#adultcount", validate: validateAdultcount },
+            { id: "#request", validate: validateRequest },
+            { id: "#emergency", validate: validateEmergency },
+            { id: "#emerrel", validate: validateEmerrel },
+            { id: "#emercon", validate: validateEmercon },
+            
+        ];
+        const validationStatus = {};
+
+        fields.forEach(field => {
+            $(field.id).keyup(function () {
+                field.validate();
+                validationStatus[fieldId] = $(`${fieldId}span`).html() === "";
+                checkFormValidity();
+            });
+
+            validateFieldOnBlur(field.id, field.validate);
+        });
+
+        
+
+
+        function checkFormValidity() {
+            const isValid = Object.values(validationStatus).every(status => status);
+
+            $("#submitBtn").prop("disabled", !isValid);
+        }
+
+        function validateFieldOnBlur(fieldId, validationFunction) {
+            $(fieldId).blur(function () {
+                validationFunction();
+                validationStatus[fieldId] = $(`${fieldId}span`).html() === "";
+            });
+        }
+
+        // Form submission
+        $("#propertyForm").submit(function (event) {
+            if (!$("#submitBtn").prop("disabled")) {
+                // Form is valid, allow submission
+                return true;
+            } else {
+                // Form is not valid, prevent submission
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        checkFormValidity();
+
+        function validatePropertyname() {
+            const pname = $("#pname").val();
+
+            if (pname.trim() === "") {
+                displayErrorMessage("#pname", "Enter the Property Name");
+            } else if (pname.length > 20) {
+                displayErrorMessage("#pname", "Property Name cannot exceed 20 characters");
+            } else if (!/^[a-zA-Z0-9\s]+$/.test(pname)) {
+                displayErrorMessage("#pname", "Property Name can only contain letters, numbers, and spaces");
+            } else {
+                $("#pnamespan").html("");
+            }
+        }
+
+        function validateAddress() {
+            const address = $("#address").val();
+
+            if (address.trim() === "") {
+                displayErrorMessage("#address", "Enter the Property Address");
+            } else if (address.length < 10) {
+                displayErrorMessage("#address", "Address should be at least 10 characters long");
+            } else if (address.length > 255) {
+                displayErrorMessage("#address", "Address cannot exceed 255 characters");
+            } else {
+                $("#addressspan").html("");
+            }
+        }
+
+
+        function validateMapLink() {
+            const mapLink = $("#mlink").val();
+
+            if (mapLink.trim() === "") {
+                displayErrorMessage("#mlink", "Enter the Property location link");
+            } else if (!mapLink.startsWith("https://maps.app.goo")) {
+                displayErrorMessage("#mlink", "Enter a valid Google Maps location link");
+            } else {
+                $("#mlinkspan").html("");
+            }
+        }
+
+
+
+        function validateCountry() {
+            const country = $("#nation").val();
+            if (country.trim() === "") {
+                displayErrorMessage("#nation", "Select the Country");
+            } else {
+                $("#nationspan").html("");
+            }
+        }
+
+        function validateState() {
+            const state = $("#region").val();
+            if (state.trim() === "") {
+                displayErrorMessage("#region", "Select the State/Province");
+            } else {
+                $("#statespan").html("");
+            }
+        }
+
+        function validateFile() {
+            const fileInput = $(this)[0];
+            const fieldName = $(this).attr("name");
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                displayErrorMessage(`#${fieldName}`, `Upload a ${fieldName} image`);
+            } else {
+                const allowedFormats = ["image/jpeg", "image/jpg", "image/png"];
+                const file = fileInput.files[0];
+
+                if (!allowedFormats.includes(file.type)) {
+                    displayErrorMessage(`#${fieldName}`, `Invalid image format. Supported formats: JPEG, JPG, PNG`);
+                } else {
+                    $(`#${fieldName}span`).html("");
+                }
+            }
+        }
+
+        function validateDuration() {
+            const duration = $("#duration").val();
+
+            if (duration.trim() === "") {
+                displayErrorMessage("#duration", "Choose minimum duration");
+            } else {
+                $("#durationspan").html("");
+            }
+        }
+
+        function validateSqft() {
+            const sqft = $("#sqft").val();
+            if (sqft.trim() === "") {
+                displayErrorMessage("#sqft", "Enter square feet");
+            } else if (!Number.isInteger(Number(sqft))) {
+                displayErrorMessage("#sqft", "Square feet must be an integer");
+            } else {
+                const sqftValue = parseInt(sqft);
+                if (sqftValue < 100 || sqftValue > 10000) {
+                    displayErrorMessage("#sqft", "Square feet must be between 100 and 10000");
+                } else {
+                    $("#sqftspan").html("");
+                }
+            }
+        }
+
+
+        function validateBHK() {
+            const bhk = $("#bhk").val();
+            if (bhk.trim() === "") {
+                displayErrorMessage("#bhk", "Select the Number of Bedrooms ");
+            } else {
+                $("#bhkspan").html("");
+            }
+        }
+
+        function validateBTH() {
+            const bth = $("#bth").val();
+            if (bth.trim() === "") {
+                displayErrorMessage("#bth", "Select the Number of Bathrooms ");
+            } else {
+                $("#bthspan").html("");
+            }
+        }
+
+        function validatePhno() {
+            const ph = $("#contact").val();
+            const filterIreland = /^\+353\d{9}$/;
+            const filterCanada = /^\+1\d{10}$/;
+
+            if (ph === "") {
+                $("#contactspan").html("Enter the Contact Number").css("color", "#41586B");
+            } else if (!filterIreland.test(ph) && !filterCanada.test(ph)) {
+                $("#contactspan").html("Enter a valid Contact Number for Ireland or Canada").css("color", "#41586B");
+            } else {
+                $("#contactspan").html("");
+            }
+        }
+
+
+
+        function validateRent() {
+            const rent = $("#rent").val();
+            if (rent.trim() === "") {
+                displayErrorMessage("#rent", "Enter the Rent per Month");
+            } else if (!Number.isInteger(Number(rent))) {
+                displayErrorMessage("#rent", "Rent must be an integer");
+            } else {
+                const rentValue = parseInt(rent);
+                if (rentValue < 50 || rentValue > 20000) {
+                    displayErrorMessage("#rent", "Rent must be between 50 and 20000");
+                } else {
+                    $("#rentspan").html("");
+                }
+            }
+        }
+
+
+        function validateForm() {
+            return fields.every(field => {
+                const $field = $(field.id);
+                const $errorSpan = $(`${field.id}span`);
+
+                if ($field.val().trim() === "" || $errorSpan.html() !== "") {
+                    return false;
+                }
+                return true;
+            });
+        }
+    });
+</script>
