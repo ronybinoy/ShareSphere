@@ -233,6 +233,8 @@ class Property(models.Model):
 
 
 class Accbooking(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)  
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE) 
     full_name = models.CharField(max_length=100)
     email = models.EmailField()
     phone = models.CharField(max_length=20)

@@ -1615,7 +1615,8 @@ def acc_booking(request, property_id):
         emergency_contact_name = request.POST.get('emergency_contact_name')
         emergency_contact_relationship = request.POST.get('emergency_contact_relationship')
         emergency_contact_phone = request.POST.get('emergency_contact_phone')
-        
+        user_id = request.user.id
+
         # Save the data to the database
         booking = Accbooking.objects.create(
             full_name=full_name,
@@ -1631,13 +1632,15 @@ def acc_booking(request, property_id):
             emergency_contact_name=emergency_contact_name,
             emergency_contact_relationship=emergency_contact_relationship,
             emergency_contact_phone=emergency_contact_phone,
+            user_id=user_id,  # Include user_id when creating Accbooking instance
+            property_id=property_id, # Assuming Accbooking has a ForeignKey to Property
             is_active=False
         )
         
         # Redirect to a success page
-        return HttpResponseRedirect(reverse('acc_listproperty'))  # Replace 'success_page' with the name of your success page URL pattern
+        return HttpResponseRedirect(reverse('acc_listproperty'))  # Replace 'acc_listproperty' with the name of your success page URL pattern
         
-    return render(request, "accomodation/acc_booking.html")
+    return render(request, "accomodation/acc_booking.html", {'property_id': property_id})
 
 
 

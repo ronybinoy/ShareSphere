@@ -151,7 +151,7 @@
 
     <section class="ftco-section ftco-services-2">
         <div class="container">
-            <form id="bookingForm" action="/acc_booking/" method="post">
+            <form id="bookingForm" action="{% url 'acc_booking' property_id=property_id %}" method="post">
                 {% csrf_token %}
                 <!-- Personal Information -->
                 <div class="section" id="personalInfo">
@@ -178,7 +178,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <select class="form-control" id="country">
+                            <select class="form-control" id="country" name="country">
                                 <option value="">Select Country</option>
                                 <option value="Afghanistan">Afghanistan</option>
                                 <option value="Albania">Albania</option>
@@ -419,7 +419,8 @@
                                 <option value="Serbia">Serbia</option>
                                 <option value="Zambia">Zambia</option>
                                 <option value="Zimbabwe">Zimbabwe</option>
-                            </select>                            <span id="countrySpan" style="font-size: 12px;"></span>
+                            </select>                            
+                            <span id="countrySpan" style="font-size: 12px;"></span>
                         </div>
                         <div class="col-md-6">
                             <input type="text" class="form-control" name="state"  id="state" placeholder="State" required>
@@ -461,6 +462,8 @@
                     <div class="row mb-3">
                         <div class="col-md-12">
                             <textarea class="form-control" name="special_requests" id="request" placeholder="Special Requests"></textarea>
+                            <span id="requestSpan" style="font-size: 12px;"></span>
+
                         </div>
                     </div>
                 </div>
@@ -515,7 +518,7 @@
         </div>
         <script>
             function displayErrorMessage(fieldId, message) {
-                $(`${fieldId}span`).html(message);
+                $(`${fieldId}Span`).html(message);
             }
         
             $(document).ready(function () {
@@ -534,22 +537,46 @@
                     { id: "#emergency", validate: validateEmergency },
                     { id: "#emerrel", validate: validateEmerrel },
                     { id: "#emercon", validate: validateEmercon },
-                    
                 ];
                 const validationStatus = {};
         
                 fields.forEach(field => {
                     $(field.id).keyup(function () {
                         field.validate();
-                        validationStatus[fieldId] = $(`${fieldId}span`).html() === "";
+                        validationStatus[field.id] = $(`${field.id}Span`).html() === "";
                         checkFormValidity();
                     });
         
                     validateFieldOnBlur(field.id, field.validate);
                 });
         
-                
+                // File upload change event
+                $("#passportUpload").change(function () {
+                    validatepassportUpload();
+                    checkFormValidity();
+                });
         
+                // Date picker change event
+                $("#checkin").change(function () {
+                    validateCheckin();
+                    checkFormValidity();
+                });
+        
+                // Dropdown change events
+                $("#country").change(function () {
+                    validateCountry();
+                    checkFormValidity();
+                });
+        
+                $("#state").change(function () {
+                    validateState();
+                    checkFormValidity();
+                });
+        
+                $("#emerrel").change(function () {
+                    validateEmerrel();
+                    checkFormValidity();
+                });
         
                 function checkFormValidity() {
                     const isValid = Object.values(validationStatus).every(status => status);
@@ -560,7 +587,7 @@
                 function validateFieldOnBlur(fieldId, validationFunction) {
                     $(fieldId).blur(function () {
                         validationFunction();
-                        validationStatus[fieldId] = $(`${fieldId}span`).html() === "";
+                        validationStatus[fieldId] = $(`${fieldId}Span`).html() === "";
                     });
                 }
         
@@ -578,163 +605,236 @@
         
                 checkFormValidity();
         
+                // Validation functions
                 function validateName() {
                     const name = $("#name").val();
-                
-                    // Regular expression to match only alphabets
-                    const regex = /^[a-zA-Z]+$/;
-                
+                    const regex = /^[a-zA-Z\s]+$/;        
                     if (name.trim() === '') {
-                        $("#nameSpan").text("Name is required");
+                        displayErrorMessage("#name", "Name is required");
                         return false;
                     } else if (!regex.test(name)) {
-                        $("#nameSpan").text("Name should contain only alphabets");
+                        displayErrorMessage("#name", "Name should contain only alphabets");
                         return false;
                     } else {
-                        $("#nameSpan").text("");
+                        displayErrorMessage("#name", "");
                         return true;
                     }
                 }
-
+        
+        
                 function validateEmail() {
                     const email = $("#email").val();
                     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     if (email.trim() === '') {
-                        $("#emailSpan").text("Email address is required");
+                        displayErrorMessage("#email", "Email address is required");
                         return false;
                     } else if (!emailRegex.test(email)) {
-                        $("#emailSpan").text("Invalid email address");
+                        displayErrorMessage("#email", "Invalid email address");
                         return false;
                     } else {
-                        $("#emailSpan").text("");
+                        displayErrorMessage("#email", "");
                         return true;
                     }
                 }
-                
-                
+        
                 function validateContact() {
                     const phoneNumber = $("#contact").val();
                     const phoneNumberRegex = /^\d{7,14}$/;
                     if (phoneNumber.trim() === '') {
-                        $("#contactSpan").text("Phone number is required");
+                        displayErrorMessage("#contact", "Phone number is required");
                         return false;
                     } else if (!phoneNumberRegex.test(phoneNumber)) {
-                        $("#contactSpan").text("Invalid phone number format");
+                        displayErrorMessage("#contact", "Invalid phone number format");
                         return false;
                     } else {
-                        $("#contactSpan").text("");
+                        displayErrorMessage("#contact", "");
                         return true;
                     }
                 }
-                
-                
         
                 function validateAddress() {
                     const address = $("#address").val();
         
                     if (address.trim() === "") {
-                        displayErrorMessage("#addressSpan", "Enter the Property Address");
+                        displayErrorMessage("#address", "Enter the Address");
                     } else if (address.length < 10) {
-                        displayErrorMessage("#addressSpan", "Address should be at least 10 characters long");
+                        displayErrorMessage("#address", "Address should be at least 10 characters long");
                     } else if (address.length > 255) {
-                        displayErrorMessage("#addressSpan", "Address cannot exceed 255 characters");
+                        displayErrorMessage("#address", "Address cannot exceed 255 characters");
                     } else {
-                        $("#addressSpan").html("");
+                        displayErrorMessage("#address", "");
                     }
-                }       
+                }
         
         
                 function validateCountry() {
                     const country = $("#country").val();
                     if (country.trim() === '') {
-                        $("#countrySpan").text("Please select a country");
+                        displayErrorMessage("#country", "Please select a country");
                         return false;
                     } else {
-                        $("#countrySpan").text("");
+                        displayErrorMessage("#country", "");
                         return true;
                     }
                 }
-                
-                
+        
+        
         
                 function validateState() {
                     const state = $("#state").val();
                     if (state.trim() === "") {
-                        displayErrorMessage("#stateSpan", "Enter Your state or Provience");
-                    } else {
-                        $("#stateSpan").html("");
-                    }
-                }
-
-                function validatepassportNumber() {
-                    const passportNumber = $("#passportNumber").val();
-                    const passportNumberRegex = /^[a-zA-Z0-9]{8}$/;
-                    
-                    if (passportNumber.trim() === '') {
-                        $("#passportNumberSpan").text("Passport number is required");
-                        return false;
-                    } else if (!passportNumberRegex.test(passportNumber)) {
-                        $("#passportNumberSpan").text("Enter a valid passport number");
+                        displayErrorMessage("#state", "Enter your state or province");
                         return false;
                     } else {
-                        $("#passportNumberSpan").text("");
+                        displayErrorMessage("#state", "");
                         return true;
                     }
                 }
-                
+        
+        
+                function validatepassportNumber() {
+                    const passportNumber = $("#passportNumber").val();
+                    const passportNumberRegex = /^[a-zA-Z0-9]{8}$/;
+        
+                    if (passportNumber.trim() === '') {
+                        displayErrorMessage("#passportNumber", "Passport number is required");
+                        return false;
+                    } else if (!passportNumberRegex.test(passportNumber)) {
+                        displayErrorMessage("#passportNumber", "Enter a valid passport number");
+                        return false;
+                    } else {
+                        displayErrorMessage("#passportNumber", "");
+                        return true;
+                    }
+                }
+        
                 function validatepassportUpload() {
                     const fileInput = $("#passportUpload")[0]; // Get the file input element
                     const file = fileInput.files[0]; // Get the selected file
-                    
+        
                     if (!file) {
-                        $("#passportUploadSpan").text("Please select a file");
+                        displayErrorMessage("#passportUpload", "Please select a file");
                         return false;
                     }
-                    
+        
                     const fileName = file.name;
                     const fileExtension = fileName.split('.').pop().toLowerCase();
                     if (fileExtension !== 'pdf') {
-                        $("#passportUploadSpan").text("Please select a PDF file");
+                        displayErrorMessage("#passportUpload", "Please select a PDF file");
                         return false;
                     }
-
-                    $("#passportUploadSpan").text("");
+        
+                    displayErrorMessage("#passportUpload", "");
                     return true;
                 }
-                
+        
         
                 function validateAdultcount() {
                     const adultCount = $("#adultcount").val();
-                
+        
                     // Check if the field is empty
                     if (adultCount.trim() === '') {
-                        $("#adultcountSpan").text("Please enter the count of adults");
+                        displayErrorMessage("#adultcount", "Please enter the count of adults");
                         return false;
                     }
-                
+        
                     // Check if the value is a valid number between 1 and 15
                     const adultCountInt = parseInt(adultCount, 10);
                     if (isNaN(adultCountInt) || adultCountInt < 1 || adultCountInt > 15) {
-                        $("#adultcountSpan").text("Please enter the count between 1 and 15");
+                        displayErrorMessage("#adultcount", "Please enter the count between 1 and 15");
                         return false;
                     }
-                        $("#adultcountSpan").text("");
+                    displayErrorMessage("#adultcount", "");
                     return true;
                 }
-                
-                function validateCheckin(){
-
+        
+                function validateCheckin() {
+                    const selectedDate = new Date($("#checkin").val());
+                    const today = new Date();
+        
+                    // Check if the field is empty
+                    if (!selectedDate) {
+                        displayErrorMessage("#checkin", "Please select a check-in date");
+                        return false;
+                    }
+        
+                    // Check if the selected date is before today
+                    if (selectedDate <= today) {
+                        displayErrorMessage("#checkin", "Check-in date must be after today");
+                        return false;
+                    }
+        
+                    // Clear any previous error message
+                    displayErrorMessage("#checkin", "");
+        
+                    return true;
                 }
-                
+        
+                function validateRequest() {
+                    const request = $("#request").val();
+        
+                    // Regular expression to match only alphanumeric characters
+                    const regex = /^[a-zA-Z0-9\s]*$/;
+        
+                    if (request.trim() === '') {
+                        displayErrorMessage("#request", "Special requests cannot be empty(Enter Nil if no requests to make)");
+                        return false;
+                    } else if (!regex.test(request)) {
+                        displayErrorMessage("#request", "Special requests should contain only alphanumeric characters");
+                        return false;
+                    } else {
+                        displayErrorMessage("#request", "");
+                        return true;
+                    }
+                }
+        
+                function validateEmergency() {
+                    const name = $("#emergency").val();
+                    const regex = /^[a-zA-Z\s]+$/;        
+                    if (name.trim() === '') {
+                        displayErrorMessage("#emergency", "Name is required");
+                        return false;
+                    } else if (!regex.test(name)) {
+                        displayErrorMessage("#emergency", "Name should contain only alphabets");
+                        return false;
+                    } else {
+                        displayErrorMessage("#emergency", "");
+                        return true;
+                    }
+                }
+        
+                function validateEmerrel() {
+                    const relationship = $("#emerrel").val();
+        
+                    if (relationship.trim() === '') {
+                        displayErrorMessage("#emerrel", "Please select a relationship");
+                        return false;
+                    } else {
+                        displayErrorMessage("#emerrel", "");
+                        return true;
+                    }
+                }
         
         
-                
-        
+                function validateEmercon() {
+                    const phoneNumber = $("#emercon").val();
+                    const phoneNumberRegex = /^\d{7,14}$/;
+                    if (phoneNumber.trim() === '') {
+                        displayErrorMessage("#emercon", "Phone number is required");
+                        return false;
+                    } else if (!phoneNumberRegex.test(phoneNumber)) {
+                        displayErrorMessage("#emercon", "Invalid phone number format");
+                        return false;
+                    } else {
+                        displayErrorMessage("#emercon", "");
+                        return true;
+                    }
+                }
         
                 function validateForm() {
                     return fields.every(field => {
                         const $field = $(field.id);
-                        const $errorSpan = $(`${field.id}span`);
+                        const $errorSpan = $(`${field.id}Span`);
         
                         if ($field.val().trim() === "" || $errorSpan.html() !== "") {
                             return false;
@@ -744,6 +844,7 @@
                 }
             });
         </script>
+        
     </section>
     
     <footer class="ftco-footer ftco-section">
