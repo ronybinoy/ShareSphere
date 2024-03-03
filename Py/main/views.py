@@ -1598,8 +1598,8 @@ def edit_property_modal(request, property_id):
     return render(request, 'accomodation/acc_propertylist.html', {'property_obj': property_obj})
 
 
+@login_required
 def acc_booking(request, property_id):
-    print(property_id)
     if request.method == 'POST':
         # Retrieve form data
         full_name = request.POST.get('full_name')
@@ -1617,7 +1617,7 @@ def acc_booking(request, property_id):
         emergency_contact_phone = request.POST.get('emergency_contact_phone')
         user_id = request.user.id
 
-        # Save the data to the database
+        # Save the data to the database and retrieve the booking ID
         booking = Accbooking.objects.create(
             full_name=full_name,
             email=email,
@@ -1632,50 +1632,50 @@ def acc_booking(request, property_id):
             emergency_contact_name=emergency_contact_name,
             emergency_contact_relationship=emergency_contact_relationship,
             emergency_contact_phone=emergency_contact_phone,
-            user_id=user_id,  # Include user_id when creating Accbooking instance
-            property_id=property_id, # Assuming Accbooking has a ForeignKey to Property
+            user_id=user_id,
+            property_id=property_id,
             is_active=False
         )
         
-        # Redirect to a success page
-        return HttpResponseRedirect(reverse('acc_listproperty'))  # Replace 'acc_listproperty' with the name of your success page URL pattern
-        
+        # Retrieve the booking ID
+        booking_id = booking.id
+
+        # Redirect to the payment page with the booking ID
+        payment_url = reverse("accpayment", args=[booking_id])
+        return redirect(payment_url)
+
     return render(request, "accomodation/acc_booking.html", {'property_id': property_id})
 
 
 
-#payment of 
+
 
 
 razorpay_client = razorpay.Client(
     auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
 
-def homepage(request):
+def accpayment(request,booking_id):
+    print(booking_id)
     currency = 'INR'
-    amount = 20000  # Rs. 200
+    amount = 200000  # Rs. 2000
 
-    # Create a Razorpay Order
     razorpay_order = razorpay_client.order.create(dict(amount=amount,
                                                     currency=currency,
                                                     payment_capture='0'))
 
-    # order id of newly created order.
     razorpay_order_id = razorpay_order['id']
-    callback_url = 'paymenthandler/'
+    callback_url = 'accpaymenthandler/'
 
-    # we need to pass these details to frontend.
     context = {}
     context['razorpay_order_id'] = razorpay_order_id
     context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
     context['razorpay_amount'] = amount
     context['currency'] = currency
     context['callback_url'] = callback_url
-    return render(request, 'index.html', context=context)
-# we need to csrf_exempt this url as
-# POST request will be made by Razorpay
-# and it won't have the csrf token.
+    return render(request, 'accomodation/paymentindex.html', context=context)
+
 @csrf_exempt
-def paymenthandler(request):
+def accpaymenthandler(request):
     # only accept POST request.
     if request.method == "POST":
         try:
@@ -1692,14 +1692,14 @@ def paymenthandler(request):
             result = razorpay_client.utility.verify_payment_signature(
                 params_dict)
             if result is not None:
-                amount = 20000  # Rs. 200
+                amount = 200000  
                 try:
                     razorpay_client.payment.capture(payment_id, amount)
-                    return render(request, 'paymentsuccess.html')
+                    return render(request, 'accomodation/paymentsuccess.html')
                 except:
-                    return render(request, 'paymentfail.html')
+                    return render(request, 'accomodation/paymentfail.html')
             else:
-                return render(request, 'paymentfail.html')
+                return render(request, 'accomodation/paymentfail.html')
         except:
             return HttpResponseBadRequest()
     else:

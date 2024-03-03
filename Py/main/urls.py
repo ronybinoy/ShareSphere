@@ -80,6 +80,8 @@ urlpatterns = [
     path('acc_listproperty/', views.acc_listproperty, name='acc_listproperty'),
     path('property/search/', views.property_search, name='property_search'),
     path('acc_booking/<int:property_id>/', views.acc_booking, name='acc_booking'),
+    path('accpayment/<int:booking_id>/', views.accpayment, name='accpayment'),  # Add this line
+    path('accpaymenthandler/', views.accpaymenthandler, name='accpaymenthandler'),
 
     
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),

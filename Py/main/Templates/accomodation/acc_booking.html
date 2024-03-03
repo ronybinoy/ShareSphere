@@ -178,7 +178,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <select class="form-control" id="country" name="country">
+                            <select class="form-control" id="country" name="country" required>
                                 <option value="">Select Country</option>
                                 <option value="Afghanistan">Afghanistan</option>
                                 <option value="Albania">Albania</option>
@@ -461,10 +461,10 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-12">
-                            <textarea class="form-control" name="special_requests" id="request" placeholder="Special Requests"></textarea>
+                            <textarea class="form-control" name="special_requests" id="request" placeholder="Special Requests" required></textarea>
                             <span id="requestSpan" style="font-size: 12px;"></span>
 
-                        </div>
+                        </div> 
                     </div>
                 </div>
             
@@ -473,7 +473,7 @@
                     <h2 style="font-weight: bold; font-size: 18px;">Emergency Contact Information</h2>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <input type="text" class="form-control" name="emergency_contact_name" id="emergency" placeholder="Name">
+                            <input type="text" class="form-control" name="emergency_contact_name" id="emergency" placeholder="Name" required>
                             <span id="emergencySpan" style="font-size: 12px;"></span>
                         </div>
                         <div class="col-md-6">
@@ -491,7 +491,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <input type="tel" class="form-control" name="emergency_contact_phone" id="emercon" placeholder="Phone Number (Include Country Code)">
+                            <input type="tel" class="form-control" name="emergency_contact_phone" id="emercon" placeholder="Phone Number (Include Country Code)" required>
                             <span id="emerconSpan" style="font-size: 12px;"></span>
                         </div>
                     </div>
@@ -602,8 +602,10 @@
                         return false;
                     }
                 });
+                
         
                 checkFormValidity();
+
         
                 // Validation functions
                 function validateName() {
