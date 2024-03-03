@@ -11,6 +11,8 @@
             { id: "#address", validate: validateAddress },
             { id: "#state", validate: validateState },
             { id: "#country", validate: validateCountry },
+            { id: "#passportNumber", validate: validatepassportNumber },
+            { id: "#passportUpload", validate: validatepassportUpload },
             { id: "#checkin", validate: validateCheckin },
             { id: "#adultcount", validate: validateAdultcount },
             { id: "#request", validate: validateRequest },
@@ -27,7 +29,6 @@
                 validationStatus[fieldId] = $(`${fieldId}span`).html() === "";
                 checkFormValidity();
             });
-
             validateFieldOnBlur(field.id, field.validate);
         });
 
@@ -48,7 +49,7 @@
         }
 
         // Form submission
-        $("#propertyForm").submit(function (event) {
+        $("#bookingForm").submit(function (event) {
             if (!$("#submitBtn").prop("disabled")) {
                 // Form is valid, allow submission
                 return true;
@@ -61,19 +62,24 @@
 
         checkFormValidity();
 
-        function validatePropertyname() {
-            const pname = $("#pname").val();
-
-            if (pname.trim() === "") {
-                displayErrorMessage("#pname", "Enter the Property Name");
-            } else if (pname.length > 20) {
-                displayErrorMessage("#pname", "Property Name cannot exceed 20 characters");
-            } else if (!/^[a-zA-Z0-9\s]+$/.test(pname)) {
-                displayErrorMessage("#pname", "Property Name can only contain letters, numbers, and spaces");
+        function validateName() {
+            const name = $("#name").val();
+        
+            // Regular expression to match only alphabets
+            const regex = /^[a-zA-Z]+$/;
+        
+            if (name.trim() === '') {
+                $("#nameSpan").text("Name is required");
+                return false;
+            } else if (!regex.test(name)) {
+                $("#nameSpan").text("Name should contain only alphabets");
+                return false;
             } else {
-                $("#pnamespan").html("");
+                $("#nameSpan").text("");
+                return true;
             }
         }
+        
 
         function validateAddress() {
             const address = $("#address").val();

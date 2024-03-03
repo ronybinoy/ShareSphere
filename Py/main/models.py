@@ -229,3 +229,24 @@ class Property(models.Model):
     
     def __str__(self):
         return self.property_name
+
+
+
+class Accbooking(models.Model):
+    full_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    address = models.CharField(max_length=200)
+    country = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    passport_number = models.CharField(max_length=20)
+    check_in_date = models.DateField()
+    num_adults = models.IntegerField()
+    special_requests = models.TextField(blank=True)
+    emergency_contact_name = models.CharField(max_length=100)
+    emergency_contact_relationship = models.CharField(max_length=100)
+    emergency_contact_phone = models.CharField(max_length=20)
+    is_active = models.BooleanField(default=False) 
+    
+    def __str__(self):
+        return self.full_name

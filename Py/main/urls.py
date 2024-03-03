@@ -79,7 +79,7 @@ urlpatterns = [
     path('acc_propertyview/', views.acc_propertyview, name="acc_propertyview" ),
     path('acc_listproperty/', views.acc_listproperty, name='acc_listproperty'),
     path('property/search/', views.property_search, name='property_search'),
-    path('acc_booking/', views.acc_booking, name='acc_booking'),
+    path('acc_booking/<int:property_id>/', views.acc_booking, name='acc_booking'),
 
     
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),

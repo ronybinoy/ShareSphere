@@ -147,7 +147,7 @@
                                     <h4 class="price">${{ property.rent_per_month }}/mo</h4>
                                 </div>
                                 <p>{{ property.address }}, {{ property.state_province }}, {{ property.country }}</p>
-                                <a href="#" class="btn btn-primary">Book Now</a>
+                                <a href="{% url 'acc_booking' property_id=property.id %}" class="btn btn-primary">Book Now</a>
                                 <a href="#" class="btn btn-secondary">Enquire</a>
                             </div>
                         </div>

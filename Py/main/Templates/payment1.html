@@ -76,11 +76,11 @@
         </div>
     </div>
 
-    <!-- Razorpay's Javascript code. -->
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         var options = {
-            // Enter the Key ID generated from the Dashboard
+            // Enter the Key ID generated from the Dashboard 
             key: "{{ razorpay_merchant_key }}",
             
             // Amount is in currency subunits.
@@ -89,10 +89,8 @@
             amount: "{{ razorpay_amount }}",
             currency: "{{ currency }}",
             
-            // Your/store name.
             name: "ShareSphere Education",
             
-            // Pass the `id` obtained in the response of Step 1
             order_id: "{{ razorpay_order_id }}",
             callback_url: "{{ callback_url }}",
         };

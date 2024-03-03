@@ -16,7 +16,8 @@ from .models import (
     Migrant,
     Payment,
     Property,
-    Landlord
+    Landlord,
+    Accbooking,
 )
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.http import Http404, HttpResponseRedirect, JsonResponse
@@ -1597,5 +1598,107 @@ def edit_property_modal(request, property_id):
     return render(request, 'accomodation/acc_propertylist.html', {'property_obj': property_obj})
 
 
-def acc_booking(request):
+def acc_booking(request, property_id):
+    print(property_id)
+    if request.method == 'POST':
+        # Retrieve form data
+        full_name = request.POST.get('full_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        country = request.POST.get('country')
+        state = request.POST.get('state')
+        passport_number = request.POST.get('passport_number')
+        check_in_date = request.POST.get('check_in_date')
+        num_adults = request.POST.get('num_adults')
+        special_requests = request.POST.get('special_requests')
+        emergency_contact_name = request.POST.get('emergency_contact_name')
+        emergency_contact_relationship = request.POST.get('emergency_contact_relationship')
+        emergency_contact_phone = request.POST.get('emergency_contact_phone')
+        
+        # Save the data to the database
+        booking = Accbooking.objects.create(
+            full_name=full_name,
+            email=email,
+            phone=phone,
+            address=address,
+            country=country,
+            state=state,
+            passport_number=passport_number,
+            check_in_date=check_in_date,
+            num_adults=num_adults,
+            special_requests=special_requests,
+            emergency_contact_name=emergency_contact_name,
+            emergency_contact_relationship=emergency_contact_relationship,
+            emergency_contact_phone=emergency_contact_phone,
+            is_active=False
+        )
+        
+        # Redirect to a success page
+        return HttpResponseRedirect(reverse('acc_listproperty'))  # Replace 'success_page' with the name of your success page URL pattern
+        
     return render(request, "accomodation/acc_booking.html")
+
+
+
+#payment of 
+
+
+razorpay_client = razorpay.Client(
+    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+
+def homepage(request):
+    currency = 'INR'
+    amount = 20000  # Rs. 200
+
+    # Create a Razorpay Order
+    razorpay_order = razorpay_client.order.create(dict(amount=amount,
+                                                    currency=currency,
+                                                    payment_capture='0'))
+
+    # order id of newly created order.
+    razorpay_order_id = razorpay_order['id']
+    callback_url = 'paymenthandler/'
+
+    # we need to pass these details to frontend.
+    context = {}
+    context['razorpay_order_id'] = razorpay_order_id
+    context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
+    context['razorpay_amount'] = amount
+    context['currency'] = currency
+    context['callback_url'] = callback_url
+    return render(request, 'index.html', context=context)
+# we need to csrf_exempt this url as
+# POST request will be made by Razorpay
+# and it won't have the csrf token.
+@csrf_exempt
+def paymenthandler(request):
+    # only accept POST request.
+    if request.method == "POST":
+        try:
+            # get the required parameters from post request.
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            signature = request.POST.get('razorpay_signature', '')
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            }
+            # verify the payment signature.
+            result = razorpay_client.utility.verify_payment_signature(
+                params_dict)
+            if result is not None:
+                amount = 20000  # Rs. 200
+                try:
+                    razorpay_client.payment.capture(payment_id, amount)
+                    return render(request, 'paymentsuccess.html')
+                except:
+                    return render(request, 'paymentfail.html')
+            else:
+                return render(request, 'paymentfail.html')
+        except:
+            return HttpResponseBadRequest()
+    else:
+    # if other than POST request is made.
+        return HttpResponseBadRequest()
