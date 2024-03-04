@@ -81,8 +81,8 @@ urlpatterns = [
     path('property/search/', views.property_search, name='property_search'),
     path('acc_booking/<int:property_id>/', views.acc_booking, name='acc_booking'),
     path('accpayment/<int:booking_id>/', views.accpayment, name='accpayment'),  # Add this line
-    path('accpaymenthandler/', views.accpaymenthandler, name='accpaymenthandler'),
-
+    path('accpaymenthandler/<int:booking_id>/', views.accpaymenthandler, name='accpaymenthandler'),  # Add this line
+    path('rentagreement/', views.rentagreement, name="rentagreement"),
     
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("", views.home, name="home"),  

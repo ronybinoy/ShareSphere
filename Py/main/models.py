@@ -192,6 +192,7 @@ class Property(models.Model):
         ('inactive', 'Inactive'),
         ('rejected', 'Rejected'),
         ('pending', 'Pending'),
+        ('reserved','reserved')
         # Add other status choices as needed
     ]
     
@@ -252,3 +253,14 @@ class Accbooking(models.Model):
     
     def __str__(self):
         return self.full_name
+
+class AccPayment(models.Model):
+    booking = models.ForeignKey(Accbooking, on_delete=models.CASCADE)
+    payment_id = models.CharField(max_length=100)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=10)
+    status = models.CharField(max_length=20, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Payment for booking {self.booking.id}"

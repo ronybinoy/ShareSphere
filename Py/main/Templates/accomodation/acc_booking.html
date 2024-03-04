@@ -753,24 +753,27 @@
                 function validateCheckin() {
                     const selectedDate = new Date($("#checkin").val());
                     const today = new Date();
-        
+                    const nextMonth = new Date();
+                    nextMonth.setMonth(nextMonth.getMonth() + 1); // Set date to next month
+                
                     // Check if the field is empty
                     if (!selectedDate) {
                         displayErrorMessage("#checkin", "Please select a check-in date");
                         return false;
                     }
-        
-                    // Check if the selected date is before today
-                    if (selectedDate <= today) {
-                        displayErrorMessage("#checkin", "Check-in date must be after today");
+                
+                    // Check if the selected date is after today and within the next month
+                    if (selectedDate <= today || selectedDate > nextMonth) {
+                        displayErrorMessage("#checkin", "Check-in date must be after today and within the next month");
                         return false;
                     }
-        
+                
                     // Clear any previous error message
                     displayErrorMessage("#checkin", "");
-        
+                
                     return true;
                 }
+                
         
                 function validateRequest() {
                     const request = $("#request").val();

@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 from .models import (
+    AccPayment,
     Course,
     Room,
     Message,
@@ -1651,35 +1652,44 @@ def acc_booking(request, property_id):
 
 
 
-razorpay_client = razorpay.Client(
-    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+razorpay_client = razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
 
-def accpayment(request,booking_id):
-    print(booking_id)
-    currency = 'INR'
-    amount = 200000  # Rs. 2000
+def accpayment(request, booking_id):
+    try:
+        # Retrieve booking details
+        booking = Accbooking.objects.get(id=booking_id)
+        property = booking.property
 
-    razorpay_order = razorpay_client.order.create(dict(amount=amount,
-                                                    currency=currency,
-                                                    payment_capture='0'))
+        # Calculate amount based on rent_per_month * 80 * 3
+        amount = property.rent_per_month * 80 * 3
+        # Convert to paise (Razorpay requires amount in smallest currency unit)
+        amount_paise = int(amount * 100)
 
-    razorpay_order_id = razorpay_order['id']
-    callback_url = 'accpaymenthandler/'
+        # Create Razorpay order
+        razorpay_order = razorpay_client.order.create(dict(amount=amount_paise, currency='INR', payment_capture='0'))
+        razorpay_order_id = razorpay_order['id']
 
-    context = {}
-    context['razorpay_order_id'] = razorpay_order_id
-    context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
-    context['razorpay_amount'] = amount
-    context['currency'] = currency
-    context['callback_url'] = callback_url
-    return render(request, 'accomodation/paymentindex.html', context=context)
+        # Generate callback URL
+        callback_url = reverse('accpaymenthandler', kwargs={'booking_id': booking_id})
+
+        context = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_merchant_key': settings.RAZOR_KEY_ID,
+            'razorpay_amount': amount_paise,
+            'currency': 'INR',
+            'callback_url': callback_url
+        }
+        return render(request, 'accomodation/paymentindex.html', context=context)
+    except Exception as e:
+        print(f"Error fetching amount: {e}")
+        return HttpResponseBadRequest()
+
+
 
 @csrf_exempt
-def accpaymenthandler(request):
-    # only accept POST request.
+def accpaymenthandler(request, booking_id):
     if request.method == "POST":
         try:
-            # get the required parameters from post request.
             payment_id = request.POST.get('razorpay_payment_id', '')
             razorpay_order_id = request.POST.get('razorpay_order_id', '')
             signature = request.POST.get('razorpay_signature', '')
@@ -1688,20 +1698,49 @@ def accpaymenthandler(request):
                 'razorpay_payment_id': payment_id,
                 'razorpay_signature': signature
             }
-            # verify the payment signature.
-            result = razorpay_client.utility.verify_payment_signature(
-                params_dict)
+
+            result = razorpay_client.utility.verify_payment_signature(params_dict)
             if result is not None:
-                amount = 200000  
-                try:
-                    razorpay_client.payment.capture(payment_id, amount)
-                    return render(request, 'accomodation/paymentsuccess.html')
-                except:
-                    return render(request, 'accomodation/paymentfail.html')
+                # Retrieve booking details
+                booking = get_object_or_404(Accbooking, id=booking_id)
+                property = booking.property
+                
+                # Calculate the amount to capture based on rent_per_month * 80 * 3
+                amount = property.rent_per_month * 80 * 3
+                
+                # Convert the amount to paise (Razorpay requires amount in the smallest currency unit)
+                amount_paise = int(amount * 100)
+
+                # Capture payment
+                razorpay_client.payment.capture(payment_id, amount_paise)
+
+                # Update booking status to True
+                booking.is_active = True
+                booking.save()
+
+                # Change property status to 'reserved'
+                property.status = 'reserved'
+                property.save()
+
+                # Save payment details
+                payment = AccPayment.objects.create(
+                    booking=booking,
+                    payment_id=payment_id,
+                    amount=amount,
+                    currency='INR',  # Assuming currency is always INR
+                    status='Success'  # Assuming payment capture is successful
+                )
+
+                # Redirect to rent agreement page
+                return redirect('rentagreement')
             else:
                 return render(request, 'accomodation/paymentfail.html')
-        except:
-            return HttpResponseBadRequest()
+        except Exception as e:
+            print(f"Error processing payment: {e}")
+            return render(request, 'accomodation/paymentfail.html')
     else:
-    # if other than POST request is made.
         return HttpResponseBadRequest()
+
+
+def rentagreement(request):
+    return render(request, 'accomodation/acc_rentagreement.html')
