@@ -84,6 +84,7 @@ urlpatterns = [
     path('accpaymenthandler/<int:booking_id>/', views.accpaymenthandler, name='accpaymenthandler'),  # Add this line
     path('rentagreement/<int:booking_id>/', views.rentagreement, name='rentagreement'),
     path('download/<int:agreement_id>/', views.download_agreement, name='download_agreement'),
+    path('bookings/', views.bookings, name='bookings'),
 
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("", views.home, name="home"),  

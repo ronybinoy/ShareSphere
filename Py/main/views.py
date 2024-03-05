@@ -1794,12 +1794,16 @@ def generate_agreement_content(booking, deposit_amount):
     return content
 
 
+
+
+@login_required
 def rentagreement(request, booking_id):
     # Retrieve the booking object
     booking = get_object_or_404(Accbooking, id=booking_id)
     
     # Calculate the deposit amount (3 times the rent per month)
     deposit_amount = 3 * booking.property.rent_per_month
+    
     # Generate agreement content
     agreement_content = generate_agreement_content(booking, deposit_amount)
     
@@ -1807,7 +1811,6 @@ def rentagreement(request, booking_id):
     agreement, created = Agreement.objects.get_or_create(booking=booking)
     agreement.content = agreement_content
     agreement.save()
-
 
     context = {
         'currentDate': booking.check_in_date.strftime("%Y-%m-%d"),
@@ -1821,15 +1824,14 @@ def rentagreement(request, booking_id):
         'todayDate': booking.check_in_date.strftime("%Y-%m-%d"),
         'monthlyRent': booking.property.rent_per_month,
         'depositAmount': str(deposit_amount),
-        'agreement': agreement,  # Pass the agreement object to the context
+        'agreement': agreement,
         'accbooking': booking,
         'property': booking.property,
     }
     # Render the template with context data
     return render(request, 'accomodation/acc_rentagreement.html', context)
 
-
-
+@login_required
 def download_agreement(request, agreement_id):
     # Retrieve the agreement object
     agreement = get_object_or_404(Agreement, id=agreement_id)
@@ -1841,6 +1843,14 @@ def download_agreement(request, agreement_id):
     response = HttpResponse(agreement_content, content_type='text/plain')
     
     # Set the file name for download
-    response['Content-Disposition'] = f'attachment; filename="agreement_{agreement_id}.txt"'
+    response['Content-Disposition'] = f'attachment; filename="agreement_{agreement_id}.pdf"'
     
     return response
+
+@login_required
+def bookings(request):
+    bookings = Accbooking.objects.filter(user=request.user)
+    context = {
+        'bookings': bookings
+    }
+    return render(request, 'accomodation/bookings.html', context)

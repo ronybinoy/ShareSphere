@@ -59,7 +59,9 @@
                         <p>{{ user.first_name }} {{ user.last_name }}</p>
                     </a>
                     <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'bookings' %}">My Bookings</a></li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
+
                     </ul>
                 </li>
             {% else %}
