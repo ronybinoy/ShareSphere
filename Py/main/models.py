@@ -193,7 +193,6 @@ class Property(models.Model):
         ('rejected', 'Rejected'),
         ('pending', 'Pending'),
         ('reserved','reserved')
-        # Add other status choices as needed
     ]
     
     landlord = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -264,3 +263,10 @@ class AccPayment(models.Model):
 
     def __str__(self):
         return f"Payment for booking {self.booking.id}"
+
+
+class Agreement(models.Model):
+    booking = models.ForeignKey(Accbooking, on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

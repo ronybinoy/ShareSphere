@@ -8,6 +8,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.shortcuts import get_object_or_404
 from .models import (
     AccPayment,
+    Agreement,
     Course,
     Room,
     Message,
@@ -21,7 +22,7 @@ from .models import (
     Accbooking,
 )
 from django.contrib.auth import authenticate, login as auth_login, logout
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import FileResponse, Http404, HttpResponseNotFound, HttpResponseRedirect, JsonResponse
 from django.views.decorators.http import require_GET
 from django.core.exceptions import ValidationError
 from django.core.files import File
@@ -1731,8 +1732,8 @@ def accpaymenthandler(request, booking_id):
                     status='Success'  # Assuming payment capture is successful
                 )
 
-                # Redirect to rent agreement page
-                return redirect('rentagreement')
+                # Redirect to rent agreement page with booking_id parameter
+                return redirect(reverse('rentagreement', kwargs={'booking_id': booking_id}))
             else:
                 return render(request, 'accomodation/paymentfail.html')
         except Exception as e:
@@ -1742,5 +1743,104 @@ def accpaymenthandler(request, booking_id):
         return HttpResponseBadRequest()
 
 
-def rentagreement(request):
-    return render(request, 'accomodation/acc_rentagreement.html')
+def generate_agreement_content(booking, deposit_amount):
+    content = f"""
+    RENTAL AGREEMENT
+    
+    This agreement made on this {booking.check_in_date.strftime("%Y-%m-%d")} between
+    {booking.property.landlord.first_name.capitalize()} {booking.property.landlord.last_name.capitalize()}, with mobile number {booking.property.contact_number} residing at {booking.property.address}, hereinafter referred to as the 'LESSOR' of the One Part 
+    AND 
+    {booking.full_name}, with mobile number {booking.phone}, residing at {booking.address}, hereinafter referred to as the 'LESSEE(s)' of the other Part;
+    
+    WHEREAS the Lessor is the lawful owner of the property located at {booking.property.address}, hereinafter referred to as the 'said premises'.
+    
+    AND WHEREAS at the request of the Lessee, the Lessor has agreed to let the said premises to the tenant for a term of {booking.property.minimum_duration_of_rent} Months commencing from {booking.check_in_date.strftime("%Y-%m-%d")} in the manner hereinafter appearing.
+    
+    NOW THIS AGREEMENT WITNESSETH AND IT IS HEREBY AGREED BY AND BETWEEN THE PARTIES AS UNDER:
+    
+    1. That the Lessor hereby grants to the Lessee, the right to enter and use and remain in the said premises along with the existing fixtures and fittings listed in Annexure 1 to this Agreement and that the Lessee shall be entitled to peacefully possess and enjoy possession of the said premises for use, and the other rights herein.
+    
+    2. That the lease hereby granted shall, unless canceled earlier under any provision of this Agreement, remain in force for a period of {booking.property.minimum_duration_of_rent} Months.
+    
+    3. That the Lessee will have the option to terminate this lease by giving in writing to the Lessor.
+    
+    4. That the Lessee shall have no right to create any sub-lease or assign or transfer in any manner the lease or give to anyone the possession of the said premises or any part thereof.
+    
+    5. That the Lessee shall use the said premises only for residential purposes.
+    
+    6. That the Lessor shall, before handing over the said premises, ensure the working of sanitary, electrical and water supply connections and other fittings pertaining to the said premises. It is agreed that it shall be the responsibility of the Lessor for their return in the working condition at the time of re-possession of the said premises, subject to normal wear and tear.
+    
+    7. That the Lessee is not authorized to make any alteration in the construction of the said premises.
+    
+    8. That the day-to-day repair jobs shall be affected by the Lessee at his own cost, and any major repairs, either structural or to the electrical or water connection, plumbing leaks, water seepage shall be attended to by the Lessor. In the event of the Lessor failing to carry out the repairs on receiving notice from the Lessee, the Lessee shall undertake the necessary repairs and the Lessor will be liable to immediately reimburse costs incurred by the Lessee.
+    
+    9. That the Lessor or its duly authorized agent shall have the right to enter or upon the said premises or any part thereof at a mutually arranged convenient time for the purpose of inspection.
+    
+    10. That in consideration of use of the said premises the Lessee agrees that he shall pay to the Lessor during the period of this agreement, a monthly rent at the rate of ₹{booking.property.rent_per_month}. The amount will be paid in advance on or before the date of 4th of every English calendar month.
+    
+    11. That in the event of default in payment of the rent for a consecutive period of three months, the Lessor shall be entitled to terminate the lease.
+    
+    12. That the Lessee has paid to the Lessor a sum of ₹{deposit_amount}, free of interest. The said deposit shall be returned to the Lessee simultaneously with the Lessee vacating the said premises. In the event of failure on the part of the Lessor to refund the said deposit amount to the Lessee as aforesaid, the Lessee shall be entitled to continue to use and occupy the said premises without payment of any rent until the Lessor refunds the said amount.
+    
+    13. That the Lessor shall be responsible for the payment of all taxes and levies pertaining to the said premises including but not limited to House Tax, Property Tax, other cesses, if any, and any other statutory taxes, levied by the Government or Governmental Departments. During the term of this Agreement, the Lessor shall comply with all rules, regulations and requirements of any statutory authority, local, state, and central government, and governmental departments in relation to the said premises.
+    
+    IN WITNESS WHEREOF, the parties hereto have set their hands on the day and year first hereinabove mentioned.
+    
+    Agreed & Accepted by the Lessor {booking.property.landlord.first_name.capitalize()} {booking.property.landlord.last_name.capitalize()}
+    
+    Agreed & Accepted by the Lessee {booking.full_name}
+    """
+
+    return content
+
+
+def rentagreement(request, booking_id):
+    # Retrieve the booking object
+    booking = get_object_or_404(Accbooking, id=booking_id)
+    
+    # Calculate the deposit amount (3 times the rent per month)
+    deposit_amount = 3 * booking.property.rent_per_month
+    # Generate agreement content
+    agreement_content = generate_agreement_content(booking, deposit_amount)
+    
+    # Save agreement to Agreement model
+    agreement, created = Agreement.objects.get_or_create(booking=booking)
+    agreement.content = agreement_content
+    agreement.save()
+
+
+    context = {
+        'currentDate': booking.check_in_date.strftime("%Y-%m-%d"),
+        'lessorName': booking.property.landlord,
+        'lessorMobile': booking.property.contact_number,
+        'lessorAddress': booking.property.address,
+        'lesseeName': booking.full_name,
+        'lesseeMobile': booking.phone,
+        'lesseeAddress': booking.address,
+        'leaseTerm': booking.property.minimum_duration_of_rent,
+        'todayDate': booking.check_in_date.strftime("%Y-%m-%d"),
+        'monthlyRent': booking.property.rent_per_month,
+        'depositAmount': str(deposit_amount),
+        'agreement': agreement,  # Pass the agreement object to the context
+        'accbooking': booking,
+        'property': booking.property,
+    }
+    # Render the template with context data
+    return render(request, 'accomodation/acc_rentagreement.html', context)
+
+
+
+def download_agreement(request, agreement_id):
+    # Retrieve the agreement object
+    agreement = get_object_or_404(Agreement, id=agreement_id)
+    
+    # Retrieve the content of the agreement
+    agreement_content = agreement.content
+    
+    # Generate a response with the agreement content as a file attachment
+    response = HttpResponse(agreement_content, content_type='text/plain')
+    
+    # Set the file name for download
+    response['Content-Disposition'] = f'attachment; filename="agreement_{agreement_id}.txt"'
+    
+    return response
