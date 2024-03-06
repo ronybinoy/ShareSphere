@@ -1,6 +1,7 @@
 import datetime
 from random import randint
 from sqlite3 import IntegrityError
+from tkinter import Canvas
 from django.shortcuts import render, redirect, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -1291,13 +1292,14 @@ def acc_home(request):
             rejected_properties = properties.filter(status='rejected')
             inactive_properties = properties.filter(status='inactive')
             pending_properties = properties.filter(status='pending')
+            reserved_properties = properties.filter(status='reserved')
+
             active_properties = properties.filter(status='active')  # Excluding rejected and inactive properties
-            return render(request, "accomodation/acc_home.html", {'properties': properties, 'rejected_properties': rejected_properties, 'inactive_properties': inactive_properties, 'active_properties': active_properties, 'pending_properties': pending_properties})
+            return render(request, "accomodation/acc_home.html", {'properties': properties, 'rejected_properties': rejected_properties, 'inactive_properties': inactive_properties, 'active_properties': active_properties, 'reserved_properties': reserved_properties, 'pending_properties': pending_properties})
         except Landlord.DoesNotExist:
-            # Handle the case where Landlord does not exist for the current user
             raise Http404("Landlord does not exist for this user.")
     else:
-        return render(request, "accomodation/acc_home.html", {'properties': [], 'rejected_properties': [], 'inactive_properties': [], 'active_properties': [], 'pending_properties': []})
+        return render(request, "accomodation/acc_home.html", {'properties': [], 'rejected_properties': [], 'inactive_properties': [], 'active_properties': [], 'reserved_properties':[], 'pending_properties': []})
 
 
 
@@ -1553,6 +1555,17 @@ def acc_propertyview(request):
     else:
         # Handle the case when the request method is not POST
         return HttpResponse("Invalid request method")
+    
+    
+def acc_reserverpropertyview(request):
+    if request.method == "POST":
+        property_id = request.POST.get("property_id")
+        # Retrieve the property object associated with the passed ID
+        property_obj = get_object_or_404(Property, id=property_id, status='reserved')
+        return render(request, "accomodation/acc_propertyview.html", {'property': property_obj})
+    else:
+        # Handle the case when the request method is not POST
+        return HttpResponse("Invalid request method")
 
 
 def property_search(request):
@@ -1592,13 +1605,81 @@ def acc_listproperty(request):
     return render(request, "accomodation/acc_propertylist.html", {'page_obj': page_obj})
 
 
-def edit_property_modal(request, property_id):
-    # Fetch the property object based on its ID
-    property_obj = get_object_or_404(Property, id=property_id)
-    
-    # Pass the property object to the template
-    return render(request, 'accomodation/acc_propertylist.html', {'property_obj': property_obj})
+def edit_property(request, property_id):
+    property_instance = get_object_or_404(Property, pk=property_id)
 
+    if request.method == "POST":
+        property_name = request.POST.get("edit_pname")
+        address = request.POST.get("edit_address")
+        property_location_link = request.POST.get("edit_mlink")
+        contact_number = request.POST.get("edit_contact1")
+        country = request.POST.get("edit_nation")
+        state_province = request.POST.get("edit_region")
+        city = request.POST.get("edit_city")
+        frontview_image = request.POST.get("edit_frontview")
+        living_room_image = request.POST.get("edit_living")
+        bedroom_image = request.POST.get("edit_bedroom")
+        bathroom_image = request.POST.get("edit_city")
+
+        rent_per_month = request.POST.get("edit_rent")
+        minimum_duration_of_rent = request.POST.get("edit_duration")
+        number_of_bedrooms = request.POST.get("edit_bhk")
+        total_squarefeet = request.POST.get("edit_sqft")
+        number_of_bathroom = request.POST.get("edit_bth")
+        parking_area = request.POST.get("edit_Parea") == "on"
+        cctv = request.POST.get("edit_cctv") == "on"
+        heater = request.POST.get("edit_heater") == "on"
+        air_conditioning = request.POST.get("edit_ac") == "on"
+        power_backup = request.POST.get("edit_pback") == "on"
+        wifi = request.POST.get("edit_wifi") == "on"
+        # Add similar handling for other fields
+        
+        # Update the property's details
+        property_instance.property_name = property_name
+        property_instance.address = address
+        property_instance.property_location_link = property_location_link
+        property_instance.contact_number = contact_number
+        property_instance.rent_per_month = rent_per_month
+        property_instance.minimum_duration_of_rent = minimum_duration_of_rent
+        property_instance.number_of_bedrooms = number_of_bedrooms
+        property_instance.total_squarefeet = total_squarefeet
+        property_instance.number_of_bathroom = number_of_bathroom
+        property_instance.parking_area = parking_area
+        property_instance.cctv = cctv
+        property_instance.heater = heater
+        property_instance.air_conditioning = air_conditioning
+        property_instance.power_backup = power_backup
+        property_instance.wifi = wifi
+        # Update other fields similarly
+
+        property_instance.save()
+
+        return JsonResponse({'message': 'Property updated successfully'})
+
+    # For GET requests, return property details as JSON
+    property_data = {
+        'property_name': property_instance.property_name,
+        'address': property_instance.address,
+        'property_location_link': property_instance.property_location_link,
+        'contact_number': property_instance.contact_number,
+        'country': property_instance.country,
+        'state_province': property_instance.state_province,
+        'city': property_instance.city,
+        'rent_per_month': property_instance.rent_per_month,
+        'minimum_duration_of_rent': property_instance.minimum_duration_of_rent,
+        'number_of_bedrooms': property_instance.number_of_bedrooms,
+        'total_squarefeet': property_instance.total_squarefeet,
+        'number_of_bathroom': property_instance.number_of_bathroom,
+        'parking_area': property_instance.parking_area,
+        'cctv': property_instance.cctv,
+        'heater': property_instance.heater,
+        'air_conditioning': property_instance.air_conditioning,
+        'power_backup': property_instance.power_backup,
+        'wifi': property_instance.wifi,
+        # Include other fields in the response
+    }
+
+    return JsonResponse(property_data)
 
 @login_required
 def acc_booking(request, property_id):
@@ -1745,53 +1826,37 @@ def accpaymenthandler(request, booking_id):
 
 def generate_agreement_content(booking, deposit_amount):
     content = f"""
-    RENTAL AGREEMENT
-    
-    This agreement made on this {booking.check_in_date.strftime("%Y-%m-%d")} between
-    {booking.property.landlord.first_name.capitalize()} {booking.property.landlord.last_name.capitalize()}, with mobile number {booking.property.contact_number} residing at {booking.property.address}, hereinafter referred to as the 'LESSOR' of the One Part 
-    AND 
-    {booking.full_name}, with mobile number {booking.phone}, residing at {booking.address}, hereinafter referred to as the 'LESSEE(s)' of the other Part;
-    
-    WHEREAS the Lessor is the lawful owner of the property located at {booking.property.address}, hereinafter referred to as the 'said premises'.
-    
-    AND WHEREAS at the request of the Lessee, the Lessor has agreed to let the said premises to the tenant for a term of {booking.property.minimum_duration_of_rent} Months commencing from {booking.check_in_date.strftime("%Y-%m-%d")} in the manner hereinafter appearing.
-    
-    NOW THIS AGREEMENT WITNESSETH AND IT IS HEREBY AGREED BY AND BETWEEN THE PARTIES AS UNDER:
-    
-    1. That the Lessor hereby grants to the Lessee, the right to enter and use and remain in the said premises along with the existing fixtures and fittings listed in Annexure 1 to this Agreement and that the Lessee shall be entitled to peacefully possess and enjoy possession of the said premises for use, and the other rights herein.
-    
-    2. That the lease hereby granted shall, unless canceled earlier under any provision of this Agreement, remain in force for a period of {booking.property.minimum_duration_of_rent} Months.
-    
-    3. That the Lessee will have the option to terminate this lease by giving in writing to the Lessor.
-    
-    4. That the Lessee shall have no right to create any sub-lease or assign or transfer in any manner the lease or give to anyone the possession of the said premises or any part thereof.
-    
-    5. That the Lessee shall use the said premises only for residential purposes.
-    
-    6. That the Lessor shall, before handing over the said premises, ensure the working of sanitary, electrical and water supply connections and other fittings pertaining to the said premises. It is agreed that it shall be the responsibility of the Lessor for their return in the working condition at the time of re-possession of the said premises, subject to normal wear and tear.
-    
-    7. That the Lessee is not authorized to make any alteration in the construction of the said premises.
-    
-    8. That the day-to-day repair jobs shall be affected by the Lessee at his own cost, and any major repairs, either structural or to the electrical or water connection, plumbing leaks, water seepage shall be attended to by the Lessor. In the event of the Lessor failing to carry out the repairs on receiving notice from the Lessee, the Lessee shall undertake the necessary repairs and the Lessor will be liable to immediately reimburse costs incurred by the Lessee.
-    
-    9. That the Lessor or its duly authorized agent shall have the right to enter or upon the said premises or any part thereof at a mutually arranged convenient time for the purpose of inspection.
-    
-    10. That in consideration of use of the said premises the Lessee agrees that he shall pay to the Lessor during the period of this agreement, a monthly rent at the rate of ₹{booking.property.rent_per_month}. The amount will be paid in advance on or before the date of 4th of every English calendar month.
-    
-    11. That in the event of default in payment of the rent for a consecutive period of three months, the Lessor shall be entitled to terminate the lease.
-    
-    12. That the Lessee has paid to the Lessor a sum of ₹{deposit_amount}, free of interest. The said deposit shall be returned to the Lessee simultaneously with the Lessee vacating the said premises. In the event of failure on the part of the Lessor to refund the said deposit amount to the Lessee as aforesaid, the Lessee shall be entitled to continue to use and occupy the said premises without payment of any rent until the Lessor refunds the said amount.
-    
-    13. That the Lessor shall be responsible for the payment of all taxes and levies pertaining to the said premises including but not limited to House Tax, Property Tax, other cesses, if any, and any other statutory taxes, levied by the Government or Governmental Departments. During the term of this Agreement, the Lessor shall comply with all rules, regulations and requirements of any statutory authority, local, state, and central government, and governmental departments in relation to the said premises.
-    
-    IN WITNESS WHEREOF, the parties hereto have set their hands on the day and year first hereinabove mentioned.
-    
-    Agreed & Accepted by the Lessor {booking.property.landlord.first_name.capitalize()} {booking.property.landlord.last_name.capitalize()}
-    
-    Agreed & Accepted by the Lessee {booking.full_name}
+    <h2>RENTAL AGREEMENT</h2>
+    <p>This agreement made on this {booking.check_in_date.strftime("%Y-%m-%d")} between</p>
+    <p><strong>{booking.property.landlord.first_name.capitalize()} {booking.property.landlord.last_name.capitalize()}</strong>, with mobile number {booking.property.contact_number} residing at {booking.property.address}, hereinafter referred to as the 'LESSOR' of the One Part</p>
+    <p>AND</p>
+    <p><strong>{booking.full_name}</strong>, residing at {booking.address}, hereinafter referred to as the 'LESSEE(s)' of the other Part;</p>
+    <p>WHEREAS the Lessor is the lawful owner of the property located at {booking.property.address}, hereinafter referred to as the 'said premises'.</p>
+    <p>AND WHEREAS at the request of the Lessee, the Lessor has agreed to let the said premises to the tenant for a term of {booking.property.minimum_duration_of_rent} Months commencing from {booking.check_in_date.strftime("%Y-%m-%d")} in the manner hereinafter appearing.</p>
+    <br>
+    <p>NOW THIS AGREEMENT WITNESSETH AND IT IS HEREBY AGREED BY AND BETWEEN THE PARTIES AS UNDER:</p><br>
+    <ol>
+        <li>That the Lessor hereby grants to the Lessee, the right to enter and use and remain in the said premises along with the existing fixtures and fittings listed in Annexure 1 to this Agreement and that the Lessee shall be entitled to peacefully possess and enjoy possession of the said premises for use, and the other rights herein.</li><br>
+        <li>That the lease hereby granted shall, unless canceled earlier under any provision of this Agreement, remain in force for a period of {booking.property.minimum_duration_of_rent} Months.</li><br>
+        <li>That the Lessee will have the option to terminate this lease by giving in writing to the Lessor.</li><br>
+        <li>That the Lessee shall have no right to create any sub-lease or assign or transfer in any manner the lease or give to anyone the possession of the said premises or any part thereof.</li><br>
+        <li>That the Lessee shall use the said premises only for residential purposes.</li><br>
+        <li>That the Lessor shall, before handing over the said premises, ensure the working of sanitary, electrical and water supply connections and other fittings pertaining to the said premises. It is agreed that it shall be the responsibility of the Lessor for their return in the working condition at the time of re-possession of the said premises, subject to normal wear and tear.</li><br>
+        <li>That the Lessee is not authorized to make any alteration in the construction of the said premises.</li><br>
+        <li>That the day-to-day repair jobs shall be affected by the Lessee at his own cost, and any major repairs, either structural or to the electrical or water connection, plumbing leaks, water seepage shall be attended to by the Lessor. In the event of the Lessor failing to carry out the repairs on receiving notice from the Lessee, the Lessee shall undertake the necessary repairs and the Lessor will be liable to immediately reimburse costs incurred by the Lessee.</li><br>
+        <li>That the Lessor or its duly authorized agent shall have the right to enter or upon the said premises or any part thereof at a mutually arranged convenient time for the purpose of inspection.</li><br>
+        <li>That in consideration of use of the said premises the Lessee agrees that he shall pay to the Lessor during the period of this agreement, a monthly rent at the rate of ₹{booking.property.rent_per_month}. The amount will be paid in advance on or before the date of 4th of every English calendar month.</li><br>
+        <li>That in the event of default in payment of the rent for a consecutive period of three months, the Lessor shall be entitled to terminate the lease.</li><br>
+        <li>That the Lessee has paid to the Lessor a sum of ₹{deposit_amount}, free of interest. The said deposit shall be returned to the Lessee simultaneously with the Lessee vacating the said premises. In the event of failure on the part of the Lessor to refund the said deposit amount to the Lessee as aforesaid, the Lessee shall be entitled to continue to use and occupy the said premises without payment of any rent until the Lessor refunds the said amount.</li><br>
+        <li>That the Lessor shall be responsible for the payment of all taxes and levies pertaining to the said premises including but not limited to House Tax, Property Tax, other cesses, if any, and any other statutory taxes, levied by the Government or Governmental Departments. During the term of this Agreement, the Lessor shall comply with all rules, regulations and requirements of any statutory authority, local, state, and central government, and governmental departments in relation to the said premises.</li><br>
+    </ol><br>
+    <p>IN WITNESS WHEREOF, the parties hereto have set their hands on the day and year first hereinabove mentioned.</p><br>
+    <p>Agreed & Accepted by the Lessor <strong>{booking.property.landlord.first_name.capitalize()} {booking.property.landlord.last_name.capitalize()}</strong></p><br><br>
+    <p>Agreed & Accepted by the Lessee <strong>{booking.full_name}</strong></p><br><br>
     """
 
     return content
+
 
 
 
@@ -1831,6 +1896,11 @@ def rentagreement(request, booking_id):
     # Render the template with context data
     return render(request, 'accomodation/acc_rentagreement.html', context)
 
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+
 @login_required
 def download_agreement(request, agreement_id):
     # Retrieve the agreement object
@@ -1839,13 +1909,37 @@ def download_agreement(request, agreement_id):
     # Retrieve the content of the agreement
     agreement_content = agreement.content
     
-    # Generate a response with the agreement content as a file attachment
-    response = HttpResponse(agreement_content, content_type='text/plain')
+    # Create a PDF response
+    response = HttpResponse(content_type='application/pdf')
     
     # Set the file name for download
     response['Content-Disposition'] = f'attachment; filename="agreement_{agreement_id}.pdf"'
     
+    # Create a PDF document with A4 size
+    doc = SimpleDocTemplate(response, pagesize=A4)
+    
+    # Create a list to hold the content elements
+    content = []
+    
+    # Create a style sheet
+    styles = getSampleStyleSheet()
+    normal_style = styles['Normal']
+    
+    # Split the agreement content into lines
+    lines = agreement_content.split('\n')
+    
+    # Add each line as a Paragraph to the content list
+    for line in lines:
+        content.append(Paragraph(line, normal_style))
+        content.append(Spacer(1, 12))  # Add some space between paragraphs
+    
+    # Build the PDF document with the content
+    doc.build(content)
+    
     return response
+
+
+
 
 @login_required
 def bookings(request):
@@ -1854,3 +1948,31 @@ def bookings(request):
         'bookings': bookings
     }
     return render(request, 'accomodation/bookings.html', context)
+
+
+from main.models import Thread
+
+@login_required
+def messages_page(request):
+    threads = Thread.objects.by_user(user=request.user).prefetch_related('chatmessage_thread').order_by('timestamp')
+    context = {
+        'Threads': threads
+    }
+    return render(request, 'messages.html', context)
+
+
+
+
+def get_agreement_content(request, property_id):
+    # Retrieve the agreement content based on the property ID
+    agreement = Agreement.objects.filter(booking__property_id=property_id).first()
+    if agreement:
+        return HttpResponse(agreement.content)
+    else:
+        return HttpResponse("Agreement not found")
+    
+
+
+def booking_info_modal(request, booking_id):
+    booking = Accbooking.objects.get(pk=booking_id)
+    return render(request, 'acc_home.html', {'booking': booking})

@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Course Listings</title>
+    <title>Landlord</title>
     <!-- Example for using Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
@@ -104,8 +104,13 @@
             /* maintain aspect ratio and cover the container */
         }
         /* Form styles */
-
-        
+      
+        .custom-modal-content {
+            max-width: 800px !important;  /* Set your desired width here */
+            width: 90% !important; /* You can adjust this value as needed */
+          }
+          
+       
     </style>
 </head>
 
@@ -124,9 +129,11 @@
                 <div class="collapse navbar-collapse d-flex" id="navbarSupportedContent">
                     <ul class="navbar-nav mb-lg-0 d-flex justify-content-lg-center w-100">
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">Dashboard</a>
+                            <a class="nav-link active" href="">Dashboard</a>
                         </li>
-
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url "messages_page" %}">Enquries</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#">Contact Us</a>
                         </li>
@@ -150,14 +157,14 @@
                     {% elif user.is_authenticated%}
 
                     <ul class="navbar-nav mb-2 me-5 mb-lg-0 w-50 d-flex justify-content-lg-end ">
-                        
+                       
                         <li class="nav-item dropdown ">
                             <a class="nav-link text-success" style="font-size: 20px; font-weight: bold;" href="#"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <p>{{ user.first_name }} {{ user.last_name }}</p>
                             </a>
                             <ul class="dropdown-menu">
-                        
+                       
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
                             </ul>
                         </li>
@@ -167,8 +174,7 @@
                     <ul class="navbar-nav mb-2 mb-lg-0 w-50 d-flex justify-content-lg-end">
                         <li class="nav-item dropdown">
                             <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <button class="btn btn-outline-success">Sign
-                                    Up</button>
+                                <button class="btn btn-outline-success">Sign Up</button>
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="{%url 'signup' %}">Register as
@@ -209,6 +215,8 @@
                             role="tab" aria-controls="v-pills-rejected" aria-selected="false">Rejected Ads</a>
                         <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending"
                             role="tab" aria-controls="v-pills-pending" aria-selected="false">Pending Ads</a>
+                            <a class="nav-link" id="v-pills-reserved-tab" data-toggle="pill" href="#v-pills-reserved"
+                            role="tab" aria-controls="v-pills-reserved" aria-selected="false">Booking</a>
                     </div>
                 </div>
                 <div class="col-md-10">
@@ -253,7 +261,7 @@
                             </div>
                         </div>
 
-                        
+                       
                         <script>
                             $(document).ready(function () {
                                 $.ajaxSetup({
@@ -282,7 +290,6 @@
                                         }
                                     });
                                 });
-
                                 $(".mark-active-btn").click(function () {
                                     var propertyId = $(this).data("property-id");
 
@@ -429,7 +436,7 @@
 
                                         </div>
                                     </div>
-                                
+                               
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
@@ -543,7 +550,7 @@
                                         function displayErrorMessage(fieldId, message) {
                                             $(`${fieldId}span`).html(message);
                                         }
-                                        
+                                       
                                         $(document).ready(function () {
                                             const fields = [
                                                 { id: "#pname", validate: validatePropertyname },
@@ -588,7 +595,7 @@
                                                 $('#other1').change(validateFile);
                                                 $('#other2').change(validateFile);
                                             });
-                                            
+                                           
 
                                             function checkFormValidity() {
                                                 const isValid = Object.values(validationStatus).every(status => status);
@@ -616,7 +623,7 @@
                                             });
 
                                             checkFormValidity();
-                                        
+                                       
                                             function validatePropertyname() {
                                                 const pname = $("#pname").val();
 
@@ -721,7 +728,7 @@
                                                     }
                                                 }
                                             }
-                                            
+                                           
 
                                             function validateBHK() {
                                                 const bhk = $("#bhk").val();
@@ -744,8 +751,8 @@
                                             function validatePhno() {
                                                 const ph = $("#contact").val();
                                                 const filterIreland = /^\+353\d{9}$/;
-                                                const filterCanada = /^\+1\d{10}$/;   
-                                            
+                                                const filterCanada = /^\+1\d{10}$/;  
+                                           
                                                 if (ph === "") {
                                                     $("#contactspan").html("Enter the Contact Number").css("color", "#41586B");
                                                 } else if (!filterIreland.test(ph) && !filterCanada.test(ph)) {
@@ -754,7 +761,7 @@
                                                     $("#contactspan").html("");
                                                 }
                                             }
-                                            
+                                           
 
 
                                             function validateRent() {
@@ -772,7 +779,7 @@
                                                     }
                                                 }
                                             }
-                                            
+                                           
 
                                             function validateForm() {
                                                 return fields.every(field => {
@@ -815,7 +822,7 @@
                                                     <input class="btn btn-primary me-2 mark-active-btn" type="button"
                                                         value="Re-activate ad" data-property-id="{{ property.id }}"
                                                         data-status="{{ property.status }}">
-                                                        <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target="#editPropertyModal">
+                                                        <button class="btn btn-secondary editPropertyBtn" data-toggle="modal" data-target="#editPropertyModal" data-property-id="{{ property.id }}">Edit</button>
                                                     </div>
                                             </div>
                                         </div>
@@ -825,12 +832,234 @@
                                 {% else %}
                                 <p>No Inactive properties to display.</p>
                             {% endif %}
-                                
+                            
                             </div>
                         </div>
-                        <!-- Rejected Applications -->
+                        <div class="modal fade" id="editPropertyModal" tabindex="-1" role="dialog" aria-labelledby="editPropertyModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title text-center" id="editPropertyModalLabel">Edit Property</h5>
+                                    </div>
+                                    <div class="modal-body" id="editproperty">
+                                        <form method="POST" id="editPropertyForm" enctype="multipart/form-data">
+                                            {% csrf_token %}
+                                            <label for="edit_pname">Property Name:</label>
+                                            <input type="text" id="edit_pname" name="edit_pname" value="{{ property_instance.property_name }}" required>
+                                            <span id="edit_pnamespan" style="font-size: 12px;"></span>
+                    
+                                            <label for="edit_address">Address:</label>
+                                            <textarea id="edit_address" name="edit_address" required>{{ property_instance.address }}</textarea>
+                                            <span id="edit_addressspan" style="font-size: 12px;"></span>
+                    
+                                            <label for="edit_mlink">Property location link (Gmap):</label>
+                                            <input type="text" id="edit_mlink" name="edit_mlink" value="{{ property_instance.property_location_link }}" required>
+                                            <span id="edit_mlinkspan" style="font-size: 12px;"></span>
+                    
+                                            <label for="edit_nation">Country:</label>
+                                            <select class="form-control border mb-4 mt-2" id="edit_nation" name="edit_nation" disabled>
+                                                <option value="Ireland" {% if property_instance.country == 'Ireland' %} selected {% endif %}>Ireland</option>
+                                                <option value="Canada" {% if property_instance.country == 'Canada' %} selected {% endif %}>Canada</option>
+                                            </select>
+                                            <span id="edit_nationspan" style="font-size: 12px;"></span>
+                    
+                                            <label for="edit_region">State/Province:</label>
+                                            <input type="text" id="edit_region" name="edit_region" value="{{ property_instance.state_province }}" readonly>
+                                            <span id="edit_regionspan" style="font-size: 12px;"></span>
+                    
+                                            <label for="edit_city">City:</label>
+                                            <input type="text" id="edit_city" name="edit_city" value="{{ property_instance.city }}" readonly>
+                                            <span id="edit_cityspan" style="font-size: 12px;"></span>
+                    
+                                            <label for="edit_frontview">Front view of Property:</label>
+                                            <input type="file" id="edit_frontview" name="edit_frontview" accept="image/*" required>
+                                            <span id="edit_frontviewspan" style="font-size: 12px;"></span>
+                    
+                                            <!-- Additional Images -->
+                                            <label for="edit_dining">Living Room:</label>
+                                            <input type="file" id="edit_living" name="edit_living" accept="image/*" required>
+                                            <span id="edit_livingspan" style="font-size: 12px;"></span>
+                    
+                                            <label for="edit_bedroom">Bedroom:</label>
+                                            <input type="file" id="edit_bedroom" name="edit_bedroom" accept="image/*" required>
+                                            <span id="edit_bedroomspan" style="font-size: 12px;"></span>
+                    
+                                            <label for="edit_bathroom">Bathroom:</label>
+                                            <input type="file" id="edit_bathroom" name="edit_bathroom" accept="image/*" required>
+                                            <span id="edit_bathroomspan" style="font-size: 12px;"></span>
+
+                                            <label for="edit_kitchen">Kitchen:</label>
+                                            <input type="file" id="edit_kitchen" name="edit_kitchen" accept="image/*" required>
+                                            <span id="edit_kitchenspan" style="font-size: 12px;"></span>
+
+                                            <label for="edit_dining">Dining:</label>
+                                            <input type="file" id="edit_dining" name="edit_dining" accept="image/*" required>
+                                            <span id="edit_diningspan" style="font-size: 12px;"></span>
+                                        
+                                            <!-- Contact Number -->
+                                            <label for="edit_contact1">Contact Number (include country code):</label>
+                                            <input type="text" id="edit_contact1" name="edit_contact1" value="{{ property_instance.contact_number }}" required/>
+                                            <span id="edit_contactspan" style="font-size: 12px;"></span>
+                    
+                                            <!-- Rent Details -->
+                                            <label for="edit_rent">Rent per Month:</label>
+                                            <input type="text" id="edit_rent" name="edit_rent" required>
+                                            <span id="edit_rentspan" style="font-size: 12px;"></span>
+                    
+                                            <!-- Other Details -->
+                                            <label for="edit_duration">Minimum Duration of Rent:</label>
+                                            <select id="edit_duration" name="edit_duration" required>
+                                                <option value="1" {% if property_instance.minimum_duration_of_rent == 1 %} selected {% endif %}>1 month</option>
+                                                <option value="2" {% if property_instance.minimum_duration_of_rent == 2 %} selected {% endif %}>2 months</option>
+                                                <option value="3" {% if property_instance.minimum_duration_of_rent == 3 %} selected {% endif %}>3 months</option>
+                                                <option value="4" {% if property_instance.minimum_duration_of_rent == 4 %} selected {% endif %}>4 months</option>
+                                                <option value="5" {% if property_instance.minimum_duration_of_rent == 5 %} selected {% endif %}>5 months</option>
+                                                <option value="6" {% if property_instance.minimum_duration_of_rent == 6 %} selected {% endif %}>6 months</option>
+                                            </select>
+
+                                            <span id="edit_durationspan" style="font-size: 12px;"></span>
+                                            <label for="edit_bhk">Number of Bedrooms:</label>
+                                            <select id="edit_bhk" name="edit_bhk" required>
+                                                <option value="1" {% if property_instance.number_of_bedrooms == 1 %} selected {% endif %}>1</option>
+                                                <option value="2" {% if property_instance.number_of_bedrooms == 2 %} selected {% endif %}>2</option>
+                                                <option value="3" {% if property_instance.number_of_bedrooms == 3 %} selected {% endif %}>3</option>
+                                                <option value="4" {% if property_instance.number_of_bedrooms == 4 %} selected {% endif %}>4</option>
+                                                <!-- Add more options if needed -->
+                                            </select>
+
+                                            <span id="edit_bhkspan" style="font-size: 12px;"></span>
+                       
+                                            <label for="edit_sqft">Total Sqft:</label>
+                                            <input type="number" id="edit_sqft" name="edit_sqft" required min="100" max="5000">
+                                            <span id="edit_sqftspan" style="font-size: 12px;"></span>
+                       
+                                            <label for="edit_bth">Number of Bathrooms:</label>
+                                                <select id="edit_bth" name="edit_bth" required>
+                                                    <option value="1" {% if property_instance.number_of_bathroom == 1 %} selected {% endif %}>1</option>
+                                                    <option value="2" {% if property_instance.number_of_bathroom == 2 %} selected {% endif %}>2</option>
+                                                    <option value="3" {% if property_instance.number_of_bathroom == 3 %} selected {% endif %}>3</option>
+                                                    <option value="4" {% if property_instance.number_of_bathroom == 4 %} selected {% endif %}>4</option>
+                                                    <option value="5" {% if property_instance.number_of_bathroom == 5 %} selected {% endif %}>5</option>
+                                                    <!-- Add more options if needed -->
+                                                </select>
+
+                                            <span id="edit_bthspan" style="font-size: 12px;"></span>
+                       
+                                            <!-- Additional Features -->
+                                            <h5 class="mb-3">Additional Features:</h5>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="edit_Parea" name="edit_Parea">
+                                                <label class="form-check-label" for="edit_Parea">Parking Area</label>
+                                                <span id="edit_Pareaspan" style="font-size: 12px;"></span>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="edit_cctv" name="edit_cctv">
+                                                <label class="form-check-label" for="edit_cctv">CCTV</label>
+                                                <span id="edit_cctvspan" style="font-size: 12px;"></span>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="edit_heater" name="edit_heater">
+                                                <label class="form-check-label" for="edit_heater">Heater</label>
+                                                <span id="edit_heaterspan" style="font-size: 12px;"></span>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="edit_ac" name="edit_ac">
+                                                <label class="form-check-label" for="edit_ac">Air Conditioning</label>
+                                                <span id="edit_acspan" style="font-size: 12px;"></span>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="edit_pback" name="edit_pback">
+                                                <label class="form-check-label" for="edit_pback">Power Backup</label>
+                                                <span id="edit_pbackspan" style="font-size: 12px;"></span>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="edit_wifi" name="edit_wifi">
+                                                <label class="form-check-label" for="edit_wifi">Wifi</label>
+                                                <span id="edit_wifispan" style="font-size: 12px;"></span>
+                                            </div>
+                       
+                                            <!-- Submit Button -->
+                                            <button type="submit" id="submitEditPropertyForm">Save Changes</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <script>
+                        $(document).ready(function () {
+                            // Function to open the edit modal
+                            function openEditModal(propertyId) {
+                                $.ajax({
+                                    url: `/edit_property/${propertyId}/`,
+                                    type: 'GET',
+                                    success: function (data) {
+                                        $('#editPropertyModal #edit_pname').val(data.property_name);
+                                        $('#editPropertyModal #edit_address').val(data.address);
+                                        $('#editPropertyModal #edit_mlink').val(data.property_location_link);
+                                        // Add logic to set the selected value for country based on data.country
+                                        $('#editPropertyModal #edit_nation').val(data.country);
+                                        $('#editPropertyModal #edit_region').val(data.state_province);
+                                        $('#editPropertyModal #edit_city').val(data.city);
+                                        // Add logic to set the image src for frontview_image, living_room_image, bedroom_image, etc.
+                                        $('#editPropertyModal img').attr('src', data.frontview_image);
+                                        $('#editPropertyModal #edit_contact1').val(data.contact_number);
+                                        $('#editPropertyModal #edit_rent').val(data.rent_per_month);
+                                        $('#editPropertyModal #edit_duration').val(data.minimum_duration_of_rent);
+                                        $('#editPropertyModal #edit_bhk').val(data.number_of_bedrooms);
+                                        $('#editPropertyModal #edit_sqft').val(data.total_squarefeet);
+                                        $('#editPropertyModal #edit_bth').val(data.number_of_bathroom);
+                                        // Add logic to set the checkbox values based on data.parking_area, data.cctv, data.heater, etc.
+                                        $('#editPropertyModal #edit_Parea').prop('checked', data.parking_area);
+                                        $('#editPropertyModal #edit_cctv').prop('checked', data.cctv);
+                                        $('#editPropertyModal #edit_heater').prop('checked', data.heater);
+                                        $('#editPropertyModal #edit_ac').prop('checked', data.air_conditioning);
+                                        $('#editPropertyModal #edit_pback').prop('checked', data.power_backup);
+                                        $('#editPropertyModal #edit_wifi').prop('checked', data.wifi);
+                                        // Continue setting values for other fields
+                       
+                                        // Set the property_id as a data attribute on the form
+                                        $('#editPropertyForm').data('property-id', propertyId);
+                       
+                                        $('#editPropertyModal').modal('show');
+                                    }
+                                });
+                            }
+                       
+                            // Handle form submission within the edit modal
+                            $('#editPropertyForm').on('submit', function (e) {
+                                e.preventDefault();
+                                var propertyId = $(this).data('property-id');
+                       
+                                // Create a FormData object to send the form data
+                                var formData = new FormData(this);
+                       
+                                // Append the current propertyId to the FormData
+                                formData.append('property_id', propertyId);
+                       
+                                $.ajax({
+                                    url: `/edit_property/${propertyId}/`,
+                                    type: 'POST',
+                                    data: formData,
+                                    processData: false,
+                                    contentType: false,  // Set content type to false to let jQuery handle it
+                                    success: function (response) {
+                                        alert(response.message);
+                                        $('#editPropertyModal').modal('hide');
+                                        location.reload();
+                                    }
+                                });
+                            });
+                       
+                            // Add a click event to trigger the edit modal
+                            $('.editPropertyBtn').click(function () {
+                                var propertyId = $(this).data('property-id');
+                                openEditModal(propertyId);
+                            });
+                       
+                        });
+                    </script>
                         <div class="tab-pane fade" id="v-pills-rejected" role="tabpanel" aria-labelledby="v-pills-rejected-tab">
-                            
+                        
                             <div class="row mt-2">
                                 {% if rejected_properties %}
                                     {% for property in rejected_properties %}
@@ -858,12 +1087,12 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+                                    
                                     {% endfor %}
                                 {% else %}
                                     <p>No rejected properties to display.</p>
                                 {% endif %}
-                                
+                            
                             </div>
                         </div>
 
@@ -892,20 +1121,140 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+                                    
                                     {% endfor %}
                                 {% else %}
                                     <p>No pending properties to display.</p>
                                 {% endif %}
-                                
+                            
                             </div>
                         </div>
+
+                        <div class="tab-pane fade" id="v-pills-reserved" role="tabpanel" aria-labelledby="v-pills-reserved-tab">
+                            <div class="row mt-2">
+                                {% if reserved_properties %}
+                                    {% for property in reserved_properties %}
+                                        <div class="col-md-4">
+                                            <div class="card mb-3">
+                                                <div class="row no-gutters">
+                                                    <div class="col-md-12">
+                                                        <img src="{{ property.frontview_image.url }}" class="card-img" alt="Property Image">
+                                                        <div class="ms-3 mt-2">
+                                                            <h5 class="card-title">{{ property.property_name }}</h5>
+                                                            <p class="card-text"><small>{{ property.address }}</small></p>
+                                                            <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
+                                                            {% if property.rejection_remark %}
+                                                                <p class="card-text text-danger"><strong>Rejection Remark:</strong> {{ property.rejection_remark }}</p>
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="card-body d-flex justify-content-center">
+                                                            <div class="card-body d-flex" style="display: flex; justify-content: center; align-items: center;">
+                                                                <div class="btn-container" style="display: flex; flex: 1;">
+                                                                    <input class="btn btn-success view-btn me-2" type="button" id="view-property" value="View" data-toggle="modal" data-target="#propertyModal" data-property-id="{{ property.id }}" style="flex: 1;">
+                                                                    <!-- Button to display agreement -->
+                                                                    <input class="btn btn-primary me-2" type="button" value="Agreement" onclick="loadAgreement({{ property.id }})" style="flex: 1;">
+                                                                    <!-- Add button to see booking details -->
+                                                                    <input class="btn btn-secondary booking-info-button" type="button" value="Booking info" style="flex: 1;" data-bs-toggle="modal" data-bs-target="#bookingInfoModal" data-booking-id="{{ booking.id }}">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="col-md-12">
+                                        <p class="text-center">No reserved properties to display.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+
                         
                     </div>
                 </div>
             </div>
         </div>
 
+        <div class="modal fade" id="agreementModal" tabindex="-1" role="dialog" aria-labelledby="agreementModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content custom-modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="agreementModalLabel">Rental Agreement</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div id="agreementContent">
+                    <!-- Agreement content will be loaded here -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          
+  
+
+
+
+<div class="modal fade" id="bookingInfoModal" tabindex="-1" aria-labelledby="bookingInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookingInfoModalLabel">Booking Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Property Name:</strong> {{ booking.property.property_name }}</p>
+                        <p><strong>Owner:</strong> {{ booking.property.landlord }}</p>
+                        <p><strong>Email:</strong> {{ booking.property.contact_email }}</p>
+                        <p><strong>Phone:</strong> {{ booking.property.contact_number }}</p>
+                        <p><strong>Address:</strong> {{ booking.property.address }}</p>
+                        <p><strong>Rent per Month:</strong> {{ booking.property.rent_per_month }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Full Name:</strong> {{ booking.full_name }}</p>
+                        <p><strong>Email:</strong> {{ booking.email }}</p>
+                        <p><strong>Phone:</strong> {{ booking.phone }}</p>
+                        <p><strong>Address:</strong> {{ booking.address }}</p>
+                        <p><strong>Country:</strong> {{ booking.country }}</p>
+                        <p><strong>State:</strong> {{ booking.state }}</p>
+                        <p><strong>Passport Number:</strong> {{ booking.passport_number }}</p>
+                        <p><strong>Check-in Date:</strong> {{ booking.check_in_date }}</p>
+                        <p><strong>Number of Adults:</strong> {{ booking.num_adults }}</p>
+                        <p><strong>Special Requests:</strong> {{ booking.special_requests }}</p>
+                        <p><strong>Emergency Contact Name:</strong> {{ booking.emergency_contact_name }}</p>
+                        <p><strong>Emergency Contact Relationship:</strong> {{ booking.emergency_contact_relationship }}</p>
+                        <p><strong>Emergency Contact Phone:</strong> {{ booking.emergency_contact_phone }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+        <script>
+            function loadAgreement(propertyId) {
+                $.ajax({
+                url: '/property/agreement/' + propertyId + '/',
+                success: function(data) {
+                    $('#agreementContent').html(data);
+                    $('#agreementModal').modal('show');
+                }
+                });
+            }
+        </script>
+        
     <div class="modal fade" id="propertyModal" tabindex="-1" role="dialog" aria-labelledby="propertyModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
@@ -1038,7 +1387,7 @@
 
         //modal for edit info
 
-        
+       
 
 
 

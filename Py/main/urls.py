@@ -77,6 +77,8 @@ urlpatterns = [
     path('update_property_status/', views.update_property_status, name='update_property_status'),
     path('acc_userview/', views.acc_userview, name="accomodation" ),
     path('acc_propertyview/', views.acc_propertyview, name="acc_propertyview" ),
+    path('acc_reserverpropertyview/', views.acc_reserverpropertyview, name="acc_reserverpropertyview" ),
+
     path('acc_listproperty/', views.acc_listproperty, name='acc_listproperty'),
     path('property/search/', views.property_search, name='property_search'),
     path('acc_booking/<int:property_id>/', views.acc_booking, name='acc_booking'),
@@ -85,6 +87,13 @@ urlpatterns = [
     path('rentagreement/<int:booking_id>/', views.rentagreement, name='rentagreement'),
     path('download/<int:agreement_id>/', views.download_agreement, name='download_agreement'),
     path('bookings/', views.bookings, name='bookings'),
+    path('messages_page/', views.messages_page, name='messages_page'),
+    path('edit_property/<int:property_id>/', views.edit_property, name='edit_property'),
+    path('property/agreement/<int:property_id>/', views.get_agreement_content, name='property_agreement'),
+    path('booking-info/<int:booking_id>/', views.booking_info_modal, name='booking_info_modal'),
+
+
+
 
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("", views.home, name="home"),  

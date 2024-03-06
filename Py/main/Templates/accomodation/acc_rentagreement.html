@@ -99,6 +99,7 @@
               <p>{{ user.first_name }} {{ user.last_name }}</p>
             </a>
             <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'bookings' %}">My Bookings</a></li>
               <li><a class="dropdown-item" href="{% url 'logout' %}">Log Out</a></li>
             </ul>
           </li>
@@ -149,7 +150,7 @@
       <div class="row">
 
         <h2>RENTAL AGREEMENT</h2>
-        <p>This agreement made on this <span id="currentDate"></span> between <span class="user-input"><strong>{{ property.landlord.first_name }} {{ property.landlord.last_name }}</strong></span>, with <span class="user-input"><strong>{{ property.contact_number }}</strong></span> as Mobile Number, residing at <span class="user-input"><strong>{{ property.address }}</strong>,<strong>{{ property.state_province }}</strong>,<strong>{{ property.country }}</strong></span>, hereinafter referred to as the 'LESSOR' of the One Part AND <span class="user-input"><strong>{{ accbooking.full_name }}</strong></span>, with <span class="user-input"><strong>{{ accbooking.phone }}</strong></span> as Mobile Number, residing at <span class="user-input"><strong>{{ accbooking.address }}</strong>,<strong>{{ accbooking.country }}</strong></span>, hereinafter referred to as the 'LESSEE(s)' of the other Part;</p>
+        <p>This agreement made on this <span id="currentDate"></span> between <span class="user-input"><strong>{{ property.landlord.first_name }} {{ property.landlord.last_name }}</strong></span>, residing at <span class="user-input"><strong>{{ property.address }}</strong>,<strong>{{ property.state_province }}</strong>,<strong>{{ property.country }}</strong></span>, hereinafter referred to as the 'LESSOR' of the One Part AND <span class="user-input"><strong>{{ accbooking.full_name }}</strong></span>, residing at <span class="user-input"><strong>{{ accbooking.address }}</strong>,<strong>{{ accbooking.country }}</strong></span>, hereinafter referred to as the 'LESSEE(s)' of the other Part;</p>
         <p>WHEREAS the Lessor is the lawful owner of, and otherwise well sufficiently entitled to, and comprising of present in Floor <span class="user-input"><strong>{{ property.floor_number }}</strong></span>,<strong> {{ property.property_type }} </strong> property hereinafter referred to as the 'said premises'.</p>
         <p>AND WHEREAS at the request of the Lessee, the Lessor has agreed to let the said premises to the tenant for a term of <span class="user-input"><strong>{{ accbooking.minimum_duration_of_rent }}</strong></span> Months commencing from {{ accbooking.check_in_date }} in the manner hereinafter appearing.</p>
         <p>NOW THIS AGREEMENT WITNESSETH AND IT IS HEREBY AGREED BY AND BETWEEN THE PARTIES AS UNDER:</p>
@@ -174,7 +175,7 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <p class="witness" style="text-align: left;">Agreed & Accepted by the Lessee <br> {{ accbooking.full_name }}</p>
 
-        <a class="btn btn-secondary mx-4" href="{% url 'acc_listproperty' %}">View Bookings</a>
+        <a class="btn btn-secondary mx-4" href="{% url 'bookings' %}">View Bookings</a>
         <a class="btn btn-primary" href="{% url 'download_agreement' agreement.id %}">Download Agreement</a>
 
 
