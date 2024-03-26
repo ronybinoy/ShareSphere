@@ -85,12 +85,12 @@ urlpatterns = [
     path('accpayment/<int:booking_id>/', views.accpayment, name='accpayment'),  # Add this line
     path('accpaymenthandler/<int:booking_id>/', views.accpaymenthandler, name='accpaymenthandler'),  # Add this line
     path('rentagreement/<int:booking_id>/', views.rentagreement, name='rentagreement'),
-    path('download/<int:agreement_id>/', views.download_agreement, name='download_agreement'),
     path('bookings/', views.bookings, name='bookings'),
     path('messages_page/', views.messages_page, name='messages_page'),
     path('edit_property/<int:property_id>/', views.edit_property, name='edit_property'),
-    path('property/agreement/<int:property_id>/', views.get_agreement_content, name='property_agreement'),
     path('booking-info/<int:booking_id>/', views.booking_info_modal, name='booking_info_modal'),
+    path('agreement/<int:booking_id>/', views.agreement, name='agreement'),
+
 
 
 

@@ -7,66 +7,75 @@
 	<title>GFG</title>
 	<style>
 	
-	* {
-		box-sizing: border-box;
-		padding: 0px;
-		margin: 0px;
-		font-family: cursive;
-	}
-	html,
-	body {
-		height: 100%;
-	}
-	body {
-		background-color: #f1f5f8;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-	.card {
-		background-color: white;
-		padding: 25px;
-		border: 1px solid #bbbbbb;
-		border-radius: 5px;
-		box-shadow: 1px 1px 10px 0px rgb(0 0 0 / 25%);
-	}
-	.title {
-		text-align: center;
-		letter-spacing: 1px;
-	}
-	.muted {
-		color: #8e7f7f;
-		display: block;
-		margin-bottom: 10px;
-		text-align: center;
-	}
-	.btn_container {
-		padding: 20px;
-		text-align: center;
-	}
-	.btn {
-		border-radius: 4px;
-		cursor: pointer;
-		padding: 4px 8px;
-		background-color: #ffaaa7;
-		color: white;
-		font-size: 1.2em;
-		font-weight: 600;
-		letter-spacing: 1px;
-	}
+		* {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #404040;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 25px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .title {
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #007BFF;
+        }
+
+        .description {
+            font-size: 1.1em;
+            color: #666;
+
+            margin-bottom: 40px;
+        }
+
+        .btn-container {
+            text-align: center;
+        }
+
+        .btn {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
 	</style>
 </head>
 <body>
-	<div class="card">
-	<h1 class="title">Buy Me a Chai </h1>
-	<small class="muted"
-		>If you like my work, you can support me by donating ₹200</small
-	>
-	<div class="btn_container">
-		<!-- Payment Button -->
-		<button class="btn" id="pay-btn">Donate</button>
-	</div>
-	</div>
+	<div class="container">
+        <h1 class="title mb-5">Rental Booking</h1>
+        <p class="description text-grey  ">To book this property you are redirected to make the rent payment of 3 months as Security deposit. This will be kept holded by sharesphere until the checkin to the property is made</p>
+        <div class="btn-container ">
+            <!-- Payment Button -->
+            <button class="btn" id="pay-btn">Pay Now</button>
+        </div>
+    </div>
 </body>
 
 <!-- Razorpay's Javascript code. -->
@@ -84,7 +93,7 @@
 	currency: "{{ currency }}",
 	
 	// Your/store name.
-	name: "Dj Razorpay", 
+	name: "ShareSphere", 
 	
 	// Pass the `id` obtained in the response of Step 1
 	order_id: "{{ razorpay_order_id }}", 

@@ -57,10 +57,93 @@
             object-fit: cover;
             /* This ensures the image covers the entire space */
         }
+        /* Slider Styles */
+        .form-range {
+            width: 100%;
+            margin-top: 10px;
+            appearance: none;
+            height: 10px;
+            background-color: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .form-range::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background-color: #007bff;
+            cursor: pointer;
+        }
+        
+        .form-range::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background-color: #007bff;
+            cursor: pointer;
+        }
+        
+        /* Label Styles */
+        .d-flex {
+            display: flex;
+        }
+        
+        .justify-content-between {
+            justify-content: space-between;
+        }
+        
+        .col-md-12 span {
+            font-size: 14px;
+            font-weight: bold;
+        }
 
-
+        .form-range {
+            width: 50px; /* Adjust the width as per your preference */
+            margin-top: 10px;
+            appearance: none;
+            height: 10px;
+            background-color: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .form-range::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background-color: #007bff;
+            cursor: pointer;
+        }
+        
+        .form-range::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background-color: #007bff;
+            cursor: pointer;
+        }
+        
+        /* Label Styles */
+        .d-flex {
+            display: flex;
+        }
+        
+        .justify-content-between {
+            justify-content: space-between;
+        }
+        
+        .col-md-2 span {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .clickable {
+            cursor: pointer;
+        }
+        
     </style>
-
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 </head>
@@ -150,13 +233,70 @@
     </section>
 
 
-
     <section class="ftco-section ftco-services-2">
         <div class="container">
             <form id="bookingForm" action="{% url 'acc_booking' property_id=property_id %}" method="post">
                 {% csrf_token %}
                 <!-- Personal Information -->
-                <div class="section" id="personalInfo">
+
+                <div class="row mb-">
+                    <div class="col-md-3">
+                        <h2 style="font-weight: bold; font-size: 18px;">Booking Preference</h2>
+                    </div>
+                </div>
+                <div class="row mb-">
+                    <div class="col-md-2">
+                        <div class="d-flex justify-content-between">
+                            <span id="selfSpan" class="clickable">Self</span>
+                            <input type="range" class="form-range" id="contactPreference" name="contact_preference" min="0" max="1" step="1" value="0">
+                            <span id="otherSpan" class="clickable">Others</span>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const selfSpan = document.getElementById("selfSpan");
+                        const otherSpan = document.getElementById("otherSpan");
+                        const slider = document.getElementById("contactPreference");
+                        const fullNameInput = document.getElementById("name");
+                        const emailInput = document.getElementById("email");
+                
+                        // Event listener for "Self" span
+                        selfSpan.addEventListener("click", function () {
+                            slider.value = 0; // Set slider to "Self" position
+                            fullNameInput.value = "{{ user.first_name }} {{ user.last_name }}"; // Display full name
+                            emailInput.value = "{{ user.email }}"; // Display email
+                        });
+                
+                        // Event listener for "Other" span
+                        otherSpan.addEventListener("click", function () {
+                            slider.value = 1; // Set slider to "Other" position
+                            fullNameInput.value = ""; // Clear full name
+                            emailInput.value = ""; // Clear email
+                        });
+                
+                        // Event listener for slider input
+                        slider.addEventListener("input", function () {
+                            if (slider.value === "0") { // User slides to "Self"
+                                fullNameInput.value = "{{ user.first_name }} {{ user.last_name }}"; // Display full name
+                                emailInput.value = "{{ user.email }}"; // Display email
+                            } else {
+                                fullNameInput.value = ""; // Clear full name
+                                emailInput.value = ""; // Clear email
+                            }
+                        });
+                
+                        // Trigger the input event initially to update fields based on default slider value
+                        slider.dispatchEvent(new Event("input"));
+                    });
+                </script>
+                
+                
+                
+
+                <div class="section mt-3" id="personalInfo">
                     <h2 style="font-weight: bold; font-size: 18px;">Personal Information</h2>
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -938,7 +1078,7 @@
                 stroke="#F96D00" />
         </svg></div>
 
-
+    
     <script src="{% static "accomodation/js/jquery.min.js" %}"></script>
     <script src="{% static "accomodation/js/jquery-migrate-3.0.1.min.js" %}"></script>
     <script src="{% static "accomodation/js/popper.min.js" %}"></script>

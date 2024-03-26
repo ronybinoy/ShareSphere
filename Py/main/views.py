@@ -1824,40 +1824,6 @@ def accpaymenthandler(request, booking_id):
         return HttpResponseBadRequest()
 
 
-def generate_agreement_content(booking, deposit_amount):
-    content = f"""
-    <h2>RENTAL AGREEMENT</h2>
-    <p>This agreement made on this {booking.check_in_date.strftime("%Y-%m-%d")} between</p>
-    <p><strong>{booking.property.landlord.first_name.capitalize()} {booking.property.landlord.last_name.capitalize()}</strong>, with mobile number {booking.property.contact_number} residing at {booking.property.address}, hereinafter referred to as the 'LESSOR' of the One Part</p>
-    <p>AND</p>
-    <p><strong>{booking.full_name}</strong>, residing at {booking.address}, hereinafter referred to as the 'LESSEE(s)' of the other Part;</p>
-    <p>WHEREAS the Lessor is the lawful owner of the property located at {booking.property.address}, hereinafter referred to as the 'said premises'.</p>
-    <p>AND WHEREAS at the request of the Lessee, the Lessor has agreed to let the said premises to the tenant for a term of {booking.property.minimum_duration_of_rent} Months commencing from {booking.check_in_date.strftime("%Y-%m-%d")} in the manner hereinafter appearing.</p>
-    <br>
-    <p>NOW THIS AGREEMENT WITNESSETH AND IT IS HEREBY AGREED BY AND BETWEEN THE PARTIES AS UNDER:</p><br>
-    <ol>
-        <li>That the Lessor hereby grants to the Lessee, the right to enter and use and remain in the said premises along with the existing fixtures and fittings listed in Annexure 1 to this Agreement and that the Lessee shall be entitled to peacefully possess and enjoy possession of the said premises for use, and the other rights herein.</li><br>
-        <li>That the lease hereby granted shall, unless canceled earlier under any provision of this Agreement, remain in force for a period of {booking.property.minimum_duration_of_rent} Months.</li><br>
-        <li>That the Lessee will have the option to terminate this lease by giving in writing to the Lessor.</li><br>
-        <li>That the Lessee shall have no right to create any sub-lease or assign or transfer in any manner the lease or give to anyone the possession of the said premises or any part thereof.</li><br>
-        <li>That the Lessee shall use the said premises only for residential purposes.</li><br>
-        <li>That the Lessor shall, before handing over the said premises, ensure the working of sanitary, electrical and water supply connections and other fittings pertaining to the said premises. It is agreed that it shall be the responsibility of the Lessor for their return in the working condition at the time of re-possession of the said premises, subject to normal wear and tear.</li><br>
-        <li>That the Lessee is not authorized to make any alteration in the construction of the said premises.</li><br>
-        <li>That the day-to-day repair jobs shall be affected by the Lessee at his own cost, and any major repairs, either structural or to the electrical or water connection, plumbing leaks, water seepage shall be attended to by the Lessor. In the event of the Lessor failing to carry out the repairs on receiving notice from the Lessee, the Lessee shall undertake the necessary repairs and the Lessor will be liable to immediately reimburse costs incurred by the Lessee.</li><br>
-        <li>That the Lessor or its duly authorized agent shall have the right to enter or upon the said premises or any part thereof at a mutually arranged convenient time for the purpose of inspection.</li><br>
-        <li>That in consideration of use of the said premises the Lessee agrees that he shall pay to the Lessor during the period of this agreement, a monthly rent at the rate of ₹{booking.property.rent_per_month}. The amount will be paid in advance on or before the date of 4th of every English calendar month.</li><br>
-        <li>That in the event of default in payment of the rent for a consecutive period of three months, the Lessor shall be entitled to terminate the lease.</li><br>
-        <li>That the Lessee has paid to the Lessor a sum of ₹{deposit_amount}, free of interest. The said deposit shall be returned to the Lessee simultaneously with the Lessee vacating the said premises. In the event of failure on the part of the Lessor to refund the said deposit amount to the Lessee as aforesaid, the Lessee shall be entitled to continue to use and occupy the said premises without payment of any rent until the Lessor refunds the said amount.</li><br>
-        <li>That the Lessor shall be responsible for the payment of all taxes and levies pertaining to the said premises including but not limited to House Tax, Property Tax, other cesses, if any, and any other statutory taxes, levied by the Government or Governmental Departments. During the term of this Agreement, the Lessor shall comply with all rules, regulations and requirements of any statutory authority, local, state, and central government, and governmental departments in relation to the said premises.</li><br>
-    </ol><br>
-    <p>IN WITNESS WHEREOF, the parties hereto have set their hands on the day and year first hereinabove mentioned.</p><br>
-    <p>Agreed & Accepted by the Lessor <strong>{booking.property.landlord.first_name.capitalize()} {booking.property.landlord.last_name.capitalize()}</strong></p><br><br>
-    <p>Agreed & Accepted by the Lessee <strong>{booking.full_name}</strong></p><br><br>
-    """
-
-    return content
-
-
 
 
 
@@ -1869,13 +1835,7 @@ def rentagreement(request, booking_id):
     # Calculate the deposit amount (3 times the rent per month)
     deposit_amount = 3 * booking.property.rent_per_month
     
-    # Generate agreement content
-    agreement_content = generate_agreement_content(booking, deposit_amount)
     
-    # Save agreement to Agreement model
-    agreement, created = Agreement.objects.get_or_create(booking=booking)
-    agreement.content = agreement_content
-    agreement.save()
 
     context = {
         'currentDate': booking.check_in_date.strftime("%Y-%m-%d"),
@@ -1889,57 +1849,44 @@ def rentagreement(request, booking_id):
         'todayDate': booking.check_in_date.strftime("%Y-%m-%d"),
         'monthlyRent': booking.property.rent_per_month,
         'depositAmount': str(deposit_amount),
-        'agreement': agreement,
         'accbooking': booking,
         'property': booking.property,
     }
     # Render the template with context data
     return render(request, 'accomodation/acc_rentagreement.html', context)
 
-from django.http import HttpResponse
-from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-
 @login_required
-def download_agreement(request, agreement_id):
-    # Retrieve the agreement object
-    agreement = get_object_or_404(Agreement, id=agreement_id)
+def agreement(request, booking_id):
+    # Retrieve the booking object
+    booking = get_object_or_404(Accbooking, id=booking_id)
     
-    # Retrieve the content of the agreement
-    agreement_content = agreement.content
-    
-    # Create a PDF response
-    response = HttpResponse(content_type='application/pdf')
-    
-    # Set the file name for download
-    response['Content-Disposition'] = f'attachment; filename="agreement_{agreement_id}.pdf"'
-    
-    # Create a PDF document with A4 size
-    doc = SimpleDocTemplate(response, pagesize=A4)
-    
-    # Create a list to hold the content elements
-    content = []
-    
-    # Create a style sheet
-    styles = getSampleStyleSheet()
-    normal_style = styles['Normal']
-    
-    # Split the agreement content into lines
-    lines = agreement_content.split('\n')
-    
-    # Add each line as a Paragraph to the content list
-    for line in lines:
-        content.append(Paragraph(line, normal_style))
-        content.append(Spacer(1, 12))  # Add some space between paragraphs
-    
-    # Build the PDF document with the content
-    doc.build(content)
-    
-    return response
+    # Calculate the deposit amount (3 times the rent per month)
+    deposit_amount = 3 * booking.property.rent_per_month
 
+    # Retrieve the corresponding AccPayment instance for the booking
+    acc_payment = AccPayment.objects.filter(booking=booking).first()
 
+    # Check if acc_payment exists and evaluate created_at if it exists
+    payment_date = acc_payment.created_at.strftime('%B %d, %Y') if acc_payment else None
 
+    context = {
+        'currentDate': booking.check_in_date.strftime("%Y-%m-%d"),
+        'lessorName': booking.property.landlord,
+        'lessorMobile': booking.property.contact_number,
+        'lessorAddress': booking.property.address,
+        'lesseeName': booking.full_name,
+        'lesseeMobile': booking.phone,
+        'lesseeAddress': booking.address,
+        'leaseTerm': booking.property.minimum_duration_of_rent,
+        'todayDate': booking.check_in_date.strftime("%Y-%m-%d"),
+        'monthlyRent': booking.property.rent_per_month,
+        'depositAmount': str(deposit_amount),
+        'accbooking': booking,
+        'property': booking.property,
+        'payment_date': payment_date,
+    }
+    # Render the template with context data
+    return render(request, 'accomodation/agreement.html', context)
 
 @login_required
 def bookings(request):
@@ -1963,14 +1910,7 @@ def messages_page(request):
 
 
 
-def get_agreement_content(request, property_id):
-    # Retrieve the agreement content based on the property ID
-    agreement = Agreement.objects.filter(booking__property_id=property_id).first()
-    if agreement:
-        return HttpResponse(agreement.content)
-    else:
-        return HttpResponse("Agreement not found")
-    
+
 
 
 def booking_info_modal(request, booking_id):

@@ -1143,18 +1143,16 @@
                                                             <h5 class="card-title">{{ property.property_name }}</h5>
                                                             <p class="card-text"><small>{{ property.address }}</small></p>
                                                             <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
-                                                            {% if property.rejection_remark %}
-                                                                <p class="card-text text-danger"><strong>Rejection Remark:</strong> {{ property.rejection_remark }}</p>
-                                                            {% endif %}
+                                                        
                                                         </div>
                                                         <div class="card-body d-flex justify-content-center">
                                                             <div class="card-body d-flex" style="display: flex; justify-content: center; align-items: center;">
                                                                 <div class="btn-container" style="display: flex; flex: 1;">
                                                                     <input class="btn btn-success view-btn me-2" type="button" id="view-property" value="View" data-toggle="modal" data-target="#propertyModal" data-property-id="{{ property.id }}" style="flex: 1;">
                                                                     <!-- Button to display agreement -->
-                                                                    <input class="btn btn-primary me-2" type="button" value="Agreement" onclick="loadAgreement({{ property.id }})" style="flex: 1;">
+                                                                    <input class="btn btn-primary me-2" type="button" value="Agreement" onclick="" style="flex: 1;">
                                                                     <!-- Add button to see booking details -->
-                                                                    <input class="btn btn-secondary booking-info-button" type="button" value="Booking info" style="flex: 1;" data-bs-toggle="modal" data-bs-target="#bookingInfoModal" data-booking-id="{{ booking.id }}">
+                                                                    {% comment %} <input class="btn btn-secondary booking-info-button" type="button" value="Booking info" style="flex: 1;" data-bs-toggle="modal" data-bs-target="#bookingInfoModal" data-booking-id="{{ booking.id }}"> {% endcomment %}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1194,10 +1192,8 @@
                 </div>
               </div>
             </div>
-          </div>
-          
-          
-  
+        </div>
+
 
 
 
@@ -1243,17 +1239,6 @@
 </div>
 
 
-        <script>
-            function loadAgreement(propertyId) {
-                $.ajax({
-                url: '/property/agreement/' + propertyId + '/',
-                success: function(data) {
-                    $('#agreementContent').html(data);
-                    $('#agreementModal').modal('show');
-                }
-                });
-            }
-        </script>
         
     <div class="modal fade" id="propertyModal" tabindex="-1" role="dialog" aria-labelledby="propertyModalLabel"
         aria-hidden="true">
