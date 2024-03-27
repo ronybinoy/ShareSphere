@@ -1896,7 +1896,6 @@ def bookings(request):
     }
     return render(request, 'accomodation/bookings.html', context)
 
-
 from main.models import Thread
 
 @login_required
@@ -1913,6 +1912,3 @@ def messages_page(request):
 
 
 
-def booking_info_modal(request, booking_id):
-    booking = Accbooking.objects.get(pk=booking_id)
-    return render(request, 'acc_home.html', {'booking': booking})
