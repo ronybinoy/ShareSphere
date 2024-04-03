@@ -676,7 +676,7 @@
               <div class="modal-body">
                   <div class="form-group">
                       <label for="rejectRemarks">Remarks:</label>
-                      <textarea class="form-control" id="rejectRemarks" name="rejectRemarks" rows="4" placeholder="Enter remarks for rejection"></textarea>
+                      <textarea class="form-control" id="rejectadRemarks" name="rejectRemarks" rows="4" placeholder="Enter remarks for rejection"></textarea>
                   </div>
               </div>
               <div class="modal-footer">
@@ -1351,6 +1351,7 @@
                   const rejectionButton = $('<button>')
                     .addClass('btn btn-danger ms-2')
                     .text('Reject')
+                    .attr('id', 'rejectButton') 
                     .on('click', function () {
                         displayRejectPropertyModal(property.id);
                     });

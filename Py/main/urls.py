@@ -90,7 +90,8 @@ urlpatterns = [
     path('edit_property/<int:property_id>/', views.edit_property, name='edit_property'),
     # path('booking-info/<int:booking_id>/', views.booking_info_modal, name='booking_info_modal'),
     path('agreement/<int:booking_id>/', views.agreement, name='agreement'),
-
+    path('generate_pdf1/<int:booking_id>/', views.generate_pdf1, name='generate_pdf1'),
+    path('invoice2/<str:booking_id>/', views.invoice2, name='invoice2'),
 
 
 

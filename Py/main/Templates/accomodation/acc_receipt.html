@@ -105,15 +105,19 @@
         </div>
         <!-- End of GST Bill Number -->
         {% if application %}
-        
+
         <div class="info">
-            <h4><strong>Application Information</strong></h4>
-            <p><strong>Application ID:</strong> {{ application.application_id }}</p>
-            <p><strong>Applicant Name:</strong> {{ application.full_name }}</p>
-            <p><strong>Course Name:</strong> {{ application.course.course_name }}</p>
-            <p><strong>Institute Name:</strong> {{ application.course.user.first_name }}</p>
+            <h4><strong>Property Information</strong></h4>
+            <p><strong>Booking ID:</strong> {{ application.booking_id }}</p>
+            <p><strong>Tenant Name:</strong> {{ application.full_name }}</p>
+            <p><strong>Property Name:</strong> {{ application.property.property_name }}</p>
+            <p><strong>Property country:</strong> {{ application.property.country }}</p>
+            <p><strong>Property state province:</strong> {{ application.property.state_province }}</p>
+            <p><strong>Property city:</strong> {{ application.property.city }}</p>
+            <p><strong>Property address:</strong> {{ application.property.address }}</p>
+
         </div>
-    
+
         <div class="table-container">
             <h4><strong>Payment Details</strong></h4>
             {% if payments %}
@@ -131,19 +135,20 @@
                     <tr>
                         <td>{{ payment.id }}</td>
                         <td>{{ payment.payment_datetime }}</td>
-                        <td>Rs {{ payment.payment_amount }}</td>
-                        <td>{{ payment.payment_status }}</td>
+                        <td> {{ payment.currency }} {{ payment.amount }}</td>
+                        <td>Paid</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% else %}
-            <p>No payments found for this application.</p>
+            <p>No payments found for this Booking.</p>
             {% endif %}
         </div>
         {% else %}
-        <p>Application not found.</p>
+        <p>Booking not found.</p>
         {% endif %}
+
         <br>
         <br>
         <br>
@@ -152,7 +157,6 @@
             <div class="text-center p-3" style="background-color: rgb(215, 215, 215);">
                 <a class="text-dark" href="#">ShareSphere.com</a>
             </div>
-            <!-- Copyright -->
         </footer>
     </div>
     

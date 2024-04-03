@@ -1150,8 +1150,11 @@
                                                                 <div class="btn-container" style="display: flex; flex: 1;">
                                                                     <input class="btn btn-success view-btn me-2" type="button" id="view-property" value="View" data-toggle="modal" data-target="#propertyModal" data-property-id="{{ property.id }}" style="flex: 1;">
                                                                     <!-- Button to display agreement -->
-                                                                    <input class="btn btn-primary me-2" type="button" value="Agreement" onclick="" style="flex: 1;">
-                                                                    <!-- Add button to see booking details -->
+                                                                    {% for booking in bookings %}
+                                                                    {% if booking.property.id == property.id %}
+                                                                        <a href="{% url 'agreement' booking.id %}" class="btn btn-info mt-2" target="_blank">Agreement</a>
+                                                                    {% endif %}
+                                                                    {% endfor %}                                                                    <!-- Add button to see booking details -->
                                                                     {% comment %} <input class="btn btn-secondary booking-info-button" type="button" value="Booking info" style="flex: 1;" data-bs-toggle="modal" data-bs-target="#bookingInfoModal" data-booking-id="{{ booking.id }}"> {% endcomment %}
                                                                 </div>
                                                             </div>

@@ -149,7 +149,7 @@
                                 </div>
                                 <p>{{ property.address }}, {{ property.state_province }}, {{ property.country }}</p>
                                 {% if property.status != "reserved" %}
-                                  <a href="{% url 'acc_booking' property_id=property.id %}" class="btn btn-primary">Book Now</a>
+                                  <a href="{% url 'acc_booking' property_id=property.id %}" class="btn btn-primary" id="book">Book Now</a>
                                 {% endif %}
 
                                 <a href="{% url "messages_page" %}" class="btn btn-secondary">Enquire</a>

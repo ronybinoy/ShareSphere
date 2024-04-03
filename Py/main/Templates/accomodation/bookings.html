@@ -142,14 +142,17 @@
                       <p class="card-text text-primary">${{ booking.property.rent_per_month }}/mo</p>
                       <p class="card-text"><img width="25" height="25" src="https://img.icons8.com/ios-filled/50/marker.png" alt="marker"/> {{ booking.property.city }}, {{ booking.property.state_province }}, {{ booking.property.country }}</p>
                       <div class="text-center">
-                          <form action="{% url 'acc_reserverpropertyview' %}" method="post">
-                              {% csrf_token %}
-                              <input type="hidden" name="property_id" value="{{ booking.property.id }}">
-                              <button type="submit" class="btn btn-primary">View Details</button>
-                          </form>
-                          <a href="" class="btn btn-secondary mt-2">Receipt</a>
-                          <a href="{% url 'agreement' booking.id %}" class="btn btn-info mt-2" target="_blank">Agreement</a>
-                        </div>
+                        <form action="{% url 'acc_reserverpropertyview' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="property_id" value="{{ booking.property.id }}">
+                            <button type="submit" class="btn btn-primary">View Details</button>
+                        </form>
+                        {% if booking.check_in_date == current_date %}
+                        <a href="" class="btn btn-success mt-2">Check-In</a>
+                        {% endif %}
+                        <a href="{% url 'invoice2' booking_id=booking.id %}" class="btn btn-info mt-2" target="_blank">Recipt</a>        
+                        <a href="{% url 'agreement' booking.id %}" class="btn btn-info mt-2" target="_blank">Agreement</a>
+                    </div>
                   </div>
               </div>
           </div>

@@ -1,3 +1,4 @@
+import random
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -29,7 +30,7 @@ class Migrant(models.Model):
     profile_photo = models.ImageField(
         ("Profile Photo"),
         upload_to='profile_photos/',
-        default='default_profile.png',  # Use the filename of your default profile photo
+        default='default_profile.png', 
         null=True,
         blank=True
     )
@@ -192,7 +193,8 @@ class Property(models.Model):
         ('inactive', 'Inactive'),
         ('rejected', 'Rejected'),
         ('pending', 'Pending'),
-        ('reserved','reserved')
+        ('reserved','reserved'),
+        ('checkedin','checkedin')
     ]
     
     landlord = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -303,3 +305,16 @@ class ChatMessage(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    
+    
+class CheckinRequest(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    verification_code = models.CharField(max_length=6, blank=True)
+    is_accepted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.verification_code:
+            self.verification_code = ''.join(random.choices('0123456789', k=6))
+        super().save(*args, **kwargs)

@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from .models import (
     AccPayment,
     Agreement,
+    CheckinRequest,
     Course,
     Room,
     Message,
@@ -73,21 +74,16 @@ def login(request):
     
     if request.user.is_authenticated:
         if request.user.is_migrant:
-            # Redirect to the migrant dashboard or your desired URL for migrants
-            print("migrant")
-            return redirect("home")  # Replace with your URL name
+            return redirect("home")  # Redirect to migrant dashboard
         elif request.user.is_institute:
-            # Redirect to the institute dashboard or your desired URL for institutes
-            return redirect("institute_dashboard")  # Replace with your URL name
-        # Replace with your URL name
-        elif request.user.id != AnonymousUser.id:
-            print("anon")
-            return redirect("home")
-
+            return redirect("institute_dashboard")  # Redirect to institute dashboard
+        elif request.user.is_landlord:
+            return redirect("acc_home")  # Redirect to landlord dashboard
+        elif request.user.is_staff:
+            return redirect("admin_dashboard")  # Redirect to admin dashboard
         else:
-            # Redirect to a generic home page or your desired URL
-            print("else")
-            return redirect("home")  # Replace with your URL name
+            return redirect("home")  # Redirect to generic home page
+
 
     if request.method == "POST":
         email = request.POST.get("email")
@@ -101,14 +97,14 @@ def login(request):
                 if user.is_migrant:
                     # Redirect to the migrant dashboard or your desired URL for migrants
                     return redirect("home")  # Replace with your URL name
-                elif user.is_institute:
-                    # Redirect to the institute dashboard or your desired URL for institutes
+                elif request.user.is_institute:
                     return redirect("institute_dashboard")  # Replace with your URL name
                 
                 elif request.user.is_landlord:
                     return redirect("acc_home")
+                elif request.user.is_staff:
+                    return redirect("admin_dashboard")
                 else:
-                    # Redirect to a generic home page or your desired URL
                     return redirect("home")  # Replace with your URL name
             else:
                 error_message = "Invalid login credentials."
@@ -1293,13 +1289,14 @@ def acc_home(request):
             inactive_properties = properties.filter(status='inactive')
             pending_properties = properties.filter(status='pending')
             reserved_properties = properties.filter(status='reserved')
+            bookings = Accbooking.objects.all()
 
             active_properties = properties.filter(status='active')  # Excluding rejected and inactive properties
-            return render(request, "accomodation/acc_home.html", {'properties': properties, 'rejected_properties': rejected_properties, 'inactive_properties': inactive_properties, 'active_properties': active_properties, 'reserved_properties': reserved_properties, 'pending_properties': pending_properties})
+            return render(request, "accomodation/acc_home.html", {'properties': properties, 'rejected_properties': rejected_properties, 'inactive_properties': inactive_properties, 'active_properties': active_properties, 'reserved_properties': reserved_properties, 'pending_properties': pending_properties, 'bookings':bookings})
         except Landlord.DoesNotExist:
             raise Http404("Landlord does not exist for this user.")
     else:
-        return render(request, "accomodation/acc_home.html", {'properties': [], 'rejected_properties': [], 'inactive_properties': [], 'active_properties': [], 'reserved_properties':[], 'pending_properties': []})
+        return render(request, "accomodation/acc_home.html", {'properties': [], 'rejected_properties': [], 'inactive_properties': [], 'active_properties': [], 'reserved_properties':[], 'pending_properties': [], 'bookings':[]})
 
 
 
@@ -1890,12 +1887,20 @@ def agreement(request, booking_id):
 
 @login_required
 def bookings(request):
+    # Filter bookings based on the current user
     bookings = Accbooking.objects.filter(user=request.user)
+    
+    # Get the current date
+    current_date = date.today()
+    
+    # Filter bookings where the check-in date is equal to the current date
+    checkin_today_bookings = bookings.filter(check_in_date=current_date)
     context = {
-        'bookings': bookings
+        'bookings': bookings,
+        'current_date': current_date,
+        'checkin_today_bookings': checkin_today_bookings
     }
     return render(request, 'accomodation/bookings.html', context)
-
 from main.models import Thread
 
 @login_required
@@ -1909,6 +1914,77 @@ def messages_page(request):
 
 
 
+@login_required
+def request_checkin(request, property_id):
+    if request.method == 'POST':
+        property_instance = Property.objects.get(id=property_id)
+        if not CheckinRequest.objects.filter(property=property_instance, user=request.user, is_accepted=False).exists():
+            checkin_request = CheckinRequest.objects.create(property=property_instance, user=request.user)
+            verification_code = checkin_request.verification_code
+            return render(request, 'accomodation/verify_checkin.html', {'verification_code': verification_code})
+        else:
+            messages.error(request, 'Check-In request already exists for this property.')
+    return redirect('property_list')
 
 
 
+
+def invoice2(request, booking_id):
+    try:
+        application = Accbooking.objects.get(id=booking_id)
+        property = Property.objects.all()
+        payments = AccPayment.objects.filter(booking=application)
+        print(payments)
+    except Accbooking.DoesNotExist:
+        application = None
+        payments = None
+
+    return render(
+        request,
+        "accomodation/acc_receipt.html",
+        {"application": application, "payments": payments,"property":property},
+    )
+
+
+def generate_pdf1(request, booking_id):
+    # Get the HTML template
+    template = get_template("accomodation/acc_receipt.html")
+
+    try:
+        application = Accbooking.objects.get(id=booking_id)
+    except Accbooking.DoesNotExist:
+        application = None
+
+    # Retrieve payment data related to the application (replace with your actual query)
+    if application:
+        payments = AccPayment.objects.filter(booking=application)
+    else:
+        payments = None
+
+    # Create the context dictionary
+    context = {
+        "application": application,
+        "payments": payments,
+    }
+    print(context)
+    # Render the template with the context
+    html = template.render(context)
+
+    # PDF generation options (you can customize these)
+    options = {
+        "page-size": "A4",
+        "margin-top": "0mm",
+        "margin-right": "0mm",
+        "margin-bottom": "0mm",
+        "margin-left": "0mm",
+        "encoding": "UTF-8",
+    }
+
+    # Generate PDF from the HTML content
+    pdf = pdfkit.from_string(html, False, options=options)
+
+    # Create an HTTP response with the PDF content
+    response = HttpResponse(pdf, content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="invoice.pdf"'
+
+    return response
