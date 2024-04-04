@@ -1,4 +1,5 @@
 import datetime
+import json
 from random import randint
 from sqlite3 import IntegrityError
 from tkinter import Canvas
@@ -10,7 +11,6 @@ from django.shortcuts import get_object_or_404
 from .models import (
     AccPayment,
     Agreement,
-    CheckinRequest,
     Course,
     Room,
     Message,
@@ -1282,24 +1282,33 @@ from .models import Property
 @login_required
 @user_passes_test(is_landlord)
 def acc_home(request):
-    if request.user.is_authenticated:
-        try:
-            properties = Property.objects.filter(landlord=request.user)
-            rejected_properties = properties.filter(status='rejected')
-            inactive_properties = properties.filter(status='inactive')
-            pending_properties = properties.filter(status='pending')
-            reserved_properties = properties.filter(status='reserved')
-            bookings = Accbooking.objects.all()
+    try:
+        properties = Property.objects.filter(landlord=request.user)
+        rejected_properties = properties.filter(status='rejected')
+        inactive_properties = properties.filter(status='inactive')
+        active_properties = properties.filter(status='active')
+        reserved_properties = properties.filter(status='reserved')
+        pending_properties = properties.filter(status='pending')
+        checkin_properties = properties.filter(status='checkin')
+        checkedin_properties = properties.filter(status='checkedin')
+        bookings = Accbooking.objects.all()
+    
 
-            active_properties = properties.filter(status='active')  # Excluding rejected and inactive properties
-            return render(request, "accomodation/acc_home.html", {'properties': properties, 'rejected_properties': rejected_properties, 'inactive_properties': inactive_properties, 'active_properties': active_properties, 'reserved_properties': reserved_properties, 'pending_properties': pending_properties, 'bookings':bookings})
-        except Landlord.DoesNotExist:
-            raise Http404("Landlord does not exist for this user.")
-    else:
-        return render(request, "accomodation/acc_home.html", {'properties': [], 'rejected_properties': [], 'inactive_properties': [], 'active_properties': [], 'reserved_properties':[], 'pending_properties': [], 'bookings':[]})
+        context = {
+            'properties': properties,
+            'rejected_properties': rejected_properties,
+            'inactive_properties': inactive_properties,
+            'active_properties': active_properties,
+            'reserved_properties': reserved_properties,
+            'pending_properties': pending_properties,
+            'checkin_properties': checkin_properties,
+            'checkedin_properties': checkedin_properties,
+            'bookings': bookings,
+        }
+    except Property.DoesNotExist:
+        raise Http404("Properties not found for this landlord.")
 
-
-
+    return render(request, "accomodation/acc_home.html", context)
 
 
 def get_property_details(request):
@@ -1557,8 +1566,10 @@ def acc_propertyview(request):
 def acc_reserverpropertyview(request):
     if request.method == "POST":
         property_id = request.POST.get("property_id")
-        # Retrieve the property object associated with the passed ID
-        property_obj = get_object_or_404(Property, id=property_id, status='reserved')
+        property_obj = get_object_or_404(
+            Property,
+            Q(id=property_id) & (Q(status='reserved') | Q(status='checkin') | Q(status='checkedin')))
+        print(property_obj)
         return render(request, "accomodation/acc_propertyview.html", {'property': property_obj})
     else:
         # Handle the case when the request method is not POST
@@ -1914,17 +1925,6 @@ def messages_page(request):
 
 
 
-@login_required
-def request_checkin(request, property_id):
-    if request.method == 'POST':
-        property_instance = Property.objects.get(id=property_id)
-        if not CheckinRequest.objects.filter(property=property_instance, user=request.user, is_accepted=False).exists():
-            checkin_request = CheckinRequest.objects.create(property=property_instance, user=request.user)
-            verification_code = checkin_request.verification_code
-            return render(request, 'accomodation/verify_checkin.html', {'verification_code': verification_code})
-        else:
-            messages.error(request, 'Check-In request already exists for this property.')
-    return redirect('property_list')
 
 
 
@@ -1988,3 +1988,36 @@ def generate_pdf1(request, booking_id):
     response["Content-Disposition"] = 'attachment; filename="invoice.pdf"'
 
     return response
+
+
+def approve_checkin(request, booking_id):
+    booking = get_object_or_404(Accbooking, id=booking_id)
+    property_instance = booking.property
+    property_instance.status = 'checkedin'  # Update status to 'checkedin'
+    property_instance.save()
+    return redirect('acc_home')  # Redirect to a specific URL after approval
+
+def deny_checkin(request, booking_id):
+    booking = get_object_or_404(Accbooking, id=booking_id)
+    property_instance = booking.property
+    property_instance.status = 'reserved'  
+    property_instance.save()
+    return redirect('acc_home')
+
+from django.views.decorators.http import require_POST
+
+@require_POST
+def update_property_status(request):
+    # Get the property ID and new status from the AJAX request data
+    property_id = request.POST.get('property_id')
+    new_status = request.POST.get('status')
+
+    # Fetch the property object
+    property_obj = get_object_or_404(Property, id=property_id)
+
+    # Update the property status
+    property_obj.status = new_status
+    property_obj.save()
+
+    # Return a JSON response indicating success
+    return JsonResponse({'message': 'Property status updated successfully'}, status=200)

@@ -194,6 +194,7 @@ class Property(models.Model):
         ('rejected', 'Rejected'),
         ('pending', 'Pending'),
         ('reserved','reserved'),
+        ('checkin','checkin'),
         ('checkedin','checkedin')
     ]
     
@@ -306,15 +307,3 @@ class ChatMessage(models.Model):
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     
-    
-class CheckinRequest(models.Model):
-    property = models.ForeignKey(Property, on_delete=models.CASCADE)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    verification_code = models.CharField(max_length=6, blank=True)
-    is_accepted = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def save(self, *args, **kwargs):
-        if not self.verification_code:
-            self.verification_code = ''.join(random.choices('0123456789', k=6))
-        super().save(*args, **kwargs)

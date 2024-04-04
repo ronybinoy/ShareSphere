@@ -215,8 +215,12 @@
                             role="tab" aria-controls="v-pills-rejected" aria-selected="false">Rejected Ads</a>
                         <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending"
                             role="tab" aria-controls="v-pills-pending" aria-selected="false">Pending Ads</a>
-                            <a class="nav-link" id="v-pills-reserved-tab" data-toggle="pill" href="#v-pills-reserved"
-                            role="tab" aria-controls="v-pills-reserved" aria-selected="false">Booking</a>
+                        <a class="nav-link" id="v-pills-reserved-tab" data-toggle="pill" href="#v-pills-reserved"
+                        role="tab" aria-controls="v-pills-reserved" aria-selected="false">Booking</a>
+                        <a class="nav-link" id="v-pills-checkin-tab" data-toggle="pill" href="#v-pills-checkin"
+                        role="tab" aria-controls="v-pills-checkin" aria-selected="false">Check-in Request</a>
+                        <a class="nav-link" id="v-pills-checkedin-tab" data-toggle="pill" href="#v-pills-checkedin"
+                        role="tab" aria-controls="v-pills-checkedin" aria-selected="false">Active Rentals</a>
                     </div>
                 </div>
                 <div class="col-md-10">
@@ -436,7 +440,6 @@
 
                                         </div>
                                     </div>
-                               
 
                                     <div class="row mb-3">
                                         <div class="col-md-6">
@@ -550,7 +553,7 @@
                                         function displayErrorMessage(fieldId, message) {
                                             $(`${fieldId}span`).html(message);
                                         }
-                                       
+                                    
                                         $(document).ready(function () {
                                             const fields = [
                                                 { id: "#pname", validate: validatePropertyname },
@@ -595,7 +598,7 @@
                                                 $('#other1').change(validateFile);
                                                 $('#other2').change(validateFile);
                                             });
-                                           
+                                        
 
                                             function checkFormValidity() {
                                                 const isValid = Object.values(validationStatus).every(status => status);
@@ -798,43 +801,38 @@
                             </div>
                         </div>
 
-                        <div class="tab-pane fade" id="v-pills-inactive" role="tabpanel"
-                            aria-labelledby="v-pills-inactive-tab">
+                        <div class="tab-pane fade" id="v-pills-inactive" role="tabpanel" aria-labelledby="v-pills-inactive-tab">
                             <div class="row mt-2">
                                 {% if inactive_properties %}
-                                {% for property in inactive_properties %}
-                                <div class="col-md-4">
-                                    <div class="card mb-3">
-                                        <div class="row no-gutters">
-                                            <div class="col-md-12">
-                                                <img src="{{ property.frontview_image.url }}" class="card-img"
-                                                    alt="Property Image">
-                                                <div class="ms-3 mt-2">
-                                                    <h5 class="card-title">{{ property.property_name }}</h5>
-                                                    <p class="card-text"><small>{{ property.address }}</small></p>
-                                                    <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
-                                                </div>
-                                                <div class="card-body d-flex">
-                                                    <input class="btn btn-success view-btn me-2" type="button"
-                                                        id="view-property" value="View" data-toggle="modal"
-                                                        data-target="#propertyModal"
-                                                        data-property-id="{{ property.id }}">
-                                                    <input class="btn btn-primary me-2 mark-active-btn" type="button"
-                                                        value="Re-activate ad" data-property-id="{{ property.id }}"
-                                                        data-status="{{ property.status }}">
-                                                        <button class="btn btn-secondary editPropertyBtn" data-toggle="modal" data-target="#editPropertyModal" data-property-id="{{ property.id }}">Edit</button>
+                                    {% for property in inactive_properties %}
+                                        <div class="col-md-4">
+                                            <div class="card mb-3">
+                                                <div class="row no-gutters">
+                                                    <div class="col-md-12">
+                                                        <img src="{{ property.frontview_image.url }}" class="card-img" alt="Property Image">
+                                                        <div class="ms-3 mt-2">
+                                                            <h5 class="card-title">{{ property.property_name }}</h5>
+                                                            <p class="card-text"><small>{{ property.address }}</small></p>
+                                                            <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
+                                                        </div>
+                                                        <div class="card-body d-flex">
+                                                            <input class="btn btn-success view-btn me-2" type="button" id="view-property" value="View" data-toggle="modal" data-target="#propertyModal" data-property-id="{{ property.id }}">
+                                                            <input class="btn btn-primary me-2 mark-active-btn" type="button" value="Re-activate ad" data-property-id="{{ property.id }}" data-status="{{ property.status }}">
+                                                            <input class="btn btn-secondary editPropertyBtn" type="button" value="Edit" data-toggle="modal" data-target="#editPropertyModal" data-property-id="{{ property.id }}">
+                                                        </div>
                                                     </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
+                                    {% endfor %}
                                 {% else %}
-                                <p>No Inactive properties to display.</p>
-                            {% endif %}
-                            
+                                    <div class="col-md-12">
+                                        <p>No Inactive properties to display.</p>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
+                        
                         <div class="modal fade" id="editPropertyModal" tabindex="-1" role="dialog" aria-labelledby="editPropertyModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-lg" role="document">
                                 <div class="modal-content">
@@ -1143,7 +1141,11 @@
                                                             <h5 class="card-title">{{ property.property_name }}</h5>
                                                             <p class="card-text"><small>{{ property.address }}</small></p>
                                                             <p class="card-text"><small>Rent per month <strong>${{ property.rent_per_month }}</strong></small></p>
-                                                        
+                                                            <p class="card-text"><small>Check-in Date: {{ property.accbooking_set.first.check_in_date }}</small></p>
+                                                            <p class="card-text"><small>Tenant Name: {{ property.accbooking_set.first.user.get_full_name }}</small></p>
+                                                            <p class="card-text"><small>Email ID: {{ property.accbooking_set.first.user.email }}</small></p>
+                                                            <p class="card-text"><small>UID no: {{ property.accbooking_set.first.passport_number }}</small></p>
+                                                            <p class="card-text mb-3"><small>No of Tenants: {{ property.accbooking_set.first.num_adults }}</small></p>
                                                         </div>
                                                         <div class="card-body d-flex justify-content-center">
                                                             <div class="card-body d-flex" style="display: flex; justify-content: center; align-items: center;">
@@ -1151,10 +1153,10 @@
                                                                     <input class="btn btn-success view-btn me-2" type="button" id="view-property" value="View" data-toggle="modal" data-target="#propertyModal" data-property-id="{{ property.id }}" style="flex: 1;">
                                                                     <!-- Button to display agreement -->
                                                                     {% for booking in bookings %}
-                                                                    {% if booking.property.id == property.id %}
-                                                                        <a href="{% url 'agreement' booking.id %}" class="btn btn-info mt-2" target="_blank">Agreement</a>
-                                                                    {% endif %}
-                                                                    {% endfor %}                                                                    <!-- Add button to see booking details -->
+                                                                        {% if booking.property.id == property.id %}
+                                                                            <input type="button" class="btn btn-primary btn-block" value="Agreement" onclick="window.open('{% url 'agreement' booking.id %}', '_blank');" style="flex: 1;">
+                                                                        {% endif %}
+                                                                    {% endfor %}                                                                    <!-- Add button to see booking details -->
                                                                     {% comment %} <input class="btn btn-secondary booking-info-button" type="button" value="Booking info" style="flex: 1;" data-bs-toggle="modal" data-bs-target="#bookingInfoModal" data-booking-id="{{ booking.id }}"> {% endcomment %}
                                                                 </div>
                                                             </div>
@@ -1167,6 +1169,91 @@
                                 {% else %}
                                     <div class="col-md-12">
                                         <p class="text-center">No reserved properties to display.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+
+                        <div class="tab-pane fade" id="v-pills-checkin" role="tabpanel" aria-labelledby="v-pills-checkin-tab">
+                            <div class="row mt-2">
+                                {% if checkin_properties %}
+                                    {% for property in checkin_properties %}
+                                        <div class="col-md-4">
+                                            <div class="card mb-3">
+                                                <img src="{{ property.frontview_image.url }}" class="card-img-top" alt="Property Image">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ property.property_name }}</h5>
+                                                    <p class="card-text">Address: {{ property.address }}</p>
+                                                    <p class="card-text">Rent per Month: ${{ property.rent_per_month }}</p>
+                                                    {% if property.accbooking_set.exists %}
+                                                        <p class="card-text">Check-in Date: {{ property.accbooking_set.first.check_in_date }}</p>
+                                                        <p class="card-text">Tenant Name: {{ property.accbooking_set.first.user.get_full_name }}</p>
+                                                        <p class="card-text">Email ID: {{ property.accbooking_set.first.user.email }}</p>
+                                                        <p class="card-text">UID no: {{ property.accbooking_set.first.passport_number }}</p>
+                                                        <p class="card-text mb-3">No of Tenants: {{ property.accbooking_set.first.num_adults }}</p>
+
+                                                        <form action="{% url 'approve_checkin' property.accbooking_set.first.id %}" method="post" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-success me-2">Approve</button>
+                                                        </form>
+                                                        <form action="{% url 'deny_checkin' property.accbooking_set.first.id %}" method="post" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-danger">Deny</button>
+                                                        </form>
+                                                        
+
+                                                    {% else %}
+                                                        <p class="card-text">No booking information available.</p>
+                                                    {% endif %}
+                                                    <!-- Add buttons for approve and deny here -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="col-md-12">
+                                        <p class="text-center">No active Check-in Requests.</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        
+                        
+
+                        
+                        
+                        
+
+                        <div class="tab-pane fade" id="v-pills-checkedin" role="tabpanel" aria-labelledby="v-pills-checkedin-tab">
+                            <div class="row mt-2">
+                                {% if checkedin_properties %}
+                                    {% for property in checkedin_properties %}
+                                        <div class="col-md-4">
+                                            <div class="card mb-3">
+                                                <img src="{{ property.frontview_image.url }}" class="card-img-top" alt="Property Image">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ property.property_name }}</h5>
+                                                    <p class="card-text">Address: {{ property.address }}</p>
+                                                    <p class="card-text">Rent per Month: ${{ property.rent_per_month }}</p>
+                                                    {% if property.accbooking_set.exists %}
+                                                        <p class="card-text">Check-in Date: {{ property.accbooking_set.first.check_in_date }}</p>
+                                                        <p class="card-text">Tenant Name: {{ property.accbooking_set.first.user.get_full_name }}</p>
+                                                        <p class="card-text">Email ID: {{ property.accbooking_set.first.user.email }}</p>
+                                                        <p class="card-text">UID no: {{ property.accbooking_set.first.passport_number }}</p>
+                                                        <p class="card-text mb-3">No of Tenants: {{ property.accbooking_set.first.num_adults }}</p>
+                                                    {% else %}
+                                                        <p class="card-text">No booking information available.</p>
+                                                    {% endif %}
+                                                    <!-- Add buttons for approve and deny here -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="col-md-12">
+                                        <p class="text-center">No active Rentals</p>
                                     </div>
                                 {% endif %}
                             </div>

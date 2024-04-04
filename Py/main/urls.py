@@ -78,7 +78,9 @@ urlpatterns = [
     path('acc_userview/', views.acc_userview, name="accomodation" ),
     path('acc_propertyview/', views.acc_propertyview, name="acc_propertyview" ),
     path('acc_reserverpropertyview/', views.acc_reserverpropertyview, name="acc_reserverpropertyview" ),
+    path('update_property_status/', views.update_property_status, name='update_property_status'),
 
+    
     path('acc_listproperty/', views.acc_listproperty, name='acc_listproperty'),
     path('property/search/', views.property_search, name='property_search'),
     path('acc_booking/<int:property_id>/', views.acc_booking, name='acc_booking'),
@@ -93,7 +95,8 @@ urlpatterns = [
     path('generate_pdf1/<int:booking_id>/', views.generate_pdf1, name='generate_pdf1'),
     path('invoice2/<str:booking_id>/', views.invoice2, name='invoice2'),
 
-
+    path('approve/<int:booking_id>/', views.approve_checkin, name='approve_checkin'),
+    path('deny/<int:booking_id>/', views.deny_checkin, name='deny_checkin'),
 
 
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
