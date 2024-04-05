@@ -1899,7 +1899,7 @@ def agreement(request, booking_id):
 @login_required
 def bookings(request):
     # Filter bookings based on the current user
-    bookings = Accbooking.objects.filter(user=request.user)
+    bookings = Accbooking.objects.filter(user=request.user,is_active=True)
     
     # Get the current date
     current_date = date.today()
@@ -2004,20 +2004,13 @@ def deny_checkin(request, booking_id):
     property_instance.save()
     return redirect('acc_home')
 
-from django.views.decorators.http import require_POST
-
-@require_POST
-def update_property_status(request):
-    # Get the property ID and new status from the AJAX request data
-    property_id = request.POST.get('property_id')
-    new_status = request.POST.get('status')
-
-    # Fetch the property object
-    property_obj = get_object_or_404(Property, id=property_id)
-
-    # Update the property status
-    property_obj.status = new_status
-    property_obj.save()
-
-    # Return a JSON response indicating success
-    return JsonResponse({'message': 'Property status updated successfully'}, status=200)
+def update_property_status(request, property_id):
+    property_instance = get_object_or_404(Property, id=property_id)
+    new_status = request.POST.get('status')  # Assuming you're passing 'status' in the form data
+    
+    if new_status == 'checkin':
+        property_instance.status = new_status
+        property_instance.save()
+        return redirect('bookings')  # Redirect to a success page
+    else:
+        return redirect('bookings')  # Redirect to an error page

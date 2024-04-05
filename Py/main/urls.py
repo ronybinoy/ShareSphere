@@ -78,7 +78,7 @@ urlpatterns = [
     path('acc_userview/', views.acc_userview, name="accomodation" ),
     path('acc_propertyview/', views.acc_propertyview, name="acc_propertyview" ),
     path('acc_reserverpropertyview/', views.acc_reserverpropertyview, name="acc_reserverpropertyview" ),
-    path('update_property_status/', views.update_property_status, name='update_property_status'),
+    path('update_property_status/<int:property_id>/', views.update_property_status, name='update_property_status'),
 
     
     path('acc_listproperty/', views.acc_listproperty, name='acc_listproperty'),

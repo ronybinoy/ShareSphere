@@ -142,75 +142,42 @@
                       <p class="card-text text-primary">${{ booking.property.rent_per_month }}/mo</p>
                       <p class="card-text"><img width="25" height="25" src="https://img.icons8.com/ios-filled/50/marker.png" alt="marker"/> {{ booking.property.city }}, {{ booking.property.state_province }}, {{ booking.property.country }}</p>
                       <div class="text-center">
-                        <form action="{% url 'acc_reserverpropertyview' %}" method="post">
-                            {% csrf_token %}
-                            <input type="hidden" name="property_id" value="{{ booking.property.id }}">
-                            <button type="submit" class="btn btn-primary">View Details</button>
-                        </form>
+                        
                         {% if booking.check_in_date == current_date %}
-                            <button class="btn btn-success mt-2" id="checkInBtn" data-toggle="modal" data-target="#confirmationModal">Check-In</button>
-                        {% endif %}
+                          {% if booking.property.status != 'checkin' %}
+                              <form action="{% url 'update_property_status' booking.property.id %}" method="post">
+                                  {% csrf_token %}
+                                  <input type="hidden" name="status" value="checkin">
+                                  <button type="submit" class="btn btn-success mb-2">Check-In</button>
+                              </form>
+                          {% else %}
+                              <p class="text-success mt-2">Check-in Request is pending</p>
+                          {% endif %}
+                      {% endif %}
 
-                        <div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                              <div class="modal-content">
-                                  <div class="modal-header">
-                                      <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                          <span aria-hidden="true">&times;</span>
-                                      </button>
-                                  </div>
-                                  <div class="modal-body">
-                                      Are you sure you want to check-in to the property?
-                                  </div>
-                                  <div class="modal-footer">
-                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Not Now</button>
-                                      <button type="button" class="btn btn-success" id="confirmCheckInBtn">Yes, Check-in</button>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                      
                       <script>
-                        document.addEventListener('DOMContentLoaded', function () {
-                            const checkInBtn = document.getElementById('checkInBtn');
-                            const confirmCheckInBtn = document.getElementById('confirmCheckInBtn');
+                          // JavaScript to disable the button and change its text if the property status is 'checkedin'
+                          {% if booking.property.status == 'checkedin' %}
+                              const form = document.querySelector('form[action="{% url 'update_property_status' booking.property.id %}"]');
+                              const button = form.querySelector('button');
+                              button.disabled = true;
+                              button.textContent = 'Checked In';
+                              button.classList.add('btn-success');  // Add Bootstrap's secondary button class
+                              button.classList.add('disabled');  // Add a CSS class for styling when disabled
+                          {% endif %}
+                      </script>
+
                     
-                            if (checkInBtn && confirmCheckInBtn) {
-                                checkInBtn.addEventListener('click', function () {
-                                    $('#confirmationModal').modal('show');
-                                });
-                    
-      
-
-                        confirmCheckInBtn.addEventListener('click', function () {
-                          // Send an AJAX request to update the property status to 'checkin'
-                          console.log('HEllo')
-                          $.ajax({
-                              url: '{% url 'update_property_status' %}',
-                              method: 'POST',
-                              data: {
-                                  property_id: '{{ booking.property.id }}',
-                                  status: 'checkin'
-                              },
-                              beforeSend: function (xhr, settings) {
-                                  xhr.setRequestHeader("X-CSRFToken", csrftoken);  // Include CSRF token in the headers
-                              },
-                              success: function (response) {
-                                  console.log('Property status updated to checkin');
-                              },
-                              error: function (xhr, status, error) {
-                                  console.error('Error updating property status:', error);
-                              }
-                          });
-                      
-                          $('#confirmationModal').modal('hide');
-                      });
-                      
-                    </script>
+                        <form action="{% url 'acc_reserverpropertyview' %}" method="post">
+                          {% csrf_token %}
+                          <input type="hidden" name="property_id" value="{{ booking.property.id }}">
+                          <button type="submit" class="btn btn-primary">View Details</button>
+                      </form>
 
 
-                        <a href="{% url 'invoice2' booking_id=booking.id %}" class="btn btn-info mt-2" target="_blank">Recipt</a>        
+                
+
+                        <a href="{% url 'invoice2' booking_id=booking.id %}" class="btn btn-info mt-2" target="_blank">Invoice</a>        
                         <a href="{% url 'agreement' booking.id %}" class="btn btn-info mt-2" target="_blank">Agreement</a>
                     </div>
                   </div>
