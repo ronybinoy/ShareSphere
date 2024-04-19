@@ -1280,7 +1280,6 @@ from .models import Property
 
 
 @login_required
-@user_passes_test(is_landlord)
 def acc_home(request):
     try:
         properties = Property.objects.filter(landlord=request.user)
@@ -1291,9 +1290,14 @@ def acc_home(request):
         pending_properties = properties.filter(status='pending')
         checkin_properties = properties.filter(status='checkin')
         checkedin_properties = properties.filter(status='checkedin')
-        bookings = Accbooking.objects.all()
-    
-
+        bookings = Accbooking.objects.filter(property__in=properties)
+        
+        # Fetch payment history for each property owner
+        payment_history = {}
+        for property in properties:
+            payments = AccPayment.objects.filter(booking__property=property)
+            payment_history[property] = payments
+        
         context = {
             'properties': properties,
             'rejected_properties': rejected_properties,
@@ -1304,6 +1308,7 @@ def acc_home(request):
             'checkin_properties': checkin_properties,
             'checkedin_properties': checkedin_properties,
             'bookings': bookings,
+            'payment_history': payment_history,
         }
     except Property.DoesNotExist:
         raise Http404("Properties not found for this landlord.")

@@ -110,6 +110,17 @@
             width: 90% !important; /* You can adjust this value as needed */
           }
           
+          .payment-history-heading {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            text-transform: uppercase;
+            padding: auto;
+            margin: 30px;
+            font-family:Georgia, 'Times New Roman', Times, serif;
+        }
+        
        
     </style>
 </head>
@@ -215,12 +226,15 @@
                             role="tab" aria-controls="v-pills-rejected" aria-selected="false">Rejected Ads</a>
                         <a class="nav-link" id="v-pills-pending-tab" data-toggle="pill" href="#v-pills-pending"
                             role="tab" aria-controls="v-pills-pending" aria-selected="false">Pending Ads</a>
-                        <a class="nav-link" id="v-pills-reserved-tab" data-toggle="pill" href="#v-pills-reserved"
-                        role="tab" aria-controls="v-pills-reserved" aria-selected="false">Booking</a>
+                        
                         <a class="nav-link" id="v-pills-checkin-tab" data-toggle="pill" href="#v-pills-checkin"
                         role="tab" aria-controls="v-pills-checkin" aria-selected="false">Check-in Request</a>
                         <a class="nav-link" id="v-pills-checkedin-tab" data-toggle="pill" href="#v-pills-checkedin"
                         role="tab" aria-controls="v-pills-checkedin" aria-selected="false">Active Rentals</a>
+                        <a class="nav-link" id="v-pills-reserved-tab" data-toggle="pill" href="#v-pills-reserved"
+                        role="tab" aria-controls="v-pills-reserved" aria-selected="false">Bookings</a>
+                        <a class="nav-link" id="v-pills-payment-tab" data-toggle="pill" href="#v-pills-payment"
+                        role="tab" aria-controls="v-pills-payment" aria-selected="false">Payments</a>
                     </div>
                 </div>
                 <div class="col-md-10">
@@ -1079,7 +1093,7 @@
                                                                 id="view-property" value="View" data-toggle="modal"
                                                                 data-target="#propertyModal" data-property-id="{{ property.id }}">
                                                             <!-- Add other buttons as needed -->
-                                                            <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target="">
+                                                            {% comment %} <input class="btn btn-secondary" type="button" value="Edit" data-toggle="modal" data-target=""> {% endcomment %}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1258,6 +1272,79 @@
                                 {% endif %}
                             </div>
                         </div>
+                        
+
+                        <div class="tab-pane fade" id="v-pills-checkedin" role="tabpanel" aria-labelledby="v-pills-checkedin-tab">
+                            <div class="row mt-2">
+                                {% if checkedin_properties %}
+                                    {% for property in checkedin_properties %}
+                                        <div class="col-md-4">
+                                            <div class="card mb-3">
+                                                <img src="{{ property.frontview_image.url }}" class="card-img-top" alt="Property Image">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ property.property_name }}</h5>
+                                                    <p class="card-text">Address: {{ property.address }}</p>
+                                                    <p class="card-text">Rent per Month: ${{ property.rent_per_month }}</p>
+                                                    {% if property.accbooking_set.exists %}
+                                                        <p class="card-text">Check-in Date: {{ property.accbooking_set.first.check_in_date }}</p>
+                                                        <p class="card-text">Tenant Name: {{ property.accbooking_set.first.user.get_full_name }}</p>
+                                                        <p class="card-text">Email ID: {{ property.accbooking_set.first.user.email }}</p>
+                                                        <p class="card-text">UID no: {{ property.accbooking_set.first.passport_number }}</p>
+                                                        <p class="card-text mb-3">No of Tenants: {{ property.accbooking_set.first.num_adults }}</p>
+                                                    {% else %}
+                                                        <p class="card-text">No booking information available.</p>
+                                                    {% endif %}
+                                                    <!-- Add buttons for approve and deny here -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="col-md-12">
+                                        <p class="text-center">No active Rentals</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+
+                        </div>
+                        
+                        <div class="tab-pane fade" id="v-pills-payment" role="tabpanel" aria-labelledby="v-pills-payment-tab">
+                            <h3 class="payment-history-heading">Payment History</h3>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Property ID</th>
+                                        <th>Property Name</th>
+                                        <th>Tenant Name</th>
+                                        <th>Amount of Payment</th>
+                                        <th>Payment ID</th>
+                                        <th>Date & Time</th>
+                                        <th>Payment Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for property, payments in payment_history.items %}
+                                        {% for payment in payments %}
+                                            <tr>
+                                                <td>{{ property.id }}</td>
+                                                <td>{{ property.property_name }}</td>
+                                                <td>{{ payment.booking.user.get_full_name }}</td>
+                                                <td>{{ payment.amount }}</td>
+                                                <td>{{ payment.payment_id }}</td>
+                                                <td>{{ payment.created_at }}</td>
+                                                <td style="color: {% if payment.status == 'Success' %}green{% else %}black{% endif %}">
+                                                    {{ payment.status }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        
+                        
                         
 
                         
