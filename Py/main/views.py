@@ -592,7 +592,7 @@ def course_view(request, course_type):
 
     # Query the courses
     courses_list = Course.objects.filter(
-        status="approved", course_type=course_type, appdeadline__gte=today
+        status="approved", course_type=course_type, appdeadline__gte=today, opendate__lte=today
     ).select_related("user")
 
     # Apply search query
@@ -640,7 +640,7 @@ def course_view(request, course_type):
         "unique_countries": unique_countries,
     }
 
-    return render(request, "courseview.html", context)
+    return render(request, "courseview.html", context) 
 
 
 def has_applied_to_course(user, course):
@@ -693,6 +693,7 @@ def reject_course(request, course_id):
 @login_required
 def search_courses(request):
     keyword = request.GET.get("keyword", "").strip()  # Remove leading/trailing whitespace
+    today = datetime.now().date()
 
     if not keyword:
         return JsonResponse({"courses": []})  # Return an empty list if no keyword is provided
@@ -702,7 +703,7 @@ def search_courses(request):
         Q(course_name__icontains=keyword) |
         Q(user__first_name__icontains=keyword) |
         Q(course_type__icontains=keyword)  # Add more fields as needed
-    ).filter(status='approved')  # Filter courses with status = 'approved'
+    ).filter(status='approved', appdeadline__gte=today) 
 
     # Get the user to check which courses they have applied for
     user = request.user
@@ -2009,7 +2010,7 @@ def deny_checkin(request, booking_id):
     property_instance.save()
     return redirect('acc_home')
 
-def update_property_status(request, property_id):
+def update_property_statuss(request, property_id):
     property_instance = get_object_or_404(Property, id=property_id)
     new_status = request.POST.get('status')  # Assuming you're passing 'status' in the form data
     

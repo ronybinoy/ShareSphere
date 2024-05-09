@@ -1343,7 +1343,9 @@
                   .addClass('btn btn-success')
                   .text('Approve')
                   .on('click', function () {
-                      updatePropertyStatus(property.id, 'active');
+                    console.log('Property ID:', property.id);
+                    updatePropertyStatus(property.id, 'active');
+                  
                   });
 
                 
@@ -1507,6 +1509,7 @@
 
 function updatePropertyStatus(propertyId, status) {
   // Get the CSRF token from the cookie
+  console.log(propertyId)
   const csrftoken = $("[name=csrfmiddlewaretoken]").val();
 
   // Make an AJAX request to update the property status

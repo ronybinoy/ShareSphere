@@ -261,12 +261,12 @@
                         <h4>Course Information</h4>
                         <div class="form-group">
                             <label for="courseName">Course Name</label>
-                            <input type="text" class="form-control" id="courseName" name="course_name" value=""
+                            <input type="text" class="form-control" id="courseName" name="course_name" value="{{course.course_name}}"
                                 readonly />
                         </div>
                         <div class="form-group">
                             <label for="Institutename">Institute Name</label>
-                            <input type="text" class="form-control" id="Institutename" name="Institute_name" value=""
+                            <input type="text" class="form-control" id="Institutename" name="Institute_name" value="{{course.user_id}}"
                                 readonly />
                         </div>
                         <!-- Personal Details -->
@@ -470,7 +470,7 @@
                                         <p class="card-text">
                                             <strong>Fees Per Semester:</strong> ${course.fees !== undefined ? `$${course.fees.toLocaleString()}` : '$540'}
                                         </p>
-                                                                                <p class="card-text"><strong>Application Deadline:</strong> ${course.appdeadline}</p>
+                                        <p class="card-text"><strong>Application Deadline:</strong> ${course.appdeadline}</p>
                                         <p class="card-text"><strong>College Location:</strong> ${course.college_location}</p>
                                         <p class="card-text"><strong>Application Fee:</strong> $10</p>
                                         

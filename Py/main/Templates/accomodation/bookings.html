@@ -145,7 +145,7 @@
                         
                         {% if booking.check_in_date == current_date %}
                           {% if booking.property.status != 'checkin' %}
-                              <form action="{% url 'update_property_status' booking.property.id %}" method="post">
+                              <form action="{% url 'update_property_statuss' booking.property.id %}" method="post">
                                   {% csrf_token %}
                                   <input type="hidden" name="status" value="checkin">
                                   <button type="submit" class="btn btn-success mb-2">Check-In</button>
@@ -158,7 +158,7 @@
                       <script>
                           // JavaScript to disable the button and change its text if the property status is 'checkedin'
                           {% if booking.property.status == 'checkedin' %}
-                              const form = document.querySelector('form[action="{% url 'update_property_status' booking.property.id %}"]');
+                              const form = document.querySelector('form[action="{% url 'update_property_statuss' booking.property.id %}"]');
                               const button = form.querySelector('button');
                               button.disabled = true;
                               button.textContent = 'Checked In';
